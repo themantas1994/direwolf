@@ -87,6 +87,13 @@ recovered by repair are counted separately from the plain decoder's
 
 Other modes: `--mode 300|1200|2400|4800|9600`.  Other sample rates: `--rate 96000` etc.
 
+CPU time and peak memory of several builds on the same audio (`cpu_mem.py`, 5 runs
+of each, median; run alone on the machine):
+
+    python3 test/benchmark/cpu_mem.py --atest old=../old/build/src/atest \
+        --atest new=build/src/atest --gen-packets build/src/gen_packets \
+        --work /tmp/cpumem --out cpu_mem.csv
+
 Measure with the independent modulator, at another sample rate:
 
     python3 test/benchmark/rx_sensitivity.py --atest new=build/src/atest \

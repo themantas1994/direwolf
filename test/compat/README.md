@@ -12,6 +12,7 @@ can't pass by agreeing with each other.  Results of the last full run are in
 | `make_golden.py`, `golden/ax25_vectors.txt` | 749 AX.25 test vectors from `ax25ref.py`, checked by the `ax25goldentest` ctest (`src/ax25golden_test.c`). |
 | `interop.py` | Modem level: transmit audio identical between builds; every build decodes every build's audio, every frame bit exact; independent modulators; multimon-ng as an independent decoder; noisy audio. |
 | `interfaces.py`, `dw_session.py` | Real `direwolf` processes: KISS TCP / AGW / KISS pty / serial KISS receive and transmit, digipeater, beacons, IGate (local fake APRS-IS), configuration files, connected mode between two instances, stalled clients. |
+| `udp_audio.py` | Audio over UDP (`ADEVICE udp:`) in real time gives the same frames as stdin, for every build; decode latency at 1200 and 9600 bd. |
 | `aprs_decode_compare.py` | APRS decoding of 12000 packets (corpus, truncations, substitutions) compared between builds, crash detection, valgrind, positions checked against aprslib. |
 | `configs/kitchen_sink.conf` | Configuration using many directives, for the config comparison. |
 
@@ -37,6 +38,11 @@ where that user can read them:
 
 `--only stall` (as root) checks that a client that stops reading does not stop
 frames reaching other clients; it lowers `net.ipv4.tcp_wmem` while it runs.
+
+    DW_RUN_AS=nobody python3 test/compat/udp_audio.py --build fork=/path/to/fork-build \
+        --build upstream=/path/to/upstream-build --work /tmp/dwrun/udp some_1200bd.wav
+
+Run `udp_audio.py` and the stall test alone on the machine: they depend on timing.
 
 Optional: `numpy` (modulators), `multimon-ng` (independent decoder),
 `aprslib` (independent APRS parser), `valgrind`, `socat` (serial KISS).
