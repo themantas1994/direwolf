@@ -147,7 +147,8 @@ struct demodulator_state_s
 
 	float pre_filter[MAX_FILTER_SIZE] __attribute__((aligned(16)));
 
-	float raw_cb[MAX_FILTER_SIZE] __attribute__((aligned(16)));	// audio in,  need better name.
+	float raw_cb[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));	// audio in,  need better name.
+	int raw_cb_idx;			// AFSK: circular buffer position.  See push_sample in demod_afsk.c.
 
 /*
  * The rest are continuously updated.
@@ -277,20 +278,23 @@ struct demodulator_state_s
 	    unsigned int c_osc_phase;		// Phase for Center frequency local oscillator.
 	    unsigned int c_osc_delta;		// How much to change for each audio sample.
 
+	    int lp_idx;				// Circular buffer position for the *_raw arrays below.
+						// Each holds 2 * lp_filter_taps values.  See push_sample in demod_afsk.c.
+
 	    // Need two mixers for profile "A".
 
-	    float m_I_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
-	    float m_Q_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float m_I_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float m_Q_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
 
-	    float s_I_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
-	    float s_Q_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float s_I_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float s_Q_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
 
 	    // Only need one mixer for profile "B".  Reuse the same storage?
 
 //#define c_I_raw m_I_raw
 //#define c_Q_raw m_Q_raw
-	    float c_I_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
-	    float c_Q_raw[MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float c_I_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
+	    float c_Q_raw[2*MAX_FILTER_SIZE] __attribute__((aligned(16)));
 
 	    int use_rrc;		// Use RRC rather than generic low pass.
 

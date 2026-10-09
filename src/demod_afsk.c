@@ -104,13 +104,38 @@ static inline float fast_hypot(float x, float y)
 }
 
 
-/* Add sample to buffer and shift the rest down. */
+/*
+ * Delay lines for the FIR filters.
+ *
+ * convolve() wants the most recent 'size' samples, newest first.
+ * This used to be done by moving all of the older samples down, with memmove,
+ * for every audio sample and every filter.  That was about 14% of the CPU time
+ * for the default "A+" demodulator.
+ *
+ * Instead, each buffer holds 2 * size values and each sample is stored twice,
+ * 'size' apart, so the most recent 'size' samples are always contiguous,
+ * starting at the current position.  The filter sees exactly the same values.
+ *
+ * cb_next steps the position back by one, wrapping around.  Buffers with the
+ * same size can share a position.  push_sample stores a value and returns a
+ * pointer to the newest-first window.
+ */
 
 __attribute__((hot)) __attribute__((always_inline))
-static inline void push_sample (float val, float *buff, int size)
+static inline int cb_next (int *pidx, int size)
 {
-	memmove(buff+1,buff,(size-1)*sizeof(float));
-	buff[0] = val; 
+	int i = *pidx - 1;
+	if (i < 0 || i >= size) i = size - 1;
+	*pidx = i;
+	return (i);
+}
+
+__attribute__((hot)) __attribute__((always_inline))
+static inline float *push_sample (float val, float *buff, int size, int i)
+{
+	buff[i] = val;
+	buff[i + size] = val;
+	return (buff + i);
 }
 
 
@@ -636,24 +661,26 @@ void demod_afsk_process_sample (int chan, int subchan, int sam, struct demodulat
 				//	Cleaner & simpler than earlier 'A' thru 'E'
 
 	    if (D->use_prefilter) {
-	      push_sample (fsam, D->raw_cb, D->pre_filter_taps);
-	      fsam = convolve (D->raw_cb, D->pre_filter, D->pre_filter_taps);
+	      int i = cb_next (&(D->raw_cb_idx), D->pre_filter_taps);
+	      fsam = convolve (push_sample (fsam, D->raw_cb, D->pre_filter_taps, i), D->pre_filter, D->pre_filter_taps);
 	    }
 
-	    push_sample (fsam * fcos256(D->u.afsk.m_osc_phase), D->u.afsk.m_I_raw, D->lp_filter_taps);
-	    push_sample (fsam * fsin256(D->u.afsk.m_osc_phase), D->u.afsk.m_Q_raw, D->lp_filter_taps);
+	    int k = cb_next (&(D->u.afsk.lp_idx), D->lp_filter_taps);
+
+	    float *m_I_raw = push_sample (fsam * fcos256(D->u.afsk.m_osc_phase), D->u.afsk.m_I_raw, D->lp_filter_taps, k);
+	    float *m_Q_raw = push_sample (fsam * fsin256(D->u.afsk.m_osc_phase), D->u.afsk.m_Q_raw, D->lp_filter_taps, k);
 	    D->u.afsk.m_osc_phase += D->u.afsk.m_osc_delta;
 
-	    push_sample (fsam * fcos256(D->u.afsk.s_osc_phase), D->u.afsk.s_I_raw, D->lp_filter_taps);
-	    push_sample (fsam * fsin256(D->u.afsk.s_osc_phase), D->u.afsk.s_Q_raw, D->lp_filter_taps);
+	    float *s_I_raw = push_sample (fsam * fcos256(D->u.afsk.s_osc_phase), D->u.afsk.s_I_raw, D->lp_filter_taps, k);
+	    float *s_Q_raw = push_sample (fsam * fsin256(D->u.afsk.s_osc_phase), D->u.afsk.s_Q_raw, D->lp_filter_taps, k);
 	    D->u.afsk.s_osc_phase += D->u.afsk.s_osc_delta;
 
-	    float m_I = convolve (D->u.afsk.m_I_raw, D->lp_filter, D->lp_filter_taps);
-	    float m_Q = convolve (D->u.afsk.m_Q_raw, D->lp_filter, D->lp_filter_taps);
+	    float m_I = convolve (m_I_raw, D->lp_filter, D->lp_filter_taps);
+	    float m_Q = convolve (m_Q_raw, D->lp_filter, D->lp_filter_taps);
 	    float m_amp = fast_hypot(m_I, m_Q);
 
-	    float s_I = convolve (D->u.afsk.s_I_raw, D->lp_filter, D->lp_filter_taps);
-	    float s_Q = convolve (D->u.afsk.s_Q_raw, D->lp_filter, D->lp_filter_taps);
+	    float s_I = convolve (s_I_raw, D->lp_filter, D->lp_filter_taps);
+	    float s_Q = convolve (s_Q_raw, D->lp_filter, D->lp_filter_taps);
 	    float s_amp = fast_hypot(s_I, s_Q);
 
 /*
@@ -738,16 +765,18 @@ void demod_afsk_process_sample (int chan, int subchan, int sam, struct demodulat
 				// New - Convert frequency to a value proportional to frequency.
 
 	  if (D->use_prefilter) {
-	    push_sample (fsam, D->raw_cb, D->pre_filter_taps);
-	    fsam = convolve (D->raw_cb, D->pre_filter, D->pre_filter_taps);
+	    int i = cb_next (&(D->raw_cb_idx), D->pre_filter_taps);
+	    fsam = convolve (push_sample (fsam, D->raw_cb, D->pre_filter_taps, i), D->pre_filter, D->pre_filter_taps);
 	  }
 
-	  push_sample (fsam * fcos256(D->u.afsk.c_osc_phase), D->u.afsk.c_I_raw, D->lp_filter_taps);
-	  push_sample (fsam * fsin256(D->u.afsk.c_osc_phase), D->u.afsk.c_Q_raw, D->lp_filter_taps);
+	  int k = cb_next (&(D->u.afsk.lp_idx), D->lp_filter_taps);
+
+	  float *c_I_raw = push_sample (fsam * fcos256(D->u.afsk.c_osc_phase), D->u.afsk.c_I_raw, D->lp_filter_taps, k);
+	  float *c_Q_raw = push_sample (fsam * fsin256(D->u.afsk.c_osc_phase), D->u.afsk.c_Q_raw, D->lp_filter_taps, k);
 	  D->u.afsk.c_osc_phase += D->u.afsk.c_osc_delta;
 
-	  float c_I = convolve (D->u.afsk.c_I_raw, D->lp_filter, D->lp_filter_taps);
-	  float c_Q = convolve (D->u.afsk.c_Q_raw, D->lp_filter, D->lp_filter_taps);
+	  float c_I = convolve (c_I_raw, D->lp_filter, D->lp_filter_taps);
+	  float c_Q = convolve (c_Q_raw, D->lp_filter, D->lp_filter_taps);
 
 	  float phase = atan2f (c_Q, c_I);
 	  float rate = phase - D->u.afsk.prev_phase; 
