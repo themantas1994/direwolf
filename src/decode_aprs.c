@@ -2634,11 +2634,6 @@ static void aprs_general_query (decode_aprs_t *A, char *info, int ilen, int quie
 	*q2 = '\0';
 	strlcpy (A->g_query_type, stemp+1, sizeof(A->g_query_type));
 
-// TODO: remove debug
-
-	text_color_set(DW_COLOR_DEBUG);
-	dw_printf("DEBUG: General Query type = \"%s\"\n", A->g_query_type);
-
 	p = q2 + 1;
 	if (strlen(p) == 0) {
 	  return;
@@ -2711,11 +2706,6 @@ static void aprs_general_query (decode_aprs_t *A, char *info, int ilen, int quie
 	  return;
 	}
 	
-// TODO: remove debug
-
-	text_color_set(DW_COLOR_DEBUG);
-	dw_printf("DEBUG: General Query footprint = %.6f %.6f %.2f\n", lat, lon, radius);
-
 
 } /* end aprs_general_query */
 
@@ -3985,13 +3975,12 @@ time_t get_timestamp (decode_aprs_t *A, char *p)
 	}
 
 	struct tm *ptm;
-
+	struct tm tm_buf;
 	time_t ts;
 
 	ts = time(NULL);
-	// FIXME: use gmtime_r instead.
-	// Besides not being thread safe, gmtime could possibly return null.
-	ptm = gmtime(&ts);
+	ptm = gmtime_r(&ts, &tm_buf);
+	if (ptm == NULL) return ((time_t)0);
 
 	pdhm = (void *)p;
 	phms = (void *)p;
@@ -4504,7 +4493,7 @@ static void process_comment (decode_aprs_t *A, char *pstart, int clen)
 	    dw_printf("%s:%d: %s\n", __FILE__, __LINE__, emsg);
 	  }
 
-	  e = regcomp (&bad_tone_re, "(^|[^0-9.])([6789][0-9]\\.[0-9]|[12][0-9][0-9]\\.[0-9]|67|77|100|123)($|[^0-9.])", REG_EXTENDED);
+	  e = regcomp (&bad_tone_re, "(^|[^0-9.])([6789][0-9]\\.[0-9]|[12][0-9][0-9]\\.[0-9]|67|77|100|123)($|[^0-9.%])", REG_EXTENDED);
 	  if (e) {
 	    regerror (e, &bad_tone_re, emsg, sizeof(emsg));
 	    dw_printf("%s:%d: %s\n", __FILE__, __LINE__, emsg);
@@ -4903,9 +4892,7 @@ static void process_comment (decode_aprs_t *A, char *pstart, int clen)
 	  }
 	}
 
-// TODO: Don't complain if followed by %.  e.g. Battery voltage 100%.
-
-	if (A->g_tone == G_UNKNOWN && regexec (&bad_tone_re, A->g_comment, MAXMATCH, match, 0) == 0) 
+	if (A->g_tone == G_UNKNOWN && regexec (&bad_tone_re, A->g_comment, MAXMATCH, match, 0) == 0)
 	{
 	  char bad1[30];	/* original 99.9 or 999.9 format or one of 67 77 100 123 */
 	  char bad2[30];	/* 99.9 or 999.9 format.  ".0" appended for special cases. */

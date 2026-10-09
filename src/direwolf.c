@@ -1635,8 +1635,12 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 /* This was an experimental feature never documented in the User Guide. */
 /* Initial feedback was positive but it fell by the wayside. */
 /* Should follow up with testers and either document this or clean out the clutter. */
+/* Like the digipeaters, don't retransmit frames that had bits changed (FIX_BITS, */
+/* SOFT_FIX) or a bad FCS (PASSALL). */
 
-	  digi_regen (chan, pp);
+	  if (retries == RETRY_NONE || fec_type == fec_type_fx25 || fec_type == fec_type_il2p) {
+	    digi_regen (chan, pp);
+	  }
 
 
 /*

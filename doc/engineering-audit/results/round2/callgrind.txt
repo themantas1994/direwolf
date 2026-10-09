@@ -1,0 +1,14 @@
+Callgrind instruction counts, 60 s clips (cg_sig: 1200 bps signal at Eb/N0 12 dB; cg_noise: white noise), atest -F0.
+old / PR#1 / new-before-refactor:
+| 1200 A+ signal | 8.25G | 7.02G | 7.15G | -13.3% | +1.86% |
+| 1200 A signal | 6.87G | 5.63G | 5.76G | -16.1% | +2.30% |
+| 1200 A+ noise | 8.24G | 7.01G | 7.13G | -13.4% | +1.80% |
+| 9600 noise | 2.45G | 2.53G | 2.59G | +5.8% | +2.59% |
+| 2400 noise | 9.61G | 9.66G | 9.74G | +1.4% | +0.88% |
+
+new (final, deadline instead of per-sample call), exact counts:
+1200 A+ signal 7033597750
+1200 A signal 5647085666
+1200 A+ noise 7019488441
+9600 noise 2476900873
+2400 noise 9622677476

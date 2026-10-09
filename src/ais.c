@@ -141,11 +141,12 @@ static void set_field (unsigned char *base, unsigned int start, unsigned int len
 
 static int get_field_signed (unsigned char *base, unsigned int start, unsigned int len)
 {
-	int result = (int) get_field(base, start, len);
-	// Sign extend.
-	result <<= (32 - len);
-	result >>= (32 - len);
-	return (result);
+	unsigned int u = get_field(base, start, len);
+	unsigned int sign = 1u << (len - 1);		// len is less than 32.
+
+	// Sign extend.  Shifting a value into the sign bit of an int,
+	// as this used to do, is undefined behavior.
+	return ((u & sign) ? (int)(u - sign) - (int)sign : (int)u);
 }
 
 static double get_field_lat (unsigned char *base, unsigned int start, unsigned int len)
@@ -381,7 +382,8 @@ int ais_parse (char *sentence, int quiet, char *descr, int descr_size, char *mss
         unsigned char cs = 0;
         char *p;
 
-        for (p = stemp+1; *p != '*' && *p != '\0'; p++) {
+        // Skip the leading ! but not past the end of an empty string.
+        for (p = stemp[0] != '\0' ? stemp+1 : stemp; *p != '*' && *p != '\0'; p++) {
           cs ^= *p;
         }
 
@@ -436,6 +438,14 @@ int ais_parse (char *sentence, int quiet, char *descr, int descr_size, char *mss
 	  if ( ! quiet) {
 	    text_color_set (DW_COLOR_ERROR);
             dw_printf("Payload is missing from AIS sentence.\n");
+	  }
+	  return (-1);
+	}
+
+	if (fill_bits == NULL) {
+	  if ( ! quiet) {
+	    text_color_set (DW_COLOR_ERROR);
+            dw_printf("Number of filler bits is missing from AIS sentence.\n");
 	  }
 	  return (-1);
 	}
@@ -706,5 +716,77 @@ static void get_ship_data(char *mssi, char *comment, int comment_size)
 	}
 }
 
+
+
+/*-------------------------------------------------------------------
+ *
+ * Name:	main
+ *
+ * Purpose:	Unit test, aistest in ctest.
+ *
+ *--------------------------------------------------------------------*/
+
+#if AISTEST
+
+#define NEAR(a,b) ((a) - (b) < 0.000001 && (b) - (a) < 0.000001)
+
+/* Parse body, which starts with !, after appending the NMEA checksum. */
+
+static int try_parse (const char *body, double *lat, double *lon, char *mssi)
+{
+	char sentence[NMEA_MAX_LEN];
+	char descr[80], comment[80];
+	float knots, course, alt;
+	char symtab, symbol;
+	unsigned char cs = 0;
+
+	for (const char *p = body + 1; *p != '\0'; p++) {	// body is at least "!"
+	  cs ^= *p;
+	}
+	snprintf (sentence, sizeof(sentence), "%s*%02X", body, cs);
+	return (ais_parse (sentence, 0, descr, sizeof(descr), mssi, 16, lat, lon,
+			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)));
+}
+
+int main (int argc, char *argv[])
+{
+	double lat, lon;
+	char mssi[16];
+	(void) argc; (void) argv;
+
+	// Class A position report.  N 37 48.1271, W 122 20.4971.
+	// West longitude is negative, which tests the sign extension.
+
+	assert (try_parse ("!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa,0", &lat, &lon, mssi) == 0);
+	dw_printf ("%s %.6f %.6f\n", mssi, lat, lon);
+	assert (strcmp(mssi, "366053209") == 0);
+	assert (NEAR(lat, 37 + 48.1271 / 60));
+	assert (NEAR(lon, -(122 + 20.4971 / 60)));
+
+	// Malformed sentences must be rejected, not crash.
+
+	assert (try_parse ("!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa", &lat, &lon, mssi) == -1);	// no fill bits field
+	assert (try_parse ("!AIVDM,1,1,,A", &lat, &lon, mssi) == -1);	// no payload
+	assert (try_parse ("!AIVDM", &lat, &lon, mssi) == -1);
+	assert (try_parse ("!", &lat, &lon, mssi) == -1);
+
+	char descr[80], comment[80];
+	float knots, course, alt;
+	char symtab, symbol;
+	char bad_cs[] = "!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa,0*00";
+	assert (ais_parse (bad_cs, 1, descr, sizeof(descr), mssi, sizeof(mssi), &lat, &lon,
+			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
+	char no_cs[] = "!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa,0";
+	assert (ais_parse (no_cs, 1, descr, sizeof(descr), mssi, sizeof(mssi), &lat, &lon,
+			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
+	char empty[] = "";		// e.g. info part of a packet is just {DA
+	assert (ais_parse (empty, 1, descr, sizeof(descr), mssi, sizeof(mssi), &lat, &lon,
+			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
+
+	dw_printf ("AIS test passed.\n");
+	return (EXIT_SUCCESS);
+}
+
+#endif  /* AISTEST */
 
 // end ais.c

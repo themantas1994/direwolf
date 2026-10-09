@@ -30,13 +30,8 @@
  *
  *------------------------------------------------------------------*/
 
-//#define TEST 1		// Standalone test.   $ gcc -DTEST deviceid.c && ./a.out
+//#define TEST 1		// Standalone test, deviceidtest in ctest.
 
-
-#if TEST
-#define HAVE_STRLCPY 1		// prevent defining in direwolf.h
-#define HAVE_STRLCAT 1
-#endif
 
 #include "direwolf.h"
 
@@ -66,15 +61,7 @@ static void deviceid_term(void);
  *------------------------------------------------------------------*/
 
 #if TEST
-// So we don't need to link with any other files.
-#define dw_printf printf
-void text_color_set(dw_color_t)  { return; }
-void strlcpy(char *dst, char *src, size_t dlen) {
-	strcpy (dst, src);
-}
-void strlcat(char *dst, char *src, size_t dlen) {
-	strcat (dst, src);
-}
+// Link with textcolor.c and, if the C library doesn't have strlcpy/strlcat, the misc library.
 
 
 int main (int argc, char *argv[])
@@ -141,6 +128,35 @@ int main (int argc, char *argv[])
 	dw_printf ("%s %s\n", comment_out, device);
 	assert (strcmp(comment_out, "") == 0);
 	assert (strcmp(device, "UNKNOWN vendor/model") == 0);
+
+// Too short for the prefix and suffix.  These used to look before the start of the comment.
+
+	deviceid_decode_mice ("`", comment_out, sizeof(comment_out), device, sizeof(device));
+	dw_printf ("%s %s\n", comment_out, device);
+	assert (strcmp(comment_out, "`") == 0);
+	assert (strcmp(device, "UNKNOWN vendor/model") == 0);
+
+	deviceid_decode_mice ("'", comment_out, sizeof(comment_out), device, sizeof(device));
+	dw_printf ("%s %s\n", comment_out, device);
+	assert (strcmp(comment_out, "'") == 0);
+	assert (strcmp(device, "UNKNOWN vendor/model") == 0);
+
+	deviceid_decode_mice ("`_", comment_out, sizeof(comment_out), device, sizeof(device));
+	dw_printf ("%s %s\n", comment_out, device);
+	assert (strcmp(comment_out, "`_") == 0);
+	assert (strcmp(device, "UNKNOWN vendor/model") == 0);
+
+	deviceid_decode_mice ("]=", comment_out, sizeof(comment_out), device, sizeof(device));
+	dw_printf ("%s %s\n", comment_out, device);
+	assert (strcmp(comment_out, "") == 0);
+	assert (strcmp(device, "Kenwood TM-D710") == 0);
+
+// Shortest valid with suffix.
+
+	deviceid_decode_mice ("`_\"", comment_out, sizeof(comment_out), device, sizeof(device));
+	dw_printf ("%s %s\n", comment_out, device);
+	assert (strcmp(comment_out, "") == 0);
+	assert (strcmp(device, "Yaesu FTM-350") == 0);
 
 // Tocall
 
@@ -694,6 +710,17 @@ void deviceid_decode_mice (char *comment, char *trimmed, size_t trimmed_size, ch
 // For others, it must be ` or ' to indicate whether messaging capable.
 
 	for (int n = 0; n < mice_count; n++) {
+
+	  // The prefix (one character, from the table or ` or ') and the suffix
+	  // must both fit, without overlapping.  Otherwise we would look before
+	  // the beginning of the comment for the suffix, and the trimmed length
+	  // below would be negative.  e.g. a comment consisting of just ` or '.
+
+	  size_t prefix_len = strlen(pmice[n].prefix) != 0 ? strlen(pmice[n].prefix) : 1;
+	  if (strlen(comment) < prefix_len + strlen(pmice[n].suffix)) {
+	    continue;
+	  }
+
 	  if ((strlen(pmice[n].prefix) != 0 &&					// Legacy
 	      strncmp_z(comment, 						// prefix from table
 		  pmice[n].prefix,

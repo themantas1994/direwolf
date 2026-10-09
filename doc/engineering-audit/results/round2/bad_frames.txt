@@ -1,0 +1,3 @@
+impulse  pr1 Eb/N0=15.0 repaired=1
+  got:  'N0CALL-5>APDWBN:>00069 tTVQ@0s#S8U.Ool1-i.D n,/=.Nubqu(RuVZ=MXQPfyB@e#5lycM-gJ0n1UpWTvI-)AUKeu#@X 7AKxsE/@Udd<0x0a>'
+  sent: 'N0CALL-5>APDWBN:>00069 tTVQ@0s#S8U.Oel1-i.B n,/=.Nubqu(RuVZ=MXQPfyB@e#5lycM-gJ0n1UpWTvI-)AUKeu#@W 7AKxsE/@Udd<0x0a>'
