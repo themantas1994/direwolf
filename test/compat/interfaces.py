@@ -288,7 +288,7 @@ TX_MODES = [
 
 def run_tx(bindir, name, how, frames, modem, rate, extra, work):
     tx = txfile(name + how + modem.replace(" ", ""))
-    conf, kp, ap = base_conf(rate, modem, tx, ["TXDELAY 20", "TXTAIL 5", "PERSIST 255", "SLOTTIME 1"] + extra)
+    conf, kp, ap = base_conf(rate, modem, tx, ["TXDELAY 20", "TXTAIL 5"] + extra)
     procs = []
     if how == "serial":
         a, b = os.path.join(TXDIR, "sa"), os.path.join(TXDIR, "sb")
@@ -464,7 +464,7 @@ def run_conf_tx(bindir, name, conf_extra, rx_raw, rate, work, tag, quiet=4.0, wa
     decoded and transmitting has stopped.  Returns the transmit audio file and log.
     """
     tx = txfile(tag + name)
-    conf, kp, ap = base_conf(rate, "1200", tx, ["TXDELAY 20", "TXTAIL 5", "PERSIST 255", "SLOTTIME 1"] + conf_extra)
+    conf, kp, ap = base_conf(rate, "1200", tx, ["TXDELAY 20", "TXTAIL 5"] + conf_extra)
     dw = D.Direwolf(exe(bindir, "direwolf"), conf, work, name + "_" + tag)
     try:
         time.sleep(1.0 + wait_first)
@@ -540,7 +540,7 @@ def t_beacon(R, dut, refs, work):
     conf = ['PBEACON delay=0:01 every=10 sendto=0 lat=42^37.14N long=071^20.83W symbol="digi" overlay=S '
             'power=50 height=20 gain=4 comment="PBEACON test" via=WIDE1-1',
             'PBEACON delay=0:01 every=10 sendto=0 compress=1 lat=42^37.14N long=071^20.83W symbol=car '
-            'speed=30 course=90 altitude=1000 comment="compressed"',
+            'altitude=1000 comment="compressed"',
             'CBEACON delay=0:01 every=10 sendto=0 info=">Custom beacon status"',
             'PBEACON delay=0:01 every=10 sendto=0 lat=42^37.14N long=071^20.83W symbol=/# '
             'freq=146.955 tone=74.4 offset=-0.600 comment="freq"',
