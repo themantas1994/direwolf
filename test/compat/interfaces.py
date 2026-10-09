@@ -403,6 +403,39 @@ def t_tx(R, dut, refs, work, how_list=("kiss", "agw", "pty", "serial")):
                       "%d/%d frames%s" % (found, len(frames), " extra %d" % extra_n if extra_n else ""))
 
 
+def t_fallback(R, dut, refs, work):
+    """
+    Frames too long for the FEC layer are sent as plain AX.25.
+      FX.25 (> ~239 bytes) right after an FX.25 frame: upstream loses it (NRZI
+      level not shared between the senders; fixed in the fork).
+      IL2P at 9600 bd (> 1023 bytes): sent without the G3RUH scrambler, so no
+      9600 receiver decodes it.  Upstream defect, not fixed in the fork.
+    """
+    allbins = dict([dut] + list(refs.items()))
+    small = ax25ref.tnc2_to_frame("N0CALL>APRS:>small")
+    big = ax25ref.tnc2_to_frame("N0CALL>APRS:" + "0123456789ABCDEF" * 16 + "\n")
+    huge = ax25ref.tnc2_to_frame("N0CALL>APRS:" + "0123456789abcdef" * 70)
+    cases = [("FX.25 1200, AX.25 fallback after FX.25", [small, big], "1200", 44100, ["FX25TX 16"], False, True),
+             ("FX.25 9600, AX.25 fallback after FX.25", [small, big, small, big], "9600", 48000, ["FX25TX 32"], False, True),
+             ("IL2P 1200, AX.25 fallback", [small, huge], "1200", 44100, ["IL2PTX 1"], True, True),
+             ("IL2P 9600, AX.25 fallback", [small, huge], "9600", 48000, ["IL2PTX 1"], True, False)]
+    for title, frames, modem, rate, extra, il2p, fixed_in_fork in cases:
+        exp = expected_after(frames, il2p)
+        for n, b in allbins.items():
+            tx, _ = run_tx(b, n, "kiss", frames, modem, rate, extra, os.path.join(work, "fallback"))
+            got = decode_raw({n: b}, tx, rate, ["-B", modem], os.path.join(work, "fallback"),
+                             "fb_%s_%s" % (n, re.sub(r"\W+", "_", title)))[n]
+            found, extra_n = compare_set(got, exp)
+            ok = found == len(exp)
+            if ok:
+                status = "PASS"
+            elif n != dut[0] or not fixed_in_fork:
+                status = "UPSTREAM-DEFECT"
+            else:
+                status = "FAIL"
+            R.add("tx-fallback", "%s: %s" % (title, n), status, "%d/%d frames decoded" % (found, len(exp)))
+
+
 # --------------------------------------------------------------------------
 # Digipeaters, beacons
 # --------------------------------------------------------------------------
@@ -840,6 +873,7 @@ def main():
         t_rx(R, dut, refs, a.work)
     if "tx" in only:
         t_tx(R, dut, refs, a.work)
+        t_fallback(R, dut, refs, a.work)
     if "digi" in only:
         t_digi(R, dut, refs, a.work)
     if "beacon" in only:
