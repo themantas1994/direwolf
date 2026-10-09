@@ -399,6 +399,25 @@ target_link_libraries(xidtest
   )
 
 
+# Unit Test for device identification (tocalls.yaml, MIC-E comment).
+list(APPEND deviceidtest_SOURCES
+  ${CUSTOM_SRC_DIR}/deviceid.c
+  ${CUSTOM_SRC_DIR}/textcolor.c
+  )
+
+add_executable(deviceidtest
+  ${deviceidtest_SOURCES}
+  )
+
+set_target_properties(deviceidtest
+  PROPERTIES COMPILE_FLAGS "-DTEST"
+  )
+
+target_link_libraries(deviceidtest
+  ${MISC_LIBRARIES}
+  )
+
+
 # Unit Test for DTMF encode/decode.
 list(APPEND dtmftest_SOURCES
   ${CUSTOM_SRC_DIR}/dtmf.c
@@ -494,6 +513,7 @@ add_test(kisstest kisstest)
 add_test(pad2test pad2test)
 add_test(xidtest xidtest)
 add_test(dtmftest dtmftest)
+add_test(NAME deviceidtest COMMAND deviceidtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../data)
 
 add_test(check-fx25 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-FX25_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-il2p "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-IL2P_FILE}${CUSTOM_SCRIPT_SUFFIX}")
