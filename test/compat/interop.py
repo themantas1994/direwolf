@@ -176,14 +176,15 @@ class Results:
         self.rows = []
         self.failures = 0
 
-    def add(self, test, mode, rate, tx, rx, n_ok, n_exp, note="", fail=None):
+    def add(self, test, mode, rate, tx, rx, n_ok, n_exp, note="", fail=None, status=None):
         ok = n_ok == n_exp if fail is None else not fail
         if not ok:
             self.failures += 1
+        status = status or ("PASS" if ok else "FAIL")
         self.rows.append(dict(test=test, mode=mode, rate=rate, tx=tx, rx=rx,
-                              ok=n_ok, expected=n_exp, status="PASS" if ok else "FAIL", note=note))
+                              ok=n_ok, expected=n_exp, status=status, note=note))
         print("%-5s %-12s %-20s %6s  tx=%-14s rx=%-16s %4d/%-4d %s" %
-              ("PASS" if ok else "FAIL", test, mode, rate, tx, rx, n_ok, n_exp, note), flush=True)
+              (status, test, mode, rate, tx, rx, n_ok, n_exp, note), flush=True)
 
 
 def il2p_expected(frame):
@@ -230,12 +231,12 @@ def main():
     ap.add_argument("--quick", action="store_true", help="44.1 and 48 kHz only")
     ap.add_argument("--csv")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 2)
-    ap.add_argument("--only", default="", help="comma separated: tx,cross,indep,multimon,noise")
+    ap.add_argument("--only", default="", help="comma separated: tx,cross,indep,multimon,morse,noise")
     a = ap.parse_args()
 
     builds = dict(b.split("=", 1) for b in a.build)
     os.makedirs(a.out, exist_ok=True)
-    only = set(a.only.split(",")) if a.only else {"tx", "cross", "indep", "multimon", "noise"}
+    only = set(a.only.split(",")) if a.only else {"tx", "cross", "indep", "multimon", "morse", "noise"}
 
     corpus = ax25ref.read_corpus(a.corpus)
     corpus_file = os.path.join(a.out, "corpus.txt")
@@ -275,7 +276,8 @@ def main():
                         # cross-decode below checks the result is still compatible.
                         R.add("tx-identical", mode, rate, "all", "-", 0, 0,
                               "differs as expected (FX.25 NRZI continuity fix) " +
-                              " ".join("%s:%s" % (n, s[:8]) for n, s in sums.items()), fail=False)
+                              " ".join("%s:%s" % (n, s[:8]) for n, s in sums.items()), fail=False,
+                              status="EXPECTED-DIFF")
                     else:
                         R.add("tx-identical", mode, rate, "all", "-", sum(1 for s in sums.values() if s == ref), len(sums),
                               "md5 " + ref[:8] if same else " ".join("%s:%s" % (n, s[:8]) for n, s in sums.items()))
@@ -352,6 +354,26 @@ def main():
                     worse = [i for i in missed[n] if i not in missed.get("ax25ref", [])]
                     R.add("multimon-cmp", mode, 22050, n, "vs ax25ref audio", len(exp_txt) - len(worse), len(exp_txt),
                           "missed only from Dire Wolf audio: %s" % worse if worse else "same or better than independent audio")
+
+    # ---------------- Morse code (CW identification) ----------------
+    # multimon-ng's MORSE_CW decoder is independent of Dire Wolf.  Upstream 1.8.2
+    # sends '-' as -...- ('=') because morse.c had two entries for it (upstream
+    # PR #597, in dev); the fork has the fix.
+    if "morse" in only and shutil.which("multimon-ng"):
+        text = "N0CALL-1 W1AW/7 TEST-2 E"     # trailing E: the decoder drops the last character
+        for n, d in builds.items():
+            w = os.path.join(a.out, "morse_%s.wav" % n)
+            cmd = [os.path.join(d, "src", "gen_packets"), "-M", "15", "-r", "22050", "-o", w, "-"]
+            subprocess.run(cmd, input=text.encode(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            with wave.open(w) as wf:
+                raw = wf.readframes(wf.getnframes())
+            rc, out = run(["multimon-ng", "-q", "-a", "MORSE_CW", "-t", "raw", "-"], inp=raw)
+            got = out.decode(errors="replace").replace("\n", "").strip()
+            ok = got.startswith(text[:-2])
+            known = not ok and n != a.dut
+            R.add("morse", "CW ident", 22050, n, "multimon-ng MORSE_CW", int(ok), 1,
+                  "decoded %r%s" % (got, " (upstream 1.8.2 defect, PR #597)" if known else ""),
+                  fail=(not ok and n == a.dut), status="UPSTREAM-DEFECT" if known else None)
 
     # ---------------- noise ----------------
     if "noise" in only:
