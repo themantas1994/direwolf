@@ -520,6 +520,8 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		error into a wrong frame; a pair can (about 1 in 32767).  Level 1,
  *		at most 8 checks, is the default.  Level 2, at most 16 + 66 checks,
  *		recovers more frames but measurably more corrupted ones too.
+ *		With multiple slicers, only the best matched slicer's copy of
+ *		the frame is repaired, for the same reason.
  *
  *		As with FIX_BITS, the result must pass the sanity test and is
  *		reported with the corresponding retry level, so it is displayed and

@@ -75,7 +75,7 @@ Compare soft decision repair settings of one build (`atest -S`):
         --atest S2=build/src/atest --gen-packets build/src/gen_packets \
         --ebn0 7:12:0.5 --frames 1000 --noise-only 3600
 
-Other modes: `--mode 300|1200|2400|4800|9600`.
+Other modes: `--mode 300|1200|2400|4800|9600`.  Other sample rates: `--rate 96000` etc.
 
 Results depend only on the binaries, the seed and the arguments, so a run can
 be repeated exactly.  Around the decoding threshold use at least a few hundred

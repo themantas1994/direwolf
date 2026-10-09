@@ -337,6 +337,7 @@ def main():
     ap.add_argument('--ebn0', default='4:14:1', help='Eb/N0 points in dB, "start:stop:step" or list')
     ap.add_argument('--noise-only', type=float, default=0.0, metavar='SECONDS',
                     help='also decode this much pure noise and count false decodes')
+    ap.add_argument('--rate', type=int, default=FS, help='audio sample rate (default %d)' % FS)
     ap.add_argument('--frames', type=int, default=200)
     ap.add_argument('--min-len', type=int, default=10, help='minimum info payload characters')
     ap.add_argument('--max-len', type=int, default=120, help='maximum info payload characters')
@@ -375,7 +376,7 @@ def main():
     # gen_packets keeps the trailing newline in the info part; atest shows it as <0x0a>.
     expected = {i: m + '<0x0a>' for i, m in enumerate(msgs)}
 
-    meta = dict(mode=a.mode, seed=a.seed, frames=a.frames, extra=' '.join(extra),
+    meta = dict(mode=a.mode, seed=a.seed, frames=a.frames, rate=a.rate, extra=' '.join(extra),
                 gen_packets_sha=file_sha(a.gen_packets))
     shas = {label: file_sha(path) for label, path in binaries}
 
@@ -392,8 +393,8 @@ def main():
             off = cond.get('tone_offset', 0)
             gen += ['-b', str(baud), '-m', str(round(mode['mark'] * ts + off)),
                     '-s', str(round(mode['space'] * ts + off))]
-        clean_wav = os.path.join(a.workdir, 'clean_%s_%s_%d_%d.wav' % (a.mode, cname, a.seed, a.frames))
-        subprocess.run([a.gen_packets, '-r', str(FS)] + gen + ['-o', clean_wav, msg_file],
+        clean_wav = os.path.join(a.workdir, 'clean_%s_%s_%d_%d_%d.wav' % (a.mode, cname, a.seed, a.frames, a.rate))
+        subprocess.run([a.gen_packets, '-r', str(a.rate)] + gen + ['-o', clean_wav, msg_file],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         fs, clean = read_wav(clean_wav)
         audio_s = len(clean) / fs
@@ -449,9 +450,9 @@ def main():
     fp_rows = []
     if a.noise_only > 0:
         rng = np.random.default_rng([a.seed, 0xF00D])
-        n = int(a.noise_only * FS)
+        n = int(a.noise_only * a.rate)
         wav = os.path.join(a.workdir, 'noise_only.wav')
-        write_wav(wav, FS, rng.standard_normal(n) * 3000.0)
+        write_wav(wav, a.rate, rng.standard_normal(n) * 3000.0)
         jobs = [dict(atest=path, label=label, wav=wav, prof=prof, cond='noise_only',
                      args=list(mode['rx']) + (['-P', prof] if prof else []) + ['-F0'] + extra)
                 for prof in profiles for label, path in binaries]
