@@ -95,6 +95,7 @@
 //Optimize processing by accessing directly to decoded bits
 #define RRBB_C 1
 #include "hdlc_rec2.h"
+#include "demod.h"
 #include "fcs_calc.h"
 #include "textcolor.h"
 #include "ax25_pad.h"
@@ -169,6 +170,8 @@ struct hdlc_state2_s {
 static int try_decode (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel, retry_conf_t retry_conf, int passall);
 
 static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel);
+
+static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel);
 
 static int sanity_check (unsigned char *buf, int blen, retry_t bits_flipped, enum sanity_e sanity_test);
 
@@ -279,6 +282,11 @@ void hdlc_rec2_block (rrbb_t block)
  * See if we can "fix" it.
  */
 	if (try_to_fix_quick_now (block, chan, subchan, slice, alevel)) {
+	  rrbb_delete (block);
+	  return;
+	}
+
+	if (try_soft_fix (block, chan, subchan, slice, alevel)) {
 	  rrbb_delete (block);
 	  return;
 	}
@@ -466,6 +474,182 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
 
 	return 0;
 }
+
+
+
+/***********************************************************************************
+ *
+ * Name:	try_soft_fix
+ *
+ * Purpose:	Soft decision repair of a frame with a bad FCS.
+ *
+ * Inputs:	block	- Stream of bits that might be a frame.
+ *			  Includes the demodulator's confidence for each bit.
+ *		chan	- Radio channel from which it was received.
+ *		subchan	- Which demodulator when more than one per channel.
+ *		slice	- Which slicer.
+ *		alevel	- Audio level for later reporting.
+ *
+ * Global In:	configuration soft_fix - 0 = off, 1 = single bits (default),
+ *				2 = more single bits and pairs.
+ *		configuration fix_bits - Don't repeat what try_to_fix_quick_now did.
+ *
+ * Returns:	1 for success.  "try_decode" has passed the result along to the
+ *				processing step.
+ *		0 for failure.
+ *
+ * Description:	Near the decoding threshold, most lost frames have only one or
+ *		two bits in error and those bits are nearly always the ones the
+ *		demodulator was least sure about.
+ *
+ *		FIX_BITS 1 tries inverting every bit of the frame, one at a time.
+ *		That finds single bit errors but needs hundreds of FCS checks per
+ *		frame, and each extra check is another chance of a corrupted frame
+ *		getting a good FCS by accident.
+ *
+ *		Here we invert only the least reliable bits, one at a time:
+ *		SOFT_FIX_SINGLES_1 of them for level 1, SOFT_FIX_SINGLES_2 for
+ *		level 2.  Level 2 then tries pairs from the SOFT_FIX_PAIRS least
+ *		reliable.  Bits with confidence above SOFT_FIX_MAX_QUALITY are
+ *		never touched.
+ *
+ *		Every FCS check on a frame that has more errors than we can fix
+ *		is about a 1 in 65536 chance of accepting it with a wrong bit.
+ *		After NRZI, the AX.25 FCS always catches one or two remaining
+ *		bit errors, so a single inversion can't turn a frame with one bit
+ *		error into a wrong frame; a pair can (about 1 in 32767).  Level 1,
+ *		at most 8 checks, is the default.  Level 2, at most 16 + 66 checks,
+ *		recovers more frames but measurably more corrupted ones too.
+ *		With multiple slicers, only the best matched slicer's copy of
+ *		the frame is repaired, for the same reason.
+ *
+ *		As with FIX_BITS, the result must pass the sanity test and is
+ *		reported with the corresponding retry level, so it is displayed and
+ *		sent to client applications but never digipeated or IGated.
+ *		Not used for AIS (no sanity test) or with sanity test NONE.
+ *
+ ***********************************************************************************/
+
+#define SOFT_FIX_SINGLES_1 8		/* Candidates for single bit inversion, level 1. */
+#define SOFT_FIX_SINGLES_2 16		/* Candidates for single bit inversion, level 2. */
+#define SOFT_FIX_PAIRS 12		/* Candidates for pairs, level 2.  Must be <= SOFT_FIX_SINGLES_2. */
+#define SOFT_FIX_MAX_QUALITY 30		/* Leave alone bits with confidence above this. */
+					/* (0 - 100 scale, as passed to hdlc_rec_bit.) */
+					/* In tests, every successful inversion was below 28. */
+
+static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel)
+{
+	int soft_fix = save_audio_config_p->achan[chan].soft_fix;
+	retry_t fix_bits = save_audio_config_p->achan[chan].fix_bits;
+	int cand[SOFT_FIX_SINGLES_2];	/* Bit positions, least reliable first. */
+	int ncand = 0;
+	int maxcand = soft_fix >= 2 ? SOFT_FIX_SINGLES_2 : SOFT_FIX_SINGLES_1;
+	int len = rrbb_get_len(block);
+	int i, a, b;
+	retry_conf_t retry_cfg;
+
+	if (soft_fix <= 0 ||
+	    fix_bits >= RETRY_INVERT_TWO_SEP ||		/* Already tried every single bit and pair. */
+	    save_audio_config_p->achan[chan].modem_type == MODEM_AIS ||
+	    save_audio_config_p->achan[chan].sanity_test == SANITY_NONE) {
+	  return 0;
+	}
+
+/*
+ * With multiple slicers, each one delivers its own copy of a frame.
+ * Repairing all of them multiplies the chances of a corrupted frame
+ * getting a good FCS by accident, so use only the best matched one.
+ */
+	if (save_audio_config_p->achan[chan].num_slicers > 1 &&
+	    slice != demod_best_slicer (chan, subchan)) {
+	  return 0;
+	}
+
+/*
+ * Find the least reliable bits.  Simple insertion into a short sorted list.
+ * Bit 0 is the last bit of the opening flag so leave it alone.
+ */
+	for (i = 1; i < len; i++) {
+	  int q = rrbb_get_quality(block, i);
+	  int j;
+
+	  if (q > SOFT_FIX_MAX_QUALITY) continue;
+	  if (ncand == maxcand && q >= rrbb_get_quality(block, cand[ncand-1])) continue;
+
+	  j = (ncand < maxcand) ? ncand++ : ncand - 1;
+	  while (j > 0 && rrbb_get_quality(block, cand[j-1]) > q) {
+	    cand[j] = cand[j-1];
+	    j--;
+	  }
+	  cand[j] = i;
+	}
+
+/*
+ * Single bits, least reliable first.
+ */
+	if (fix_bits < RETRY_INVERT_SINGLE) {
+	  memset (&retry_cfg, 0, sizeof(retry_cfg));
+	  retry_cfg.type = RETRY_TYPE_SWAP;
+	  retry_cfg.mode = RETRY_MODE_CONTIGUOUS;
+	  retry_cfg.retry = RETRY_INVERT_SINGLE;
+	  retry_cfg.u_bits.contig.nr_bits = 1;
+
+	  for (a = 0; a < ncand; a++) {
+	    retry_cfg.u_bits.contig.bit_idx = cand[a];
+	    if (try_decode (block, chan, subchan, slice, alevel, retry_cfg, 0)) {
+#if DEBUG
+	      text_color_set(DW_COLOR_DEBUG);
+	      dw_printf ("*** Soft fix: inverted bit %d (rank %d, quality %d) of %d ***\n",
+				cand[a], a, rrbb_get_quality(block, cand[a]), len);
+#endif
+	      return 1;
+	    }
+	  }
+	}
+
+	if (soft_fix < 2) {
+	  return 0;
+	}
+
+/*
+ * Pairs of bits.  Use the existing retry types so the result is
+ * reported and treated the same as from the FIX_BITS options.
+ */
+	for (a = 1; a < SOFT_FIX_PAIRS && a < ncand; a++) {
+	  for (b = 0; b < a; b++) {
+	    int x = cand[a] < cand[b] ? cand[a] : cand[b];
+	    int y = cand[a] < cand[b] ? cand[b] : cand[a];
+
+	    memset (&retry_cfg, 0, sizeof(retry_cfg));
+	    retry_cfg.type = RETRY_TYPE_SWAP;
+	    if (y == x + 1) {
+	      if (fix_bits >= RETRY_INVERT_DOUBLE) continue;	/* Already tried. */
+	      retry_cfg.mode = RETRY_MODE_CONTIGUOUS;
+	      retry_cfg.retry = RETRY_INVERT_DOUBLE;
+	      retry_cfg.u_bits.contig.bit_idx = x;
+	      retry_cfg.u_bits.contig.nr_bits = 2;
+	    }
+	    else {
+	      retry_cfg.mode = RETRY_MODE_SEPARATED;
+	      retry_cfg.retry = RETRY_INVERT_TWO_SEP;
+	      retry_cfg.u_bits.sep.bit_idx_a = x;
+	      retry_cfg.u_bits.sep.bit_idx_b = y;
+	      retry_cfg.u_bits.sep.bit_idx_c = -1;
+	    }
+	    if (try_decode (block, chan, subchan, slice, alevel, retry_cfg, 0)) {
+#if DEBUG
+	      text_color_set(DW_COLOR_DEBUG);
+	      dw_printf ("*** Soft fix: inverted bits %d and %d (quality %d, %d) of %d ***\n",
+				x, y, rrbb_get_quality(block, x), rrbb_get_quality(block, y), len);
+#endif
+	      return 1;
+	    }
+	  }
+	}
+
+	return 0;
+
+} /* end try_soft_fix */
 
 
 

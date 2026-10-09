@@ -453,7 +453,7 @@ void tone_gen_put_bit (int chan, int dat)
 	  int x;
 
 	  x = (dat ^ (lfsr[chan] >> 16) ^ (lfsr[chan] >> 11)) & 1;
-	  lfsr[chan] = (lfsr[chan] << 1) | (x & 1);
+	  lfsr[chan] = (int)(((unsigned)lfsr[chan] << 1) | (x & 1));	// unsigned shift avoids undefined behavior
 	  dat = x;
 	}
 #if PSKIQ

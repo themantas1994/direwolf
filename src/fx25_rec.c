@@ -170,7 +170,7 @@ void fx25_rec_bit (int chan, int subchan, int slice, int dbit)
 	switch (F->state) {
 	  case FX_TAG:
 	    F->accum >>= 1;
-	    if (dbit) F->accum |= 1LL << 63;
+	    if (dbit) F->accum |= 1ULL << 63;
 	    int c = fx25_tag_find_match (F->accum);
 	    if (c >= CTAG_MIN && c <= CTAG_MAX) {
 	      

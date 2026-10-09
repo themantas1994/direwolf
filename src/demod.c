@@ -298,6 +298,17 @@ int demod_init (struct audio_s *pa)
 		if (strchr (just_letters, 'B') != NULL && save_audio_config_p->adev[ACHAN2ADEV(chan)].samples_per_sec > 40000) {
 		  save_audio_config_p->achan[chan].decimate = 3;
 		}
+
+		// The band pass filter for 1200 baud is about 10.4 symbols long.
+		// Above about 55000 samples per second it needs more than MAX_FILTER_SIZE
+		// taps and gets truncated.  At 96000 that costs about 0.5 dB compared
+		// to dividing the sample rate by 2.  Use the smallest factor that fits.
+
+		while (save_audio_config_p->achan[chan].baud >= 600 &&
+			10.5 * save_audio_config_p->adev[ACHAN2ADEV(chan)].samples_per_sec /
+			  save_audio_config_p->achan[chan].decimate / save_audio_config_p->achan[chan].baud >= MAX_FILTER_SIZE) {
+		  save_audio_config_p->achan[chan].decimate++;
+		}
 	      }
 
 	      text_color_set(DW_COLOR_DEBUG);
@@ -892,6 +903,33 @@ int demod_get_sample (int a)
 	}
 
 	return (sam);
+}
+
+
+/*-------------------------------------------------------------------
+ *
+ * Name:        demod_best_slicer
+ *
+ * Purpose:     Which slicer should be used for soft decision repair
+ *		when there are several ("+" option)?
+ *
+ * Returns:	Slicer number.  For AFSK profile A, the one with the space
+ *		tone gain closest to the measured mark/space ratio.
+ *		Otherwise the middle one, which has no offset.
+ *
+ *--------------------------------------------------------------------*/
+
+int demod_best_slicer (int chan, int subchan)
+{
+	assert (chan >= 0 && chan < MAX_RADIO_CHANS);
+	assert (subchan >= 0 && subchan < MAX_SUBCHANS);
+
+	struct demodulator_state_s *D = &demodulator_state[chan][subchan];
+
+	if (save_audio_config_p->achan[chan].modem_type == MODEM_AFSK) {
+	  return (demod_afsk_best_slicer (D));
+	}
+	return (save_audio_config_p->achan[chan].num_slicers / 2);
 }
 
 

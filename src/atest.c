@@ -245,6 +245,7 @@ int main (int argc, char *argv[])
 	  my_audio_config.achan[channel].offset = 0;	
 
 	  my_audio_config.achan[channel].fix_bits = RETRY_NONE;	
+	  my_audio_config.achan[channel].soft_fix = DEFAULT_SOFT_FIX;
 
 	  my_audio_config.achan[channel].sanity_test = SANITY_APRS;	
 	  //my_audio_config.achan[channel].sanity_test = SANITY_AX25;	
@@ -267,7 +268,7 @@ int main (int argc, char *argv[])
 
 	  /* ':' following option character means arg is required. */
 
-          c = getopt_long(argc, argv, "B:P:D:U:gjJF:L:G:012he:d:",
+          c = getopt_long(argc, argv, "B:P:D:U:gjJF:S:L:G:012he:d:",
                         long_options, &option_index);
           if (c == -1)
             break;
@@ -350,6 +351,17 @@ int main (int argc, char *argv[])
 		exit (EXIT_FAILURE);
 	      }
 	      break;	
+
+	    case 'S':				/* -S set soft decision repair level. */
+
+	      my_audio_config.achan[0].soft_fix = atoi(optarg);
+
+	      if (my_audio_config.achan[0].soft_fix < 0 || my_audio_config.achan[0].soft_fix > 2) {
+		text_color_set(DW_COLOR_ERROR);
+		dw_printf ("Invalid soft fix level.\n");
+		exit (EXIT_FAILURE);
+	      }
+	      break;
 
 	    case 'L':				/* -L error if less than this number decoded. */
 
@@ -638,6 +650,7 @@ int main (int argc, char *argv[])
 		(int)(wav_data.datasize),
 		one_filetime);
 	dw_printf ("Fix Bits level = %d\n", my_audio_config.achan[0].fix_bits);
+	dw_printf ("Soft Fix level = %d\n", my_audio_config.achan[0].soft_fix);
 		
 /*
  * Initialize the AFSK demodulator and HDLC decoder.
@@ -839,8 +852,8 @@ void dlq_rec_frame (int chan, int subchan, int slice, packet_t pp, alevel_t alev
 
 	  case fec_type_none:
 	  default:
-	    if (my_audio_config.achan[chan].fix_bits == RETRY_NONE && my_audio_config.achan[chan].passall == 0) {
-	      // No fix_bits or passall specified.
+	    if (my_audio_config.achan[chan].fix_bits == RETRY_NONE && my_audio_config.achan[chan].passall == 0 && retries == RETRY_NONE) {
+	      // No fix_bits or passall specified and no soft fix.
 	      dw_printf ("%s audio level = %s     %s\n", heard, alevel_text, spectrum);
 	    }
 	    else {
@@ -995,6 +1008,12 @@ static void usage (void) {
 	dw_printf ("               0 (default) = consider only correct frames.  \n");
 	dw_printf ("               1 = Try to fix only a single bit.  \n");
 	dw_printf ("               more = Try modifying more bits to get a good CRC.\n");
+	dw_printf ("\n");
+	dw_printf ("        -S n   Soft decision repair of frames with an invalid CRC, using\n");
+	dw_printf ("               the demodulator's confidence in each bit.\n");
+	dw_printf ("               0 = off.  1 (default) = least reliable single bits.\n");
+	dw_printf ("               2 = more single bits and pairs.  Recovers more frames\n");
+	dw_printf ("               but also lets more corrupted frames through.\n");
 	dw_printf ("\n");
 	dw_printf ("        -d x   Debug information for FX.25.  Repeat for more detail.\n");
 	dw_printf ("\n");

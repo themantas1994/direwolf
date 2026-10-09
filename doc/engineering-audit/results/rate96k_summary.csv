@@ -1,0 +1,7 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se
+flat,A+,base,1350,792,0,0,0,0,50.6,10.2,10.22,0.06,11.6,11.37,0.09
+flat,A+,new_S0,1350,828,0,0,60,24,15.5,10.06,9.98,0.06,11.07,11.06,0.09
+flat,A+,new,1350,944,0,116,156,4,16.07,9.25,9.2,0.05,10.22,10.07,0.08
+deemph6,A+,base,1350,382,0,0,0,0,50.99,12.93,12.95,0.05,13.98,13.94,0.09
+deemph6,A+,new_S0,1350,414,0,0,51,19,15.82,12.69,12.74,0.05,13.88,13.72,0.09
+deemph6,A+,new,1350,497,0,83,119,4,16.31,12.22,12.19,0.05,13.24,13.09,0.08

@@ -1,0 +1,4 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se
+flat,default,base,2600,1296,0,0,0,0,35.3,9.96,10.02,0.05,10.95,10.94,0.07
+flat,default,new,2600,1374,0,78,78,0,27.74,9.59,9.63,0.05,10.76,10.53,0.07
+flat,default,new_S2,2600,1415,0,119,119,0,27.78,9.42,9.42,0.04,10.53,10.28,0.07

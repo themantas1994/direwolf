@@ -274,6 +274,13 @@ struct audio_s {
 
 	    int passall;		/* Allow thru even with bad CRC. */
 
+	    int soft_fix;		/* Soft decision repair of frames with bad FCS. */
+					/* Uses the demodulator's confidence for each bit */
+					/* and tries inverting only the least reliable ones. */
+					/* 0 = off */
+					/* 1 = try single bits (default) */
+					/* 2 = more single bits and pairs of bits */
+
 
 
 	/* Additional properties for transmit. */
@@ -455,6 +462,12 @@ struct audio_s {
 
 #define DEFAULT_FIX_BITS RETRY_NONE	// Interesting research project but even a single bit fix up
 					// will occasionally let corrupted packets through.
+
+#define DEFAULT_SOFT_FIX 1		// Soft decision repair tries inverting only the few least
+					// reliable bits rather than every bit position in the frame.
+					// Frames recovered this way are, like FIX_BITS, never
+					// digipeated or sent to the IGate.  Level 2 recovers more
+					// but lets more corrupted frames through.
 
 /* 
  * Standard for AFSK on VHF FM. 

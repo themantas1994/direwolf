@@ -796,6 +796,7 @@ void config_init (char *fname, struct audio_s *p_audio_config,
 	  p_audio_config->achan[channel].fix_bits = DEFAULT_FIX_BITS;
 	  p_audio_config->achan[channel].sanity_test = SANITY_APRS;
 	  p_audio_config->achan[channel].passall = 0;
+	  p_audio_config->achan[channel].soft_fix = DEFAULT_SOFT_FIX;
 
 	  for (ot = 0; ot < NUM_OCTYPES; ot++) {
 	    p_audio_config->achan[channel].octrl[ot].ptt_method = PTT_METHOD_NONE;
@@ -1872,6 +1873,41 @@ void config_init (char *fname, struct audio_s *p_audio_config,
                 dw_printf ("Line %d: Invalid option '%s' for FIX_BITS.\n", line, t);
 	      }
 	      t = split(NULL,0);
+	    }
+	  }
+
+
+/*
+ * SOFT_FIX  n
+ *
+ *	- Soft decision repair of frames with bad FCS.
+ *	- The demodulator's confidence in each bit is used to try
+ *	  inverting only the least reliable bits.
+ *	- 0 = off, 1 = single bits (default), 2 = more single bits and pairs.
+ *	- Uses the same sanity test as FIX_BITS.
+ */
+
+	  else if (strcasecmp(t, "SOFT_FIX") == 0) {
+	    if (channel < 0 || channel >= MAX_RADIO_CHANS) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: SOFT_FIX can only be used with radio channel 0 - %d.\n", line, MAX_RADIO_CHANS-1);
+	      continue;
+	    }
+	    t = split(NULL,0);
+	    if (t == NULL) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: Missing value for SOFT_FIX command.\n", line);
+	      continue;
+	    }
+	    int n = atoi(t);
+	    if (n >= 0 && n <= 2) {
+	      p_audio_config->achan[channel].soft_fix = n;
+	    }
+	    else {
+	      p_audio_config->achan[channel].soft_fix = DEFAULT_SOFT_FIX;
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: Invalid value %d for SOFT_FIX. Using default of %d.\n",
+			line, n, p_audio_config->achan[channel].soft_fix);
 	    }
 	  }
 

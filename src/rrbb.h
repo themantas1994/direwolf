@@ -41,6 +41,8 @@ typedef struct rrbb_s {
 	int prev_descram;	/* Previous descrambled bit. */
 
 	unsigned char fdata[MAX_NUM_BITS];
+	unsigned char fqual[MAX_NUM_BITS];	/* Demodulator confidence for each bit, */
+						/* 0 (at slicing threshold) to 100 (strong). */
 
 	int magic2;
 } *rrbb_t;
@@ -52,18 +54,24 @@ rrbb_t rrbb_new (int chan, int subchan, int slice, int is_scrambled, int descram
 void rrbb_clear (rrbb_t b, int is_scrambled, int descram_state, int prev_descram);
 
 
-static inline /*__attribute__((always_inline))*/ void rrbb_append_bit (rrbb_t b, const unsigned char val)
+static inline /*__attribute__((always_inline))*/ void rrbb_append_bit (rrbb_t b, const unsigned char val, const unsigned char quality)
 {
 	if (b->len >= MAX_NUM_BITS) {
 	  return;	/* Silently discard if full. */
 	}
 	b->fdata[b->len] = val;
+	b->fqual[b->len] = quality;
 	b->len++;
 }
 
 static inline /*__attribute__((always_inline))*/ unsigned char rrbb_get_bit (const rrbb_t b, const int ind)
 {
 	return (b->fdata[ind]);
+}
+
+static inline unsigned char rrbb_get_quality (const rrbb_t b, const int ind)
+{
+	return (b->fqual[ind]);
 }
 
 
