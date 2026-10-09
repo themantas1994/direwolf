@@ -1,0 +1,28 @@
+End to end forwarding checks.  direwolf with "ADEVICE stdin null", MODEM 1200 A,
+fed a weak signal benchmark file (seed 41, Eb/N0 10 dB, 300 frames); frames
+received only with soft repair ("repaired-only") compared with what went out.
+
+REGEN 0 0:
+  PR#1: received clean 30, repaired-only 22; regenerated 52, of them repaired-only 22
+  new : received clean 41, repaired-only 27; regenerated 41, of them repaired-only 0
+  (receive is muted while transmitting, so the received sets differ)
+
+IGSERVER to a local fake APRS-IS server (login, 16 s settle):
+  PR#1: received clean 118, repaired-only 70; uploaded 118, of them repaired-only 0
+  new : received clean 118, repaired-only 70; uploaded 118, of them repaired-only 0
+
+DIGIPEAT 0 0 ^WIDE[1-7]-[1-7]$ ^WIDE[12]-[12]$ (small sample; transmissions mute receive):
+  PR#1: repaired-only 9,  digipeated 3, of them repaired-only 0
+  new : repaired-only 2,  digipeated 4, of them repaired-only 0
+
+KISSPORT 8001, Python KISS client:
+  new: 154 frames decoded (55 repaired), all 154 delivered over KISS byte for byte
+  identical (escaping checked), including the 55 repaired ones (upstream rule for
+  repaired frames: passed to applications).  A frame sent by the client with
+  0xC0 and 0xDB in the information part was transmitted unchanged.
+
+AIS crash packet N0CALL>APRS:{DA!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa*43
+(independent numpy modulator, audio on stdin):
+  old (upstream 1.8.2): exit 139 (SIGSEGV)   PR#1: exit 139 (SIGSEGV)
+  new: "Number of filler bits is missing from AIS sentence.", keeps running,
+       exits normally (0) at end of input

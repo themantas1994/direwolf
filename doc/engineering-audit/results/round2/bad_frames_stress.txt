@@ -1,0 +1,18 @@
+flat AB old Eb/N0=8.5 repaired=0
+  got:  'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnsoA6Y8?276#:T0\x8fP!r:S!q9xwOkTE38fhORyâxwFm<0x0a>'
+  sent: 'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnso!6Y8?276#:T0/P!r:S!q9xwOkTE38fkORybywFm<0x0a>'
+flat AB pr1 Eb/N0=8.5 repaired=0
+  got:  'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnsoA6Y8?276#:T0\x8fP!r:S!q9xwOkTE38fhORyâxwFm<0x0a>'
+  sent: 'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnso!6Y8?276#:T0/P!r:S!q9xwOkTE38fkORybywFm<0x0a>'
+flat AB new Eb/N0=8.5 repaired=0
+  got:  'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnsoA6Y8?276#:T0\x8fP!r:S!q9xwOkTE38fhORyâxwFm<0x0a>'
+  sent: 'N0CALL-5>APDWBN,WIDE1-1,WIDE2-1:>00917 LwzxB88QuGi?)33o-.U2RCnso!6Y8?276#:T0/P!r:S!q9xwOkTE38fkORybywFm<0x0a>'
+impulse A+ old Eb/N0=8.5 repaired=0
+  got:  '\x82\xa0\x886'
+  sent: None
+impulse A+ pr1 Eb/N0=8.5 repaired=0
+  got:  '\x82\xa0\x886'
+  sent: None
+impulse A+ new Eb/N0=8.5 repaired=0
+  got:  '\x82\xa0\x886'
+  sent: None

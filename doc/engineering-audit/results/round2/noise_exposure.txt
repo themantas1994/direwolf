@@ -1,0 +1,21 @@
+Soft repair FCS checks on 15 minutes of white noise (44.1 kHz, sigma 3000, seed 98),
+counted with an instrumented copy of each build (printf per check, no other change).
+"calls" = frames handed to the repair code.
+
+mode / profile      PR#1 checks   new calls   new checks
+1200 A+                   6512          84            0
+1200 AB                  16320           -         1376 (before the doubtful bit limit)
+1200 A                       -         959            0      (PR#1 on 30 min: 16064)
+300                       2712         339            0
+9600                     88840       11105            0
+2400 QPSK (-j)           79192         639         5112
+4800 8PSK                96352         383         3064
+
+Repairable frames in the weak signal benchmark (860 successful repairs, 9600 and
+1200 A, flat/impulse/twist): at most 15.7% of bits at confidence <= 30 (99th
+percentile 12.4%).  Noise junk: 1st percentile 56% (1200 A), none of 11105 9600
+junk blocks below 30%.  The PSK confidence scale differs; its junk is not caught
+by the 30% limit.
+
+Decodes on noise without any repair, identical in old, PR#1 and new:
+9600: 1 frame in 15 min (random frame with good FCS); 2400: 1 frame in 15 min.

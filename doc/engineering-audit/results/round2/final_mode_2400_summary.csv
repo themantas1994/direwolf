@@ -1,0 +1,10 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se,ebn0_p99_interp,ebn0_p99_logit,ebn0_p99_logit_se
+flat,default,old,2000,1060,0,0,0,0,29.54,10.22,10.2,0.05,11.48,11.27,0.08,12.75,12.45,0.14
+flat,default,pr1,2000,1157,0,97,97,0,29.37,9.69,9.72,0.05,10.84,10.67,0.07,11.89,11.72,0.13
+flat,default,new,2000,1119,0,59,59,0,29.39,9.88,9.91,0.05,10.96,10.89,0.07,12.0,11.97,0.13
+impulse,default,old,2000,558,0,0,0,0,29.09,11.94,nan,nan,nan,nan,nan,nan,nan,nan
+impulse,default,pr1,2000,722,1,164,164,0,29.29,10.96,12.04,0.1,nan,nan,nan,nan,nan,nan
+impulse,default,new,2000,676,0,118,118,0,29.46,11.33,12.32,0.1,nan,nan,nan,nan,nan,nan
+noise_only,default,old,,,1,,,,28.286,,,,,,,,,
+noise_only,default,pr1,,,1,,,,28.442,,,,,,,,,
+noise_only,default,new,,,1,,,,28.819,,,,,,,,,

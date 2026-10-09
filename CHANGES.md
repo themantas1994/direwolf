@@ -1,5 +1,27 @@
 # Revision History
 
+## Unreleased (fork) -- second round: upstream review, safety and robustness
+
+See [doc/engineering-audit/UPSTREAM_COMPATIBILITY_AND_OPTIMIZATION_AUDIT.md](doc/engineering-audit/UPSTREAM_COMPATIBILITY_AND_OPTIMIZATION_AUDIT.md).
+
+### Bugs Fixed:
+
+- A received APRS packet with the AIS user defined data type (`{DA`) and a sentence missing its last field crashed Dire Wolf (NULL pointer passed to atoi).  An empty sentence read past the end of a buffer.  Present in upstream 1.8.2 and dev.
+
+- A MIC-E packet whose comment is just ` or ' made the device identification read before the start of the comment, and possibly write out of bounds.  Present in upstream 1.8.2 and dev.
+
+- AIS: signed shift (undefined behavior) when sign extending latitude/longitude.
+
+- `REGEN` retransmitted frames that had bits changed by FIX_BITS / SOFT_FIX or a bad FCS (PASSALL).  It now follows the same rule as the digipeaters and IGate.
+
+- From upstream dev: AGW 'M' frame with an invalid address no longer dereferences NULL (#641); IL2P unit test compared a buffer with itself (#576); thread safe time conversion in timestamp decoding (#655); no false CTCSS warning for percentages (#657); leftover debug output removed (#656).
+
+### Changes:
+
+- Soft decision repair now spends one budget of FCS checks (8 at level 1) per frame, however many demodulators or slicers deliver a copy of it, and only when none of the copies decoded.  At least two failed copies must arrive together, and copies with more than 30% doubtful bits are not tried.  On noise this cuts repair attempts 10x for A+ and 15 - 30x for the PSK modes.  A+ recovers slightly more frames than before; PSK and multi-profile channels somewhat fewer.
+
+- New ctests: aistest, deviceidtest.  The benchmark has an independent AFSK modulator (`--generator numpy`) and reports the 99% threshold.
+
 ## Unreleased (fork) -- receive sensitivity work
 
 See [doc/engineering-audit/RECEIVE_SENSITIVITY_AUDIT.md](doc/engineering-audit/RECEIVE_SENSITIVITY_AUDIT.md) for methods and measurements.
