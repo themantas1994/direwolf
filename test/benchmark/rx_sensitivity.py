@@ -465,7 +465,7 @@ def main():
     pool.shutdown()
 
     with open(a.out, 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()), lineterminator='\n')
         w.writeheader()
         w.writerows(rows)
 
@@ -501,7 +501,7 @@ def main():
     for s in summary:
         keys += [k for k in s if k not in keys]
     with open(sp, 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=keys)
+        w = csv.DictWriter(f, fieldnames=keys, lineterminator='\n')
         w.writeheader()
         w.writerows(summary)
 
