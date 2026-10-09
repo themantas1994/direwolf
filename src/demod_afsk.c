@@ -864,6 +864,48 @@ void demod_afsk_process_sample (int chan, int subchan, int sam, struct demodulat
 
 
 
+/*-------------------------------------------------------------------
+ *
+ * Name:        demod_afsk_best_slicer
+ *
+ * Purpose:     With multiple slicers ("+"), find the one whose space tone
+ *		gain best matches the mark / space amplitude ratio of the
+ *		signal, measured by the envelope followers.
+ *
+ * Returns:	Slicer number.
+ *
+ * Description:	Used to limit soft decision repair to one slicer per frame.
+ *		Each slicer tried means more chances for a corrupted frame
+ *		to get a good FCS by accident.
+ *
+ *--------------------------------------------------------------------*/
+
+int demod_afsk_best_slicer (struct demodulator_state_s *D)
+{
+	float m = D->m_peak - D->m_valley;
+	float s = D->s_peak - D->s_valley;
+
+	if (D->num_slicers <= 1) {
+	  return (0);
+	}
+	if (D->profile != 'A' || m <= 0.0f || s <= 0.0f) {
+	  return (D->num_slicers / 2);
+	}
+
+	float want = logf (m / s);
+	int best = 0;
+	float best_diff = fabsf (logf (space_gain[0]) - want);
+	for (int slice = 1; slice < D->num_slicers; slice++) {
+	  float diff = fabsf (logf (space_gain[slice]) - want);
+	  if (diff < best_diff) {
+	    best_diff = diff;
+	    best = slice;
+	  }
+	}
+	return (best);
+}
+
+
 /*
  * Finally, a PLL is used to sample near the centers of the data bits.
  *

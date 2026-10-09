@@ -908,6 +908,33 @@ int demod_get_sample (int a)
 
 /*-------------------------------------------------------------------
  *
+ * Name:        demod_best_slicer
+ *
+ * Purpose:     Which slicer should be used for soft decision repair
+ *		when there are several ("+" option)?
+ *
+ * Returns:	Slicer number.  For AFSK profile A, the one with the space
+ *		tone gain closest to the measured mark/space ratio.
+ *		Otherwise the middle one, which has no offset.
+ *
+ *--------------------------------------------------------------------*/
+
+int demod_best_slicer (int chan, int subchan)
+{
+	assert (chan >= 0 && chan < MAX_RADIO_CHANS);
+	assert (subchan >= 0 && subchan < MAX_SUBCHANS);
+
+	struct demodulator_state_s *D = &demodulator_state[chan][subchan];
+
+	if (save_audio_config_p->achan[chan].modem_type == MODEM_AFSK) {
+	  return (demod_afsk_best_slicer (D));
+	}
+	return (save_audio_config_p->achan[chan].num_slicers / 2);
+}
+
+
+/*-------------------------------------------------------------------
+ *
  * Name:        demod_process_sample
  *
  * Purpose:     (1) Demodulate the AFSK signal.

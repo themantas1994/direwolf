@@ -18,3 +18,5 @@ void demod_print_agc (int chan, int subchan);
 
 alevel_t demod_get_audio_level (int chan, int subchan);
 
+int demod_best_slicer (int chan, int subchan);
+

@@ -95,6 +95,7 @@
 //Optimize processing by accessing directly to decoded bits
 #define RRBB_C 1
 #include "hdlc_rec2.h"
+#include "demod.h"
 #include "fcs_calc.h"
 #include "textcolor.h"
 #include "ax25_pad.h"
@@ -549,6 +550,16 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	    fix_bits >= RETRY_INVERT_TWO_SEP ||		/* Already tried every single bit and pair. */
 	    save_audio_config_p->achan[chan].modem_type == MODEM_AIS ||
 	    save_audio_config_p->achan[chan].sanity_test == SANITY_NONE) {
+	  return 0;
+	}
+
+/*
+ * With multiple slicers, each one delivers its own copy of a frame.
+ * Repairing all of them multiplies the chances of a corrupted frame
+ * getting a good FCS by accident, so use only the best matched one.
+ */
+	if (save_audio_config_p->achan[chan].num_slicers > 1 &&
+	    slice != demod_best_slicer (chan, subchan)) {
 	  return 0;
 	}
 
