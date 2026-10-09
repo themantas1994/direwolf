@@ -59,7 +59,7 @@ void hdlc_rec2_init (struct audio_s *audio_config_p);
 
 void hdlc_rec2_block (rrbb_t block);
 
-void hdlc_rec2_soft_fix_tick (int chan, int window);
+void hdlc_rec2_soft_fix_expire (int chan);
 
 int hdlc_rec2_try_to_fix_later (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel);
 

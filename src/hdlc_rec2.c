@@ -299,7 +299,7 @@ void hdlc_rec2_block (rrbb_t block)
  * With several demodulators or slicers, each delivers its own copy of
  * the frame.  Wait until all of them are in, then repair only the most
  * promising copy, and only if none of them was decoded.
- * hdlc_rec2_soft_fix_tick takes it from here and frees the block.
+ * hdlc_rec2_soft_fix_expire takes it from here and frees the block.
  */
 	if (soft_fix_wanted (chan) &&
 	    save_audio_config_p->achan[chan].num_subchan * save_audio_config_p->achan[chan].num_slicers > 1 &&
@@ -783,7 +783,7 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 
 /***********************************************************************************
  *
- * Name:	soft_fix_defer, soft_fix_note_good, hdlc_rec2_soft_fix_tick
+ * Name:	soft_fix_defer, soft_fix_note_good, hdlc_rec2_soft_fix_expire
  *
  * Purpose:	Soft decision repair when a channel has more than one demodulator
  *		or slicer.
@@ -813,16 +813,15 @@ static struct {
 	int prio[SOFT_FIX_MAX_COPIES];		/* Lower is more promising. */
 	int n;					/* Number in block[]; 0 if nothing pending. */
 	int copies;				/* Number of failed copies in this window. */
-	int age;				/* Samples since the first one. */
 	int good;				/* Another copy of this frame was decoded. */
 } soft_pending[MAX_RADIO_CHANS];
 
-static int soft_since_good[MAX_RADIO_CHANS];	/* Samples since a frame was decoded without soft repair. */
-static int soft_window[MAX_RADIO_CHANS];	/* Window in samples, from multi_modem. */
+static int64_t soft_last_good[MAX_RADIO_CHANS];	/* multi_modem sample count when a frame was last */
+						/* decoded without soft repair.  0 if never. */
 
 static void soft_fix_note_good (int chan)
 {
-	soft_since_good[chan] = 0;
+	soft_last_good[chan] = multi_modem_sample_count (chan);
 	if (soft_pending[chan].n > 0) {
 	  soft_pending[chan].good = 1;
 	}
@@ -830,10 +829,12 @@ static void soft_fix_note_good (int chan)
 
 static void soft_fix_defer (rrbb_t block, int chan, int subchan, int slice)
 {
+	int64_t now = multi_modem_sample_count (chan);
+	int window = multi_modem_window (chan);
 	int prio = 0;
 	int i;
 
-	if (soft_since_good[chan] <= soft_window[chan]) {
+	if (soft_last_good[chan] != 0 && now - soft_last_good[chan] <= window) {
 	  rrbb_delete (block);		/* Another copy of this frame was just decoded. */
 	  return;
 	}
@@ -844,8 +845,8 @@ static void soft_fix_defer (rrbb_t block, int chan, int subchan, int slice)
 
 	if (soft_pending[chan].n == 0) {
 	  soft_pending[chan].copies = 0;
-	  soft_pending[chan].age = 0;
 	  soft_pending[chan].good = 0;
+	  multi_modem_soft_fix_due (chan, now + window);	/* Call hdlc_rec2_soft_fix_expire then. */
 	}
 	soft_pending[chan].copies++;
 
@@ -874,26 +875,14 @@ static void soft_fix_defer (rrbb_t block, int chan, int subchan, int slice)
 
 
 /*
- * Called by multi_modem for every audio sample.
- * window is the number of samples multi_modem waits for other copies of a frame.
+ * Called by multi_modem when the window for other copies of the frame has passed.
  */
 
-void hdlc_rec2_soft_fix_tick (int chan, int window)
+void hdlc_rec2_soft_fix_expire (int chan)
 {
 	int i;
 
-	soft_window[chan] = window;
-
-	if (soft_since_good[chan] <= window) {
-	  soft_since_good[chan]++;
-	}
-
 	if (soft_pending[chan].n == 0) {
-	  return;
-	}
-
-	soft_pending[chan].age++;
-	if (soft_pending[chan].age <= window) {
 	  return;
 	}
 

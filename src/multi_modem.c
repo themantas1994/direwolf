@@ -137,6 +137,27 @@ static struct {
 
 static int process_age[MAX_RADIO_CHANS];
 
+// Sample clock for each channel, and when deferred soft decision repair
+// (hdlc_rec2.c) wants to be called back.  0 means not waiting.
+
+static int64_t sample_count[MAX_RADIO_CHANS];
+static int64_t soft_fix_due[MAX_RADIO_CHANS];
+
+int64_t multi_modem_sample_count (int chan)
+{
+	return (sample_count[chan]);
+}
+
+int multi_modem_window (int chan)
+{
+	return (process_age[chan]);
+}
+
+void multi_modem_soft_fix_due (int chan, int64_t due)
+{
+	soft_fix_due[chan] = due;
+}
+
 static void pick_best_candidate (int chan);
 
 
@@ -242,6 +263,8 @@ void multi_modem_process_sample (int chan, int audio_sample)
 
 	dc_average[chan] = dc_average[chan] * 0.999f + (float)audio_sample * 0.001f;
 
+	sample_count[chan]++;
+
 
 // Issue 128.  Someone ran into this.
 
@@ -268,8 +291,9 @@ void multi_modem_process_sample (int chan, int audio_sample)
 	  demod_process_sample(chan, d, audio_sample);
 	}
 
-	if (save_audio_config_p->achan[chan].soft_fix > 0) {
-	  hdlc_rec2_soft_fix_tick (chan, process_age[chan]);
+	if (soft_fix_due[chan] != 0 && sample_count[chan] >= soft_fix_due[chan]) {
+	  soft_fix_due[chan] = 0;
+	  hdlc_rec2_soft_fix_expire (chan);
 	}
 
 	for (subchan = 0; subchan < save_audio_config_p->achan[chan].num_subchan; subchan++) {
