@@ -418,6 +418,25 @@ target_link_libraries(deviceidtest
   )
 
 
+# Unit Test for AIS sentence parsing.
+list(APPEND aistest_SOURCES
+  ${CUSTOM_SRC_DIR}/ais.c
+  ${CUSTOM_SRC_DIR}/textcolor.c
+  )
+
+add_executable(aistest
+  ${aistest_SOURCES}
+  )
+
+set_target_properties(aistest
+  PROPERTIES COMPILE_FLAGS "-DAISTEST"
+  )
+
+target_link_libraries(aistest
+  ${MISC_LIBRARIES}
+  )
+
+
 # Unit Test for DTMF encode/decode.
 list(APPEND dtmftest_SOURCES
   ${CUSTOM_SRC_DIR}/dtmf.c
@@ -513,6 +532,7 @@ add_test(kisstest kisstest)
 add_test(pad2test pad2test)
 add_test(xidtest xidtest)
 add_test(dtmftest dtmftest)
+add_test(aistest aistest)
 add_test(NAME deviceidtest COMMAND deviceidtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../data)
 
 add_test(check-fx25 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-FX25_FILE}${CUSTOM_SCRIPT_SUFFIX}")
