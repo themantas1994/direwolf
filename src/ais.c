@@ -382,7 +382,8 @@ int ais_parse (char *sentence, int quiet, char *descr, int descr_size, char *mss
         unsigned char cs = 0;
         char *p;
 
-        for (p = stemp+1; *p != '*' && *p != '\0'; p++) {
+        // Skip the leading ! but not past the end of an empty string.
+        for (p = stemp[0] != '\0' ? stemp+1 : stemp; *p != '*' && *p != '\0'; p++) {
           cs ^= *p;
         }
 
@@ -729,18 +730,7 @@ static void get_ship_data(char *mssi, char *comment, int comment_size)
 
 #define NEAR(a,b) ((a) - (b) < 0.000001 && (b) - (a) < 0.000001)
 
-/* Append the NMEA checksum to a sentence starting with ! */
-
-static void add_checksum (char *s, size_t size)
-{
-	unsigned char cs = 0;
-	char t[8];
-	for (char *p = s + 1; *p != '\0'; p++) {
-	  cs ^= *p;
-	}
-	snprintf (t, sizeof(t), "*%02X", cs);
-	strlcat (s, t, size);
-}
+/* Parse body, which starts with !, after appending the NMEA checksum. */
 
 static int try_parse (const char *body, double *lat, double *lon, char *mssi)
 {
@@ -748,9 +738,12 @@ static int try_parse (const char *body, double *lat, double *lon, char *mssi)
 	char descr[80], comment[80];
 	float knots, course, alt;
 	char symtab, symbol;
+	unsigned char cs = 0;
 
-	strlcpy (sentence, body, sizeof(sentence));
-	add_checksum (sentence, sizeof(sentence));
+	for (const char *p = body + 1; *p != '\0'; p++) {	// body is at least "!"
+	  cs ^= *p;
+	}
+	snprintf (sentence, sizeof(sentence), "%s*%02X", body, cs);
 	return (ais_parse (sentence, 0, descr, sizeof(descr), mssi, 16, lat, lon,
 			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)));
 }
@@ -785,6 +778,9 @@ int main (int argc, char *argv[])
 			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
 	char no_cs[] = "!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa,0";
 	assert (ais_parse (no_cs, 1, descr, sizeof(descr), mssi, sizeof(mssi), &lat, &lon,
+			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
+	char empty[] = "";		// e.g. info part of a packet is just {DA
+	assert (ais_parse (empty, 1, descr, sizeof(descr), mssi, sizeof(mssi), &lat, &lon,
 			&knots, &course, &alt, &symtab, &symbol, comment, sizeof(comment)) == -1);
 
 	dw_printf ("AIS test passed.\n");
