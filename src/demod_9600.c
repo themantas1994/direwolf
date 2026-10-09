@@ -611,7 +611,13 @@ inline static void nudge_pll (int chan, int subchan, int slice, float demod_out_
 
 	  /* Overflow.  Was large positive, wrapped around, now large negative. */
 
-	  hdlc_rec_bit_new (chan, subchan, slice, demod_out_f > 0, D->modem_type == MODEM_SCRAMBLE, D->slicer[slice].lfsr,
+	  // Confidence for this bit.  The AGC output is about -0.5 to +0.5
+	  // so scale the distance from the slicing point to 0 - 100.
+	  // (This argument used to be the descrambler state which was never used.)
+	  int quality = (int)(fabsf(demod_out_f) * 200.0f);
+	  if (quality > 100) quality = 100;
+
+	  hdlc_rec_bit_new (chan, subchan, slice, demod_out_f > 0, D->modem_type == MODEM_SCRAMBLE, quality,
 			&(D->slicer[slice].pll_nudge_total), &(D->slicer[slice].pll_symbol_count));
 	  D->slicer[slice].pll_symbol_count++;
 

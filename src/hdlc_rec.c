@@ -418,8 +418,10 @@ a good modem here and providing a result when it is received.
  *	
  *		is_scrambled - Is the data scrambled?
  *
- *		descram_state - Current descrambler state.  (not used - remove)
- *				Not so fast - plans to add new parameter.  PSK already provides it.
+ *		quality - Demodulator confidence in this bit, 0 (at the slicing
+ *			  threshold) to 100 (strong).  Saved with the raw bits so
+ *			  hdlc_rec2 can try inverting the least reliable bits
+ *			  when the FCS is bad.
  *					
  *
  * Description:	This is called once for each received bit.
@@ -428,15 +430,15 @@ a good modem here and providing a result when it is received.
  *
  ***********************************************************************************/
 
-void hdlc_rec_bit (int chan, int subchan, int slice, int raw, int is_scrambled, int not_used_remove)
+void hdlc_rec_bit (int chan, int subchan, int slice, int raw, int is_scrambled, int quality)
 {
 	static int64_t dummyll = 0;
 	static int dummy = 0;
-	hdlc_rec_bit_new (chan, subchan, slice, raw, is_scrambled, not_used_remove,
+	hdlc_rec_bit_new (chan, subchan, slice, raw, is_scrambled, quality,
 		&dummyll, &dummy);
 }
 
-void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambled, int not_used_remove,
+void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambled, int quality,
 		int64_t *pll_nudge_total, int *pll_symbol_count)
 {
 
@@ -467,7 +469,7 @@ void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambl
 // EAS does not use HDLC.
 
 	if (g_audio_p->achan[chan].modem_type == MODEM_EAS) {
-	  eas_rec_bit (chan, subchan, slice, raw, not_used_remove);
+	  eas_rec_bit (chan, subchan, slice, raw, quality);
 	  return;
 	}
 
@@ -521,7 +523,7 @@ void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambl
 	  H->flag4_det |= 0x80000000;
 	}
 
-	rrbb_append_bit (H->rrbb, raw);
+	rrbb_append_bit (H->rrbb, raw, quality < 0 ? 0 : quality > 100 ? 100 : quality);
 
 	if (H->pat_det == 0x7e) {
 
@@ -641,7 +643,7 @@ void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambl
 	  H->frame_len = 0;
 
 
-	  rrbb_append_bit (H->rrbb, H->prev_raw); /* Last bit of flag.  Needed to get first data bit. */
+	  rrbb_append_bit (H->rrbb, H->prev_raw, 100); /* Last bit of flag.  Needed to get first data bit. */
 						/* Now that we are saving other initial state information, */
 						/* it would be sensible to do the same for this instead */
 						/* of lumping it in with the frame data bits. */

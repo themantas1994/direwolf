@@ -1237,8 +1237,8 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 	    break;
 	  case fec_type_none:
 	  default:
-	    // Possible fix_bits indication.
-	    if (audio_config.achan[chan].fix_bits != RETRY_NONE || audio_config.achan[chan].passall) {
+	    // Possible fix_bits or soft fix indication.
+	    if (audio_config.achan[chan].fix_bits != RETRY_NONE || audio_config.achan[chan].passall || retries != RETRY_NONE) {
 	      assert (retries >= RETRY_NONE && retries <= RETRY_MAX);
 	      snprintf (display_retries, sizeof(display_retries), " [%s] ", retry_text[(int)retries]);
 	    }

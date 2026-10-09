@@ -12,9 +12,9 @@
 void hdlc_rec_init (struct audio_s *pa);
 
 // TODO: change all to _new.
-void hdlc_rec_bit (int chan, int subchan, int slice, int raw, int is_scrambled, int descram_state);
+void hdlc_rec_bit (int chan, int subchan, int slice, int raw, int is_scrambled, int quality);
 
-void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambled, int descram_state,
+void hdlc_rec_bit_new (int chan, int subchan, int slice, int raw, int is_scrambled, int quality,
 			int64_t *pll_nudge_total, int *pll_nudge_count);
 
 /* Provided elsewhere to process a complete frame. */
