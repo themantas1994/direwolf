@@ -88,7 +88,7 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 | Connected mode digipeater (CDIGIPEAT) | PASS | Same test |
 | IGate RF > APRS-IS (q construct, TCPIP/NOGATE/RFONLY rules) | PASS | 41 identical lines uploaded to a local server by all three builds |
 | IGate APRS-IS > RF (message to a station heard on RF, third party format) | PASS | Identical frame transmitted by all three builds; message to an unheard station not gated by any |
-| Beacons (PBEACON incl. PHG, frequency/tone, ambiguity; CBEACON; OBJECT) | PASS | Identical transmitted beacons (version in tocall ignored) |
+| Beacons (PBEACON incl. PHG, compressed, frequency/tone, ambiguity; CBEACON) | PASS | The same 5 transmitted beacons in fork, 1.8.2 and dev (version in tocall ignored); OBEACON / TBEACON not tested (section 5.4) |
 | Filtering (FILTER, IGFILTER, CFILTER) | PARTIAL | Parsed identically (config test); filter behaviour covered by upstream's `pftest` (passes); no end to end filter test |
 | APRStt | PARTIAL | `ttest`, `tttexttest`, `dtmftest`; config parsing; no DTMF audio test |
 | REGEN | PARTIAL | Code inspection and round 2 end to end test; not rerun |
@@ -125,12 +125,12 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 | KISS pseudo terminal (`-p`, /tmp/kisstnc) | PASS | 127/127 transmitted |
 | Serial KISS (SERIALKISS, socat pty pair) | PASS | 127/127 transmitted |
 | Audio from stdin | PASS | All receive interface tests |
-| Audio from UDP (SDR) | PENDING-UDP | |
+| Audio from UDP (SDR) | PASS | Real time UDP datagrams: same 75 frames as stdin, fork = upstream (section 5.6) |
 | Audio output | PARTIAL | ALSA `file` plugin; no sound card |
 | Configuration files (generic sample, sdr.conf, many-directive config) | PASS | Startup output identical to upstream and dev apart from version strings |
 | New keyword `SOFT_FIX` | PASS | Parsed; invalid value reported; upstream configs need no change |
 | Command line | PARTIAL | `-t`, `-c`, `-p` used; other options not compared |
-| A client that stops reading | FAIL | Same as upstream 1.8.2 (defect 9.7, section 10.1) |
+| A client that stops reading | FAIL | Same as upstream 1.8.2: 53 / 4000 (AGW), 60 / 4000 (KISS) frames reach the other client; dev fixes AGW only (defect 9.7, section 5.6) |
 | PTT / DCD / TXINH, GPS, rig control, CM108, GPIO | NOT TESTED | No hardware |
 | Multi-channel (ACHANNELS 2) | PARTIAL | Stereo decode (atest); config parsing; not with direwolf end to end |
 
@@ -198,7 +198,7 @@ latitude and longitude are compared (to 0.0001 degree).  3225 agree; 496 differ 
 the position ambiguity convention (Dire Wolf gives the corner of the ambiguity box,
 aprslib its centre; upstream identical to the fork); 0 corpus packets differ; 21 mutated
 (invalid) packets are read differently by the two parsers, identically by fork and
-upstream.  Raw results: `results/round3/aprs_decode.csv`, `aprs_decode.log`.
+upstream.  Raw results: `results/round3/aprs_decode.csv`, `aprs_decode_log.txt`.
 
 ## 5. Transmit-to-receive and receive-to-transmit interoperability
 
@@ -224,7 +224,108 @@ decode all frames the fork transmits.  The FX.25 difference is in the fork's fav
 1.8.2 and dev cannot decode a plain AX.25 frame that follows an FX.25 frame in the same
 transmission from their *own* transmitter (9.2).
 
-PENDING-SECTION-5-REST
+### 5.2 Receive through the client interfaces
+
+`test/compat/interfaces.py` runs real `direwolf` processes of each build (as an ordinary
+user, no sound card: receive audio on stdin, transmit audio through ALSA's `file` plugin)
+with a KISS TCP client and an AGW client in raw monitoring mode (`k`) connected
+(`results/round3/interfaces.csv`; final run: 208 rows, 0 failures, 19 rows labelled
+UPSTREAM-DEFECT, all upstream's own transmissions or the IL2P 9600 case in every build).
+Receive audio: `gen_packets -n 100` (100 frames with increasing noise) from upstream.
+
+| Check | Result |
+|---|---|
+| Same receive audio, default configuration, 11 cases: 1200 A+ (default), E+, B, 1200 at 48 kHz, 300, 2400 V.26B and V.26A, 4800, 9600, 1200 FX.25, 9600 IL2P | **Identical** KISS and AGW output, fork vs 1.8.2 and fork vs dev, in all 11 cases (75, 75, 71, 75, 72, 81, 81, 69, 67, 88, 78 frames); 0 repaired frames |
+| AGW raw monitoring output = KISS output, same build | 11 / 11 |
+| `SOFT_FIX 1` / `SOFT_FIX 2` (opt in) | Superset: 79 and 83 frames vs 75; the 4 and 8 extra frames are exactly those marked repaired on the console; none of upstream's frames missing |
+
+### 5.3 Transmit through the client interfaces, and FEC fallback
+
+Frames: the 103 corpus frames plus 24 raw frames (SABM, SABME, UA, DM, DISC, FRMR, XID with
+the AX.25 v2.2 parameter example, TEST, I frames modulo 8 and 128 incl. flag / escape bytes in
+the information field, RR, RNR, REJ, SREJ, RR modulo 128, UI with PID 0xCF (NET/ROM) and
+0xCC (IP), UI as a response, UI with both C bits clear (v1), a path with two of three
+digipeaters used, all 256 byte values, a 512 byte information field, no information field)
+are written by a client, transmitted, captured and decoded by every build's `atest`; the
+decoded frames must be exactly those sent, in any order (direwolf sends frames with a used
+digipeater first).  IL2P: C bits as the IL2P type 1 header normalises them, and without
+the v1 "both C bits clear" frame, which that header can't express.
+
+| Interface | Modems | Result |
+|---|---|---|
+| KISS TCP | 1200, 300, 2400 V.26B, 2400 V.26A, 4800, 9600, 1200 FX.25, 9600 FX.25, 1200 IL2P, 9600 IL2P | Fork transmits: 127 / 127 frames decoded by fork, 1.8.2 and dev in all 10 modems.  1.8.2 and dev transmit: 127 / 127 everywhere except FX.25, where every receiver gets 126 / 127 (1200) and 125 / 127 (9600) from them: their own NRZI defect (9.2), fixed in the fork |
+| AGW raw send (`K`) | 1200 | 127 / 127, fork to upstream and upstream / dev to fork |
+| KISS pseudo terminal (`-p`) | 1200 | 127 / 127, same directions |
+| Serial KISS (`SERIALKISS`, socat pty pair) | 1200 | 127 / 127, same directions |
+| Transmit audio md5, same frames from KISS | all of the above | Transmit audio byte identical to 1.8.2 and dev for 1200, 300, 2400 V.26B / V.26A, 4800, 9600, IL2P 1200 / 9600; FX.25 differs only by the NRZI fix |
+| Frames too long for FX.25 / IL2P sent as AX.25 | FX.25 1200 / 9600, IL2P 1200 / 9600 | FX.25 then a long AX.25 frame: fork 2 / 2 (1200) and 4 / 4 (9600), 1.8.2 and dev 1 / 2 and 3 / 4.  IL2P 1200: 2 / 2 everywhere.  IL2P 9600 with a frame > 1023 bytes: 1 / 2 in **every** build (upstream defect 9.8, not fixed) |
+
+### 5.4 Digipeater, beacons, IGate
+
+All with `FULLDUP ON` (receive audio arrives faster than real time, and half duplex
+Dire Wolf mutes its receiver while transmitting).
+
+* **Digipeater** (`DIGIPEAT 0 0 ^WIDE[3-7]-[1-7]$|^TEST$ ^WIDE[12]-[12]$ TRACE`,
+  `CDIGIPEAT 0 0`): 13 received frames (WIDE1-1, WIDE2-2, WIDE1-1 + WIDE2-1, explicit
+  address, WIDE3-3 and WIDE7-7 trapped, alias TEST, after another digipeater, a duplicate,
+  an exhausted path, no path, a position, a non-APRS frame via us).  Transmitted: 12 frames,
+  **identical** in fork, 1.8.2 and dev, in the same order: duplicate suppressed, exhausted
+  and empty paths ignored, trapped paths replaced by our call, used digipeater marked with
+  H.  Frames addressed explicitly to us are repeated by both `DIGIPEAT` and `CDIGIPEAT`
+  (two transmissions), identically in all three builds.
+* **Beacons** (`PBEACON` with PHG and overlay, compressed with altitude, with frequency /
+  tone / offset, with position ambiguity; `CBEACON`): the **same 5 frames** transmitted by
+  all three builds (the version digits of the tocall ignored), e.g. the compressed one as
+  `!/8wPp<K"D>  !/A=003281compressed` (1000 m = 3281 ft).  In the full run the compressed
+  beacon's line had options `PBEACON` doesn't accept, so all three builds rejected it alike;
+  the line was fixed and the beacon test rerun (`interfaces_beacon_rerun.csv`).
+* **IGate** against a local fake APRS-IS server (`IGSERVER`, `IGLOGIN`, `IGTXVIA`,
+  `IGTXLIMIT`): 45 received frames (40 corpus frames, a station to be heard, `TCPIP*`,
+  `NOGATE`, `RFONLY`, a third party frame).  All three builds log in identically (apart from
+  the version), upload the **same 41 lines** with the same q construct (`qAR,N0CALL-1`), and
+  gate none of the TCPIP / NOGATE / RFONLY / third party frames.  From APRS-IS, a message
+  to the station heard on RF is transmitted as the **same third party frame** by all three
+  (`N0CALL-1>APDW18,WIDE1-1:}K1ABC>APRS,TCPIP,N0CALL-1*::W1XYZ ...`); a message to a station
+  not heard is gated by none.
+
+### 5.5 Connected mode and configuration files
+
+* **Connected mode**: two `direwolf` instances, A (N0CALL-1) and B (N0CALL-2), each with an
+  AGW client, linked by a simulated half duplex channel (each one's transmit audio becomes
+  the other's receive audio, in real time).  A connects, both send data (text, all 256
+  byte values, 1024 and 700 byte blocks, larger than `PACLEN 128` so they are segmented),
+  A disconnects.  Fork calls 1.8.2, 1.8.2 calls fork, fork calls dev, dev calls fork: **all
+  four connect, deliver 968 / 968 and 1395 / 1395 bytes in order, and disconnect**, with
+  the same number of frames on the air (20 and 13) in every pairing.
+* **Configuration files**: the generic `direwolf.conf` and `sdr.conf` generated by the build
+  and `test/compat/configs/kitchen_sink.conf` (two channels, digipeater and filters, IGate
+  options, APRStt / DTMF, IL2P, FIX_BITS, timing, connected mode parameters, SmartBeaconing,
+  logging; 56 output lines).  Lines naming audio devices, ports, PTT / DCD / GPS, the IGate
+  server and beacons are removed, since they need hardware or the network.  Startup output
+  **identical** to 1.8.2 and to dev apart from version strings.  The fork's only new keyword, `SOFT_FIX`, isn't needed by any
+  existing configuration.
+
+### 5.6 Stalled clients, audio over UDP
+
+* **A client that stops reading** (`interfaces.py --only stall`, `results/round3/stall.csv`).
+  One client connects and never reads (AGW with raw monitoring on, or KISS TCP); a second,
+  healthy client counts the frames it receives while 4000 frames of 9600 bd audio are
+  decoded.  The kernel's send buffer is lowered for the test (`net.ipv4.tcp_wmem` 4096
+  8192 16384, restored afterwards), otherwise it would absorb about 4 MB first.
+
+  | Stalled client | Fork | Upstream 1.8.2 | Upstream dev |
+  |---|---|---|---|
+  | AGW | **FAIL**: 53 / 4000 | **FAIL**: 53 / 4000 | PASS: 4000 / 4000 |
+  | KISS TCP | **FAIL**: 60 / 4000 | **FAIL**: 60 / 4000 | **FAIL**: 72 / 4000 |
+
+  The fork behaves exactly like upstream 1.8.2: once the stalled client's buffers are full,
+  the receive thread blocks in `send()` and nothing more is decoded or delivered to anyone.
+  Upstream dev fixes the AGW case (#671), not KISS TCP.  Not fixed here (defect 9.7,
+  section 10.1).
+* **Audio over UDP** (`ADEVICE udp:PORT`, as fed by SDR programs; `test/compat/udp_audio.py`,
+  `results/round3/udp.txt`).  The 78 s receive file of section 5.2 sent in real time as
+  1024 byte datagrams: fork and 1.8.2 each give the **same 75 frames as through stdin**,
+  identical between them.  Decode latency, on the same path, in section 6.6.
 
 ## 6. DSP and modem results
 
@@ -333,7 +434,7 @@ section 3) were rechecked against the current upstream state.
 | Ref | Topic | In fork? | Finding | Decision |
 |---|---|---|---|---|
 | [#597](https://github.com/wb2osz/direwolf/pull/597) `edb6210` | Morse: duplicate, wrong code for `-` | **Now yes** | 1.8.2 sends `-` as `-...-` (=).  multimon-ng decodes the 1.8.2 / fork CW ID `N0CALL-1` as `N0CALL=1`, dev's as `N0CALL-1` | **Adopted** (cherry-pick `-x`, author kept); regression check in `interop.py` |
-| [#671](https://github.com/wb2osz/direwolf/pull/671) `9acba4c` | A stalled AGW client blocks the receive thread (and can hold PTT on) | No | Reproduced in fork and 1.8.2: a client that stops reading stops frames to every other client (53 / 4000 delivered).  Fixed for AGW in dev (4000 / 4000).  **KISS TCP has the same problem in dev too** (71 / 4000) | **Not adopted**: 473 lines of new threading in `server.c`, conflicts with #669, Windows paths can't be tested here.  Top remaining risk (section 10).  Test: `interfaces.py --only stall` |
+| [#671](https://github.com/wb2osz/direwolf/pull/671) `9acba4c` | A stalled AGW client blocks the receive thread (and can hold PTT on) | No | Reproduced in fork and 1.8.2 alike: a client that stops reading stops frames to every other client (53 / 4000 delivered with a stalled AGW client, 60 / 4000 with a stalled KISS client).  Fixed for AGW in dev (4000 / 4000).  **KISS TCP has the same problem in dev too** (72 / 4000) | **Not adopted**: 473 lines of new threading in `server.c`, conflicts with #669, Windows paths can't be tested here.  Top remaining risk (section 10).  Test: `interfaces.py --only stall` |
 | [#620](https://github.com/wb2osz/direwolf/issues/620) (open) | Windows crash, "received frame queue out of control" with network KISS | Same code | Consistent with the KISS stall above (slow client, blocking send, queue grows).  `610fbc0` in dev only adds debugging and `TCP_WMEM` | Documented |
 | [#426](https://github.com/wb2osz/direwolf/issues/426) (open) | Corrupted TX bitstream with FX.25 | Fixed one cause | The NRZI defect found here (section 9.2) corrupts the bit after each switch between FX.25 and AX.25 output.  #426 describes corruption mid-frame on one Raspberry Pi set-up that went away; **not confirmed to be the same** | Possibly related; the NRZI fix should be reported upstream |
 | [#669](https://github.com/wb2osz/direwolf/pull/669) `6fb888c` | AGWPE extension: per-frame signal quality | No | New feature in dev; would let clients see repaired frames | Not adopted (feature; future item) |

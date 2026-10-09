@@ -6,9 +6,11 @@ with real direwolf processes.
 1. The WAV file is sent to each build in real time as 1024 byte datagrams; the
    KISS frames must be the same as when the same audio is given on stdin, and
    the same for every build.
-2. Latency: one frame at a time (1200 and 9600 bd, 48 kHz), each after 0.5 s of
-   silence, sent in real time; the time from the last sample of the
-   transmission leaving this script to the KISS frame arriving, 20 times.
+2. Latency: one frame at a time (1200 and 9600 bd, 48 kHz) between 0.5 s and
+   1 s of silence, sent in real time; the time from the last audio sample of
+   the transmission (frame and trailing flags) leaving this script to the
+   KISS frame arriving, 20 times.  Negative values: the frame was delivered
+   while its trailing flags were still being received.
 
 Run alone on the machine: UDP is not flow controlled, so a busy CPU loses
 datagrams and timing.
@@ -20,6 +22,7 @@ Usage:
 
 import argparse
 import os
+import select
 import socket
 import statistics
 import subprocess
@@ -40,14 +43,13 @@ def udp_conf(port, rate, modem):
             "MODEM " + modem, "KISSPORT %d" % kp, "AGWPORT %d" % ap], kp
 
 
-def send_paced(s, port, buf, rate, pace, k=None):
+def send_paced(s, port, buf, rate, pace):
     t0 = time.time()
     for i in range(0, len(buf), CHUNK):
         s.sendto(buf[i:i + CHUNK], ("127.0.0.1", port))
         target = t0 + (i + CHUNK) / 2 / rate / pace
         while time.time() < target:
-            if k is not None:
-                k.poll(0.002)
+            pass
 
 
 def main():
@@ -74,9 +76,9 @@ def main():
         k = D.KissClient(kp)
         k.poll(1)
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        send_paced(s, port, raw, rate, a.pace, k)
-        send_paced(s, port, bytes(rate * 2), rate, a.pace, k)        # one second of silence
-        k.poll(3)
+        send_paced(s, port, raw, rate, a.pace)
+        send_paced(s, port, bytes(rate * 2), rate, a.pace)          # one second of silence
+        k.poll(3)                                                   # frames waited in the socket
         dw.stop()
         res[name] = [f[2] for f in k.frames if f[1] == 0]
         print("%s: KISS frames, audio via UDP at %.1fx real time: %d; via stdin: %d; identical: %s"
@@ -91,30 +93,34 @@ def main():
                        input=b"N0CALL>APRS,WIDE1-1:!4237.14N/07120.83W-latency test\n",
                        stdout=subprocess.DEVNULL, check=True)
         fr, _ = D.wav_samples(one)
-        sil = bytes(r)                                                # 0.5 s
         for name, bindir in builds:
             port = D.free_port()
             conf, kp = udp_conf(port, r, mode)
             dw = D.Direwolf(I.exe(bindir, "direwolf"), conf, os.path.join(a.work, "lat_%s_%s" % (mode, name)), name)
-            k = D.KissClient(kp)
-            k.poll(1)
+            ks = D.wait_port(kp)
+            ks.setblocking(False)              # KissClient.poll would block in recv for up to 0.2 s
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             lat = []
             for _ in range(20):
-                send_paced(s, port, sil, r, 1.0)
-                send_paced(s, port, fr, r, 1.0)
-                t_end = time.time()
-                before = len(k.frames)
-                while len(k.frames) == before and time.time() < t_end + 2:
-                    k.poll(0.0005)
-                if len(k.frames) > before:
-                    lat.append((time.time() - t_end) * 1000)
-                send_paced(s, port, sil, r, 1.0)
-                k.poll(0.05)
+                # 0.5 s of silence, the transmission, 1 s of silence, in real time; the
+                # KISS socket is watched all along.
+                buf = bytes(r) + fr + bytes(2 * r)
+                t0 = time.time()
+                t_end = t0 + (r + len(fr)) / 2 / r
+                got = None
+                for i in range(0, len(buf), CHUNK):
+                    s.sendto(buf[i:i + CHUNK], ("127.0.0.1", port))
+                    while time.time() < t0 + (i + CHUNK) / 2 / r:
+                        rd, _, _ = select.select([ks], [], [], 0.0005)
+                        if rd and ks.recv(65536) and got is None:
+                            got = time.time() - t_end
+                if got is not None:
+                    lat.append(got * 1000)
             dw.stop()
             if lat:
-                print("latency %s bd %s: %d/20 decoded, median %.1f ms, min %.1f, max %.1f ms after the end of "
-                      "the transmission" % (mode, name, len(lat), statistics.median(lat), min(lat), max(lat)))
+                print("latency %s bd %s: %d/20 decoded, KISS frame received %.1f ms (median; min %.1f, max %.1f) "
+                      "after the last audio sample of the transmission (negative: during the trailing flags)"
+                      % (mode, name, len(lat), statistics.median(lat), min(lat), max(lat)))
             else:
                 print("latency %s bd %s: nothing decoded" % (mode, name))
 

@@ -1,0 +1,209 @@
+test,detail,status,note
+rx-agw=kiss,1200 A+ default fork,PASS,agw 75 kiss 75
+rx-kiss/agw,1200 A+ default: fork vs upstream,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-kiss/agw,1200 A+ default: fork vs upstream-dev,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-agw=kiss,1200 E+ (A+ alias) fork,PASS,agw 75 kiss 75
+rx-kiss/agw,1200 E+ (A+ alias): fork vs upstream,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-kiss/agw,1200 E+ (A+ alias): fork vs upstream-dev,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-agw=kiss,1200 B fork,PASS,agw 71 kiss 71
+rx-kiss/agw,1200 B: fork vs upstream,PASS,kiss 71/71 agw 71/71 repaired 0
+rx-kiss/agw,1200 B: fork vs upstream-dev,PASS,kiss 71/71 agw 71/71 repaired 0
+rx-agw=kiss,1200 at 48k fork,PASS,agw 75 kiss 75
+rx-kiss/agw,1200 at 48k: fork vs upstream,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-kiss/agw,1200 at 48k: fork vs upstream-dev,PASS,kiss 75/75 agw 75/75 repaired 0
+rx-agw=kiss,300 fork,PASS,agw 72 kiss 72
+rx-kiss/agw,300: fork vs upstream,PASS,kiss 72/72 agw 72/72 repaired 0
+rx-kiss/agw,300: fork vs upstream-dev,PASS,kiss 72/72 agw 72/72 repaired 0
+rx-agw=kiss,2400 V26B (default) fork,PASS,agw 81 kiss 81
+rx-kiss/agw,2400 V26B (default): fork vs upstream,PASS,kiss 81/81 agw 81/81 repaired 0
+rx-kiss/agw,2400 V26B (default): fork vs upstream-dev,PASS,kiss 81/81 agw 81/81 repaired 0
+rx-agw=kiss,2400 V26A fork,PASS,agw 81 kiss 81
+rx-kiss/agw,2400 V26A: fork vs upstream,PASS,kiss 81/81 agw 81/81 repaired 0
+rx-kiss/agw,2400 V26A: fork vs upstream-dev,PASS,kiss 81/81 agw 81/81 repaired 0
+rx-agw=kiss,4800 fork,PASS,agw 69 kiss 69
+rx-kiss/agw,4800: fork vs upstream,PASS,kiss 69/69 agw 69/69 repaired 0
+rx-kiss/agw,4800: fork vs upstream-dev,PASS,kiss 69/69 agw 69/69 repaired 0
+rx-agw=kiss,9600 fork,PASS,agw 67 kiss 67
+rx-kiss/agw,9600: fork vs upstream,PASS,kiss 67/67 agw 67/67 repaired 0
+rx-kiss/agw,9600: fork vs upstream-dev,PASS,kiss 67/67 agw 67/67 repaired 0
+rx-agw=kiss,1200 FX.25 fork,PASS,agw 88 kiss 88
+rx-kiss/agw,1200 FX.25: fork vs upstream,PASS,kiss 88/88 agw 88/88 repaired 0
+rx-kiss/agw,1200 FX.25: fork vs upstream-dev,PASS,kiss 88/88 agw 88/88 repaired 0
+rx-agw=kiss,9600 IL2P fork,PASS,agw 78 kiss 78
+rx-kiss/agw,9600 IL2P: fork vs upstream,PASS,kiss 78/78 agw 78/78 repaired 0
+rx-kiss/agw,9600 IL2P: fork vs upstream-dev,PASS,kiss 78/78 agw 78/78 repaired 0
+rx-softfix,"SOFT_FIX 1, fork vs upstream",PASS,"kiss 79 vs 75, extra 4, marked repaired 4, missing 0"
+rx-softfix,"SOFT_FIX 2, fork vs upstream",PASS,"kiss 83 vs 75, extra 8, marked repaired 8, missing 0"
+tx-kiss,1200: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,1200: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,1200: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,1200,PASS,identical transmit audio
+tx-kiss,300: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,300: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,300: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,300: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,300: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,300: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,300: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,300: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,300: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,300,PASS,identical transmit audio
+tx-kiss,2400: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,2400: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,2400: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,2400,PASS,identical transmit audio
+tx-kiss,2400 V26A: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400 V26A: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400 V26A: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,2400 V26A: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,2400 V26A,PASS,identical transmit audio
+tx-kiss,4800: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,4800: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,4800: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,4800: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,4800: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,4800: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,4800: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,4800: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,4800: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,4800,PASS,identical transmit audio
+tx-kiss,9600: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,9600: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,9600: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,9600,PASS,identical transmit audio
+tx-kiss,1200 FX.25: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200 FX.25: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200 FX.25: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,1200 FX.25: upstream tx -> fork rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,1200 FX.25: upstream tx -> upstream rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,1200 FX.25: upstream tx -> upstream-dev rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,1200 FX.25: upstream-dev tx -> fork rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,1200 FX.25: upstream-dev tx -> upstream rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,1200 FX.25: upstream-dev tx -> upstream-dev rx,UPSTREAM-DEFECT,"126/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-audio-md5,1200 FX.25,INFO,differs as expected (FX.25 NRZI fix) fork:dc3862c9 upstream:69bda6a7 upstream-dev:69bda6a7
+tx-kiss,9600 FX.25: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600 FX.25: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600 FX.25: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,9600 FX.25: upstream tx -> fork rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,9600 FX.25: upstream tx -> upstream rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,9600 FX.25: upstream tx -> upstream-dev rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,9600 FX.25: upstream-dev tx -> fork rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,9600 FX.25: upstream-dev tx -> upstream rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-kiss,9600 FX.25: upstream-dev tx -> upstream-dev rx,UPSTREAM-DEFECT,"125/127 frames (NRZI after FX.25, fixed in the fork)"
+tx-audio-md5,9600 FX.25,INFO,differs as expected (FX.25 NRZI fix) fork:0e07d8d0 upstream:f003cf4c upstream-dev:f003cf4c
+tx-kiss,1200 IL2P: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,1200 IL2P: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,1200 IL2P,PASS,identical transmit audio
+tx-kiss,9600 IL2P: fork tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: fork tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: fork tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream tx -> upstream-dev rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream-dev tx -> upstream rx,PASS,127/127 frames
+tx-kiss,9600 IL2P: upstream-dev tx -> upstream-dev rx,PASS,127/127 frames
+tx-audio-md5,9600 IL2P,PASS,identical transmit audio
+tx-agw,1200: fork tx -> upstream rx,PASS,127/127 frames
+tx-agw,1200: upstream tx -> fork rx,PASS,127/127 frames
+tx-agw,1200: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-pty,1200: fork tx -> upstream rx,PASS,127/127 frames
+tx-pty,1200: upstream tx -> fork rx,PASS,127/127 frames
+tx-pty,1200: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-serial,1200: fork tx -> upstream rx,PASS,127/127 frames
+tx-serial,1200: upstream tx -> fork rx,PASS,127/127 frames
+tx-serial,1200: upstream-dev tx -> fork rx,PASS,127/127 frames
+tx-fallback,"FX.25 1200, AX.25 fallback after FX.25: fork",PASS,2/2 frames decoded
+tx-fallback,"FX.25 1200, AX.25 fallback after FX.25: upstream",UPSTREAM-DEFECT,1/2 frames decoded
+tx-fallback,"FX.25 1200, AX.25 fallback after FX.25: upstream-dev",UPSTREAM-DEFECT,1/2 frames decoded
+tx-fallback,"FX.25 9600, AX.25 fallback after FX.25: fork",PASS,4/4 frames decoded
+tx-fallback,"FX.25 9600, AX.25 fallback after FX.25: upstream",UPSTREAM-DEFECT,3/4 frames decoded
+tx-fallback,"FX.25 9600, AX.25 fallback after FX.25: upstream-dev",UPSTREAM-DEFECT,3/4 frames decoded
+tx-fallback,"IL2P 1200, AX.25 fallback: fork",PASS,2/2 frames decoded
+tx-fallback,"IL2P 1200, AX.25 fallback: upstream",PASS,2/2 frames decoded
+tx-fallback,"IL2P 1200, AX.25 fallback: upstream-dev",PASS,2/2 frames decoded
+tx-fallback,"IL2P 9600, AX.25 fallback: fork",UPSTREAM-DEFECT,1/2 frames decoded
+tx-fallback,"IL2P 9600, AX.25 fallback: upstream",UPSTREAM-DEFECT,1/2 frames decoded
+tx-fallback,"IL2P 9600, AX.25 fallback: upstream-dev",UPSTREAM-DEFECT,1/2 frames decoded
+digi,fork vs upstream,PASS,12 / 12 frames digipeated
+digi,fork vs upstream-dev,PASS,12 / 12 frames digipeated
+digi-frame,"W1ABC>APRS,N0CALL-1*:>wide1<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide2<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide1 wide2<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*:>wide3 trapped<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*:>wide7 trapped<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,N0CALL-1*:>test alias<0x0a>",INFO,
+digi-frame,"W1ABC>APRS,DIGI1,N0CALL-1*:>after another digi<0x0a>",INFO,
+digi-frame,"W1XYZ>APRS,N0CALL-1*:!4237.14N/07120.83W-position<0x0a>",INFO,
+digi-frame,"W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a>",INFO,
+digi-frame,"W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a>",INFO,
+beacon,fork vs upstream,PASS,4 / 4 distinct beacons (tocall version ignored)
+beacon,fork vs upstream-dev,PASS,4 / 4 distinct beacons (tocall version ignored)
+beacon-frame,"N0CALL-1>APDWxx,WIDE1-1:!4237.14NS07120.83W#PHG7140PBEACON test",INFO,
+beacon-frame,N0CALL-1>APDWxx:>Custom beacon status,INFO,
+beacon-frame,N0CALL-1>APDWxx:!4237.14N/07120.83W#146.955MHz T074 -060 freq,INFO,
+beacon-frame,N0CALL-1>APDWxx:!4237.  N/07120.  W-,INFO,
+igate-login,fork,INFO,user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+igate-login,upstream,INFO,user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+igate-login,upstream-dev,INFO,user N0CALL-1 pass 13023 vers Dire-Wolf 1.9
+igate-rf>is,fork vs upstream,PASS,41 / 41 lines uploaded
+igate-is>rf,fork vs upstream,PASS,1 / 1 frames transmitted
+igate-rf>is,fork vs upstream-dev,PASS,41 / 41 lines uploaded
+igate-is>rf,fork vs upstream-dev,PASS,1 / 1 frames transmitted
+igate-line,"KJ4SNT>APMI04,qAR,N0CALL-1::KJ4SNT   :PARM.Vin,Rx1h,Dg1h,Eff1h,Rx10m,O",INFO,
+igate-line,"N0CALL>APRS,qAR,N0CALL-1:;LEADER   *092345z4903.50N/07201.75W>088/036",INFO,
+igate-line,"N0CALL>APRS,qAR,N0CALL-1:;LEADER   _092345z4903.50N/07201.75W>088/036",INFO,
+igate-line,"N0CALL>APRS,qAR,N0CALL-1:;MOBIL    *111111z/5L!!<*e7>7P[",INFO,
+igate-line,"HOME>APDW12,WIDE1-1,WIDE2-1,qAR,N0CALL-1:;AWAY     *111111z4237.14N/07",INFO,
+igate-line,"W1XYZ>APRS,WIDE1-1,qAR,N0CALL-1:!4237.14N/07120.83W-heard on RF",INFO,
+igate-rf-frame,"N0CALL-1>APDW18,WIDE1-1:}K1ABC>APRS,TCPIP,N0CALL-1*::W1XYZ    :Message",INFO,
+config,direwolf.conf: fork vs upstream,PASS,19 lines
+config,direwolf.conf: fork vs upstream-dev,PASS,19 lines
+config,kitchen_sink.conf: fork vs upstream,PASS,56 lines
+config,kitchen_sink.conf: fork vs upstream-dev,PASS,56 lines
+config,sdr.conf: fork vs upstream,PASS,19 lines
+config,sdr.conf: fork vs upstream-dev,PASS,19 lines
+connected,fork calls upstream,PASS,connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+connected-frames,fork calls upstream A>B,INFO,20 frames on air
+connected-frames,fork calls upstream B>A,INFO,13 frames on air
+connected,upstream calls fork,PASS,connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+connected-frames,upstream calls fork A>B,INFO,20 frames on air
+connected-frames,upstream calls fork B>A,INFO,13 frames on air
+connected,fork calls upstream-dev,PASS,connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+connected-frames,fork calls upstream-dev A>B,INFO,20 frames on air
+connected-frames,fork calls upstream-dev B>A,INFO,13 frames on air
+connected,upstream-dev calls fork,PASS,connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+connected-frames,upstream-dev calls fork A>B,INFO,20 frames on air
+connected-frames,upstream-dev calls fork B>A,INFO,13 frames on air

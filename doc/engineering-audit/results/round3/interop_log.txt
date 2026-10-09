@@ -1,0 +1,438 @@
+PASS  tx-identical 300 AFSK              11025  tx=all            rx=-                   3/3    md5 9a97f8cb
+PASS  cross-decode 300 AFSK              11025  tx=any            rx=fork              103/103  
+PASS  cross-decode 300 AFSK              11025  tx=any            rx=upstream          103/103  
+PASS  cross-decode 300 AFSK              11025  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 300 AFSK              11025  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 300 AFSK              22050  tx=all            rx=-                   3/3    md5 57d8f0a7
+PASS  cross-decode 300 AFSK              22050  tx=any            rx=fork              103/103  
+PASS  cross-decode 300 AFSK              22050  tx=any            rx=upstream          103/103  
+PASS  cross-decode 300 AFSK              22050  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 300 AFSK              22050  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 300 AFSK              44100  tx=all            rx=-                   3/3    md5 08075301
+PASS  cross-decode 300 AFSK              44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 300 AFSK              44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 300 AFSK              44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 300 AFSK              44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 300 AFSK              48000  tx=all            rx=-                   3/3    md5 96ec514c
+PASS  cross-decode 300 AFSK              48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 300 AFSK              48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 300 AFSK              48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 300 AFSK              48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 300 AFSK              96000  tx=all            rx=-                   3/3    md5 e3f5dde2
+PASS  cross-decode 300 AFSK              96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 300 AFSK              96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 300 AFSK              96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 300 AFSK              96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK              8000  tx=all            rx=-                   3/3    md5 5567cb4f
+PASS  cross-decode 1200 AFSK              8000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK              8000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK              8000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK              8000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK             11025  tx=all            rx=-                   3/3    md5 22ac3d08
+PASS  cross-decode 1200 AFSK             11025  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK             11025  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK             11025  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK             11025  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK             22050  tx=all            rx=-                   3/3    md5 c3e82db3
+PASS  cross-decode 1200 AFSK             22050  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK             22050  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK             22050  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK             22050  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK             44100  tx=all            rx=-                   3/3    md5 18a77ba7
+PASS  cross-decode 1200 AFSK             44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK             44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK             44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK             44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK             48000  tx=all            rx=-                   3/3    md5 799038e8
+PASS  cross-decode 1200 AFSK             48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK             48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK             48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK             48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK             96000  tx=all            rx=-                   3/3    md5 a18f43b0
+PASS  cross-decode 1200 AFSK             96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK             96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK             96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK             96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK            192000  tx=all            rx=-                   3/3    md5 a19c594a
+PASS  cross-decode 1200 AFSK            192000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK            192000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK            192000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK            192000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK A+          22050  tx=all            rx=-                   3/3    md5 c3e82db3
+PASS  cross-decode 1200 AFSK A+          22050  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK A+          22050  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK A+          22050  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK A+          22050  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK A+          44100  tx=all            rx=-                   3/3    md5 18a77ba7
+PASS  cross-decode 1200 AFSK A+          44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK A+          44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK A+          44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK A+          44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK A+          48000  tx=all            rx=-                   3/3    md5 799038e8
+PASS  cross-decode 1200 AFSK A+          48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK A+          48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK A+          48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK A+          48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK A+          96000  tx=all            rx=-                   3/3    md5 a18f43b0
+PASS  cross-decode 1200 AFSK A+          96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK A+          96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK A+          96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK A+          96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK B           22050  tx=all            rx=-                   3/3    md5 c3e82db3
+PASS  cross-decode 1200 AFSK B           22050  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK B           22050  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK B           22050  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK B           22050  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK B           44100  tx=all            rx=-                   3/3    md5 18a77ba7
+PASS  cross-decode 1200 AFSK B           44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK B           44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK B           44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK B           44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK B           48000  tx=all            rx=-                   3/3    md5 799038e8
+PASS  cross-decode 1200 AFSK B           48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK B           48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK B           48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK B           48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK B           96000  tx=all            rx=-                   3/3    md5 a18f43b0
+PASS  cross-decode 1200 AFSK B           96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK B           96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK B           96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK B           96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK AB          44100  tx=all            rx=-                   3/3    md5 18a77ba7
+PASS  cross-decode 1200 AFSK AB          44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK AB          44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK AB          44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK AB          44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 AFSK AB          48000  tx=all            rx=-                   3/3    md5 799038e8
+PASS  cross-decode 1200 AFSK AB          48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 AFSK AB          48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 AFSK AB          48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 AFSK AB          48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26A       44100  tx=all            rx=-                   3/3    md5 a8a30b41
+PASS  cross-decode 2400 QPSK V.26A       44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26A       44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26A       44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26A       44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26A       48000  tx=all            rx=-                   3/3    md5 0640e279
+PASS  cross-decode 2400 QPSK V.26A       48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26A       48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26A       48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26A       48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26A       96000  tx=all            rx=-                   3/3    md5 8057009d
+PASS  cross-decode 2400 QPSK V.26A       96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26A       96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26A       96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26A       96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26B       44100  tx=all            rx=-                   3/3    md5 8f2b5a9c
+PASS  cross-decode 2400 QPSK V.26B       44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26B       44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26B       44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26B       44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26B       48000  tx=all            rx=-                   3/3    md5 8897ef5f
+PASS  cross-decode 2400 QPSK V.26B       48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26B       48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26B       48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26B       48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 QPSK V.26B       96000  tx=all            rx=-                   3/3    md5 f1026a45
+PASS  cross-decode 2400 QPSK V.26B       96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 QPSK V.26B       96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 QPSK V.26B       96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 QPSK V.26B       96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 G3RUH            44100  tx=all            rx=-                   3/3    md5 8b52b48a
+PASS  cross-decode 2400 G3RUH            44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 G3RUH            44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 G3RUH            44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 G3RUH            44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 2400 G3RUH            48000  tx=all            rx=-                   3/3    md5 110e6763
+PASS  cross-decode 2400 G3RUH            48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 2400 G3RUH            48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 2400 G3RUH            48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 2400 G3RUH            48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 4800 8PSK             44100  tx=all            rx=-                   3/3    md5 b4ca9346
+PASS  cross-decode 4800 8PSK             44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 4800 8PSK             44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 4800 8PSK             44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 4800 8PSK             44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 4800 8PSK             48000  tx=all            rx=-                   3/3    md5 f70f2392
+PASS  cross-decode 4800 8PSK             48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 4800 8PSK             48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 4800 8PSK             48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 4800 8PSK             48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 4800 8PSK             96000  tx=all            rx=-                   3/3    md5 460f487e
+PASS  cross-decode 4800 8PSK             96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 4800 8PSK             96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 4800 8PSK             96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 4800 8PSK             96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 G3RUH            44100  tx=all            rx=-                   3/3    md5 4822834d
+PASS  cross-decode 9600 G3RUH            44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 G3RUH            44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 G3RUH            44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 G3RUH            44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 G3RUH            48000  tx=all            rx=-                   3/3    md5 efb12ab2
+PASS  cross-decode 9600 G3RUH            48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 G3RUH            48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 G3RUH            48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 G3RUH            48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 G3RUH            96000  tx=all            rx=-                   3/3    md5 5a7fcec0
+PASS  cross-decode 9600 G3RUH            96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 G3RUH            96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 G3RUH            96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 G3RUH            96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 G3RUH           192000  tx=all            rx=-                   3/3    md5 591a1902
+PASS  cross-decode 9600 G3RUH           192000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 G3RUH           192000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 G3RUH           192000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 G3RUH           192000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 19200 G3RUH           96000  tx=all            rx=-                   3/3    md5 dbb6c270
+PASS  cross-decode 19200 G3RUH           96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 19200 G3RUH           96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 19200 G3RUH           96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 19200 G3RUH           96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 19200 G3RUH          192000  tx=all            rx=-                   3/3    md5 5a86a65a
+PASS  cross-decode 19200 G3RUH          192000  tx=any            rx=fork              103/103  
+PASS  cross-decode 19200 G3RUH          192000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 19200 G3RUH          192000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 19200 G3RUH          192000  tx=any            rx=fork -S1          103/103  
+EXPECTED-DIFF tx-identical 1200 FX.25 16         44100  tx=all            rx=-                   0/0    differs as expected (FX.25 NRZI continuity fix) fork:45917ba3 upstream:f445ae29 upstream-dev:f445ae29
+PASS  cross-decode 1200 FX.25 16         44100  tx=fork           rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=fork           rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=fork           rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=fork           rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream       rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream       rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream       rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream       rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream-dev   rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream-dev   rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream-dev   rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         44100  tx=upstream-dev   rx=fork -S1          103/103  
+EXPECTED-DIFF tx-identical 1200 FX.25 16         48000  tx=all            rx=-                   0/0    differs as expected (FX.25 NRZI continuity fix) fork:6b380099 upstream:bf6ccbf3 upstream-dev:bf6ccbf3
+PASS  cross-decode 1200 FX.25 16         48000  tx=fork           rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=fork           rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=fork           rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=fork           rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream       rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream       rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream       rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream       rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream-dev   rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream-dev   rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream-dev   rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 16         48000  tx=upstream-dev   rx=fork -S1          103/103  
+EXPECTED-DIFF tx-identical 1200 FX.25 64         44100  tx=all            rx=-                   0/0    differs as expected (FX.25 NRZI continuity fix) fork:ba17d42b upstream:a4124f90 upstream-dev:a4124f90
+PASS  cross-decode 1200 FX.25 64         44100  tx=fork           rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=fork           rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=fork           rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=fork           rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream       rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream       rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream       rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream       rx=fork -S1          103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream-dev   rx=fork              103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream-dev   rx=upstream          103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream-dev   rx=upstream-dev      103/103  
+PASS  cross-decode 1200 FX.25 64         44100  tx=upstream-dev   rx=fork -S1          103/103  
+EXPECTED-DIFF tx-identical 9600 FX.25 32         48000  tx=all            rx=-                   0/0    differs as expected (FX.25 NRZI continuity fix) fork:f44ff7c8 upstream:80919da5 upstream-dev:80919da5
+PASS  cross-decode 9600 FX.25 32         48000  tx=fork           rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=fork           rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=fork           rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=fork           rx=fork -S1          103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream       rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream       rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream       rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream       rx=fork -S1          103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream-dev   rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream-dev   rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream-dev   rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         48000  tx=upstream-dev   rx=fork -S1          103/103  
+EXPECTED-DIFF tx-identical 9600 FX.25 32         96000  tx=all            rx=-                   0/0    differs as expected (FX.25 NRZI continuity fix) fork:2b2fc990 upstream:6a5a1592 upstream-dev:6a5a1592
+PASS  cross-decode 9600 FX.25 32         96000  tx=fork           rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=fork           rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=fork           rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=fork           rx=fork -S1          103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream       rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream       rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream       rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream       rx=fork -S1          103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream-dev   rx=fork              103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream-dev   rx=upstream          103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream-dev   rx=upstream-dev      103/103  
+PASS  cross-decode 9600 FX.25 32         96000  tx=upstream-dev   rx=fork -S1          103/103  
+PASS  tx-identical 1200 IL2P             44100  tx=all            rx=-                   3/3    md5 108fdefa
+PASS  cross-decode 1200 IL2P             44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 IL2P             44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 IL2P             44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 IL2P             44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 IL2P             48000  tx=all            rx=-                   3/3    md5 e14b485e
+PASS  cross-decode 1200 IL2P             48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 IL2P             48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 IL2P             48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 IL2P             48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 IL2P weak FEC    44100  tx=all            rx=-                   3/3    md5 c1e9c617
+PASS  cross-decode 1200 IL2P weak FEC    44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 IL2P weak FEC    44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 IL2P weak FEC    44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 IL2P weak FEC    44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 1200 IL2P inverted    44100  tx=all            rx=-                   3/3    md5 1d41112e
+PASS  cross-decode 1200 IL2P inverted    44100  tx=any            rx=fork              103/103  
+PASS  cross-decode 1200 IL2P inverted    44100  tx=any            rx=upstream          103/103  
+PASS  cross-decode 1200 IL2P inverted    44100  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 1200 IL2P inverted    44100  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 IL2P             48000  tx=all            rx=-                   3/3    md5 51ed315f
+PASS  cross-decode 9600 IL2P             48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 IL2P             48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 IL2P             48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 IL2P             48000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 IL2P             96000  tx=all            rx=-                   3/3    md5 def7d917
+PASS  cross-decode 9600 IL2P             96000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 IL2P             96000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 IL2P             96000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 IL2P             96000  tx=any            rx=fork -S1          103/103  
+PASS  tx-identical 9600 IL2P inverted    48000  tx=all            rx=-                   3/3    md5 78532df1
+PASS  cross-decode 9600 IL2P inverted    48000  tx=any            rx=fork              103/103  
+PASS  cross-decode 9600 IL2P inverted    48000  tx=any            rx=upstream          103/103  
+PASS  cross-decode 9600 IL2P inverted    48000  tx=any            rx=upstream-dev      103/103  
+PASS  cross-decode 9600 IL2P inverted    48000  tx=any            rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200              22050  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200              22050  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200              22050  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200              22050  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200              44100  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200              44100  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200              44100  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200              44100  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200              48000  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200              48000  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200              48000  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200              48000  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200              96000  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200              96000  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200              96000  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200              96000  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200 -P A+        44100  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200 -P A+        44100  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200 -P A+        44100  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200 -P A+        44100  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk1200 -P B         44100  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk1200 -P B         44100  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk1200 -P B         44100  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk1200 -P B         44100  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk300               44100  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk300               44100  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk300               44100  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk300               44100  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    afsk300               48000  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    afsk300               48000  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    afsk300               48000  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    afsk300               48000  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    g3ruh9600             48000  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    g3ruh9600             48000  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    g3ruh9600             48000  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    g3ruh9600             48000  tx=ax25ref        rx=fork -S1          103/103  
+PASS  indep-mod    g3ruh9600             96000  tx=ax25ref        rx=fork              103/103  
+PASS  indep-mod    g3ruh9600             96000  tx=ax25ref        rx=upstream          103/103  
+PASS  indep-mod    g3ruh9600             96000  tx=ax25ref        rx=upstream-dev      103/103  
+PASS  indep-mod    g3ruh9600             96000  tx=ax25ref        rx=fork -S1          103/103  
+PASS  multimon     1200 AFSK             22050  tx=fork           rx=multimon-ng AFSK1200  103/103  
+PASS  multimon     1200 AFSK             22050  tx=upstream       rx=multimon-ng AFSK1200  103/103  
+PASS  multimon     1200 AFSK             22050  tx=upstream-dev   rx=multimon-ng AFSK1200  103/103  
+PASS  multimon     1200 AFSK             22050  tx=ax25ref        rx=multimon-ng AFSK1200  103/103  
+PASS  multimon-cmp 1200 AFSK             22050  tx=fork           rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  multimon-cmp 1200 AFSK             22050  tx=upstream       rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  multimon-cmp 1200 AFSK             22050  tx=upstream-dev   rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  multimon     9600 G3RUH            22050  tx=fork           rx=multimon-ng FSK9600  103/103  
+PASS  multimon     9600 G3RUH            22050  tx=upstream       rx=multimon-ng FSK9600  103/103  
+PASS  multimon     9600 G3RUH            22050  tx=upstream-dev   rx=multimon-ng FSK9600  103/103  
+PASS  multimon     9600 G3RUH            22050  tx=ax25ref        rx=multimon-ng FSK9600  103/103  
+PASS  multimon-cmp 9600 G3RUH            22050  tx=fork           rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  multimon-cmp 9600 G3RUH            22050  tx=upstream       rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  multimon-cmp 9600 G3RUH            22050  tx=upstream-dev   rx=vs ax25ref audio  103/103  same or better than independent audio
+PASS  morse        CW ident              22050  tx=fork           rx=multimon-ng MORSE_CW    1/1    decoded 'N0CALL-1 W1AW/7 TEST-2'
+UPSTREAM-DEFECT morse        CW ident              22050  tx=upstream       rx=multimon-ng MORSE_CW    0/1    decoded 'N0CALL=1 W1AW/7 TEST=2' (upstream 1.8.2 defect, PR #597)
+PASS  morse        CW ident              22050  tx=upstream-dev   rx=multimon-ng MORSE_CW    1/1    decoded 'N0CALL-1 W1AW/7 TEST-2'
+PASS  noise        300 AFSK                  -  tx=upstream       rx=fork -B 300 -P A   70/70   decoded=70 identical to upstream
+PASS  noise        300 AFSK                  -  tx=upstream       rx=upstream -B 300 -P A   70/70   decoded=70
+PASS  noise        300 AFSK                  -  tx=upstream       rx=upstream-dev -B 300 -P A   70/70   decoded=70
+PASS  noise        300 AFSK                  -  tx=upstream       rx=fork -S1 -B 300 -P A   73/73   decoded=73 missing_vs_upstream=0
+PASS  noise        300 AFSK                  -  tx=upstream       rx=fork -B 300 -P B   69/69   decoded=69 identical to upstream
+PASS  noise        300 AFSK                  -  tx=upstream       rx=upstream -B 300 -P B   69/69   decoded=69
+PASS  noise        300 AFSK                  -  tx=upstream       rx=upstream-dev -B 300 -P B   69/69   decoded=69
+PASS  noise        300 AFSK                  -  tx=upstream       rx=fork -S1 -B 300 -P B   74/74   decoded=74 missing_vs_upstream=0
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -P A          72/72   decoded=72 identical to upstream
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream -P A      72/72   decoded=72
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream-dev -P A   72/72   decoded=72
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -S1 -P A      77/77   decoded=77 missing_vs_upstream=0
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -P A+         75/75   decoded=75 identical to upstream
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream -P A+     75/75   decoded=75
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream-dev -P A+   75/75   decoded=75
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -S1 -P A+     79/79   decoded=79 missing_vs_upstream=0
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -P B          71/71   decoded=71 identical to upstream
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream -P B      71/71   decoded=71
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream-dev -P B   71/71   decoded=71
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -S1 -P B      73/73   decoded=73 missing_vs_upstream=0
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -P AB         72/72   decoded=72 identical to upstream
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream -P AB     72/72   decoded=72
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream-dev -P AB   72/72   decoded=72
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -S1 -P AB     73/73   decoded=73 missing_vs_upstream=0
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -P A -F 1     77/77   decoded=77 identical to upstream
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream -P A -F 1   77/77   decoded=77
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=upstream-dev -P A -F 1   77/77   decoded=77
+PASS  noise        1200 AFSK                 -  tx=upstream       rx=fork -S1 -P A -F 1   77/77   decoded=77 missing_vs_upstream=0
+EXPECTED-DIFF noise        1200 AFSK 96k             -  tx=upstream       rx=fork -P A+         99/99   decoded=99 vs upstream: gained 2, lost 0 (auto decimation)
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=upstream -P A+     97/97   decoded=97
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=upstream-dev -P A+   97/97   decoded=97
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=fork -S1 -P A+    100/100  decoded=100 missing_vs_fork=0
+EXPECTED-DIFF noise        1200 AFSK 96k             -  tx=upstream       rx=fork -P A          96/96   decoded=96 vs upstream: gained 3, lost 1 (auto decimation)
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=upstream -P A      94/94   decoded=94
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=upstream-dev -P A   94/94   decoded=94
+PASS  noise        1200 AFSK 96k             -  tx=upstream       rx=fork -S1 -P A      99/99   decoded=99 missing_vs_fork=0
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=fork -P A+         51/51   decoded=51 identical to upstream
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=upstream -P A+     51/51   decoded=51
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=upstream-dev -P A+   51/51   decoded=51
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=fork -S1 -P A+     55/55   decoded=55 missing_vs_upstream=0
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=fork -P A          50/50   decoded=50 identical to upstream
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=upstream -P A      50/50   decoded=50
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=upstream-dev -P A   50/50   decoded=50
+PASS  noise        1200 AFSK 22k             -  tx=upstream       rx=fork -S1 -P A      56/56   decoded=56 missing_vs_upstream=0
+PASS  noise        2400 QPSK V.26A           -  tx=upstream       rx=fork -B 2400 -j    81/81   decoded=81 identical to upstream
+PASS  noise        2400 QPSK V.26A           -  tx=upstream       rx=upstream -B 2400 -j   81/81   decoded=81
+PASS  noise        2400 QPSK V.26A           -  tx=upstream       rx=upstream-dev -B 2400 -j   81/81   decoded=81
+PASS  noise        2400 QPSK V.26A           -  tx=upstream       rx=fork -S1 -B 2400 -j   84/84   decoded=84 missing_vs_upstream=0
+PASS  noise        2400 QPSK V.26B           -  tx=upstream       rx=fork -B 2400 -J    81/81   decoded=81 identical to upstream
+PASS  noise        2400 QPSK V.26B           -  tx=upstream       rx=upstream -B 2400 -J   81/81   decoded=81
+PASS  noise        2400 QPSK V.26B           -  tx=upstream       rx=upstream-dev -B 2400 -J   81/81   decoded=81
+PASS  noise        2400 QPSK V.26B           -  tx=upstream       rx=fork -S1 -B 2400 -J   85/85   decoded=85 missing_vs_upstream=0
+PASS  noise        4800 8PSK                 -  tx=upstream       rx=fork -B 4800       69/69   decoded=69 identical to upstream
+PASS  noise        4800 8PSK                 -  tx=upstream       rx=upstream -B 4800   69/69   decoded=69
+PASS  noise        4800 8PSK                 -  tx=upstream       rx=upstream-dev -B 4800   69/69   decoded=69
+PASS  noise        4800 8PSK                 -  tx=upstream       rx=fork -S1 -B 4800   70/70   decoded=70 missing_vs_upstream=0
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=fork -B 9600       62/62   decoded=62 identical to upstream
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=upstream -B 9600   62/62   decoded=62
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=upstream-dev -B 9600   62/62   decoded=62
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=fork -S1 -B 9600   63/63   decoded=63 missing_vs_upstream=0
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=fork -B 9600 -P +   62/62   decoded=62 identical to upstream
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=upstream -B 9600 -P +   62/62   decoded=62
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=upstream-dev -B 9600 -P +   62/62   decoded=62
+PASS  noise        9600 G3RUH                -  tx=upstream       rx=fork -S1 -B 9600 -P +   63/63   decoded=63 missing_vs_upstream=0
+PASS  noise        19200 G3RUH               -  tx=upstream       rx=fork -B 19200      66/66   decoded=66 identical to upstream
+PASS  noise        19200 G3RUH               -  tx=upstream       rx=upstream -B 19200   66/66   decoded=66
+PASS  noise        19200 G3RUH               -  tx=upstream       rx=upstream-dev -B 19200   66/66   decoded=66
+PASS  noise        19200 G3RUH               -  tx=upstream       rx=fork -S1 -B 19200   66/66   decoded=66 missing_vs_upstream=0
+PASS  noise        1200 FX.25                -  tx=upstream       rx=fork               80/80   decoded=80 identical to upstream
+PASS  noise        1200 FX.25                -  tx=upstream       rx=upstream           80/80   decoded=80
+PASS  noise        1200 FX.25                -  tx=upstream       rx=upstream-dev       80/80   decoded=80
+PASS  noise        1200 FX.25                -  tx=upstream       rx=fork -S1           82/82   decoded=82 missing_vs_upstream=0
+PASS  noise        9600 FX.25                -  tx=upstream       rx=fork -B 9600       66/66   decoded=66 identical to upstream
+PASS  noise        9600 FX.25                -  tx=upstream       rx=upstream -B 9600   66/66   decoded=66
+PASS  noise        9600 FX.25                -  tx=upstream       rx=upstream-dev -B 9600   66/66   decoded=66
+PASS  noise        9600 FX.25                -  tx=upstream       rx=fork -S1 -B 9600   66/66   decoded=66 missing_vs_upstream=0
+PASS  noise        1200 IL2P                 -  tx=upstream       rx=fork               88/88   decoded=88 identical to upstream
+PASS  noise        1200 IL2P                 -  tx=upstream       rx=upstream           88/88   decoded=88
+PASS  noise        1200 IL2P                 -  tx=upstream       rx=upstream-dev       88/88   decoded=88
+PASS  noise        1200 IL2P                 -  tx=upstream       rx=fork -S1           88/88   decoded=88 missing_vs_upstream=0
+PASS  noise        9600 IL2P                 -  tx=upstream       rx=fork -B 9600       74/74   decoded=74 identical to upstream
+PASS  noise        9600 IL2P                 -  tx=upstream       rx=upstream -B 9600   74/74   decoded=74
+PASS  noise        9600 IL2P                 -  tx=upstream       rx=upstream-dev -B 9600   74/74   decoded=74
+PASS  noise        9600 IL2P                 -  tx=upstream       rx=fork -S1 -B 9600   74/74   decoded=74 missing_vs_upstream=0
+
+436 checks, 0 failed

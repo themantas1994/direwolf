@@ -1,0 +1,7 @@
+test,detail,status,note
+stall,"fork, stalled AGW client",FAIL,healthy client got 53/4000 frames
+stall,"fork, stalled KISS client",FAIL,healthy client got 60/4000 frames
+stall,"upstream, stalled AGW client",FAIL,healthy client got 53/4000 frames
+stall,"upstream, stalled KISS client",FAIL,healthy client got 60/4000 frames
+stall,"upstream-dev, stalled AGW client",PASS,healthy client got 4000/4000 frames
+stall,"upstream-dev, stalled KISS client",FAIL,healthy client got 72/4000 frames

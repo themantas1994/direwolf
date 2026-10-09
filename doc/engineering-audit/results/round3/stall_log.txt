@@ -1,0 +1,8 @@
+FAIL  stall          fork, stalled AGW client                     healthy client got 53/4000 frames
+FAIL  stall          fork, stalled KISS client                    healthy client got 60/4000 frames
+FAIL  stall          upstream, stalled AGW client                 healthy client got 53/4000 frames
+FAIL  stall          upstream, stalled KISS client                healthy client got 60/4000 frames
+PASS  stall          upstream-dev, stalled AGW client             healthy client got 4000/4000 frames
+FAIL  stall          upstream-dev, stalled KISS client            healthy client got 72/4000 frames
+
+6 rows, 5 failed

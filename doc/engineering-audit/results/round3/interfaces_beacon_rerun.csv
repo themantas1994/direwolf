@@ -1,0 +1,8 @@
+test,detail,status,note
+beacon,fork vs upstream,PASS,5 / 5 distinct beacons (tocall version ignored)
+beacon,fork vs upstream-dev,PASS,5 / 5 distinct beacons (tocall version ignored)
+beacon-frame,"N0CALL-1>APDWxx,WIDE1-1:!4237.14NS07120.83W#PHG7140PBEACON test",INFO,
+beacon-frame,"N0CALL-1>APDWxx:!/8wPp<K""D>  !/A=003281compressed",INFO,
+beacon-frame,N0CALL-1>APDWxx:>Custom beacon status,INFO,
+beacon-frame,N0CALL-1>APDWxx:!4237.14N/07120.83W#146.955MHz T074 -060 freq,INFO,
+beacon-frame,N0CALL-1>APDWxx:!4237.  N/07120.  W-,INFO,

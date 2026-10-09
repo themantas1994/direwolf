@@ -22,28 +22,30 @@ cd $F && ctest
 ## against the upstream trees' ax25_pad.c, fcs_calc.c, textcolor.c.
 cd test/compat/golden && $F/test/ax25goldentest ax25_vectors.txt
 
-## Modem interoperability (interop.csv, interop.log)
+## Modem interoperability (interop.csv, interop_log.txt)
 python3 test/compat/interop.py --build fork=$F --build upstream=$U --build upstream-dev=$D --out $S/interop_final --csv interop.csv
 
-## APRS decoding (aprs_decode.csv, aprs_decode.log); valgrind for the upstream trees (valgrind_decode_aprs_*.txt)
+## APRS decoding (aprs_decode.csv, aprs_decode_log.txt); valgrind for the upstream trees (valgrind_decode_aprs_*.txt)
 python3 test/compat/aprs_decode_compare.py --build fork=$F --build upstream=$U --build upstream-dev=$D --work $S/aprsdec --csv aprs_decode.csv --valgrind
 cd $S/aprsdec && valgrind $U/src/decode_aprs vg_in.txt > /dev/null      # and $D
 
-## Real direwolf processes (interfaces.csv, interfaces.log, stall.csv, stall.log); run as an ordinary user
+## Real direwolf processes (interfaces.csv, interfaces_log.txt, stall.csv, stall_log.txt); run as an ordinary user
 DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
     --work /tmp/dwrun/final_if --conf-dir <dir with direwolf.conf, sdr.conf from the build's conf/ and test/compat/configs/kitchen_sink.conf> \
     --only rx,tx,digi,beacon,igate,config,connected --csv interfaces.csv
 DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
     --work /tmp/dwrun/final_stall --only stall --csv stall.csv               # as root: lowers net.ipv4.tcp_wmem, restores it
+# Beacons again after fixing the beacon line in interfaces.py (interfaces_beacon_rerun.csv)
+DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
+    --work /tmp/dwrun/final_bcn --only beacon --csv interfaces_beacon_rerun.csv
 
-## Audio over UDP and decode latency (udp.log).  Run with the scratch version of this script; the committed
-## test/compat/udp_audio.py does the same measurements:
+## Audio over UDP and decode latency (udp.txt)
 DW_RUN_AS=dwtest python3 test/compat/udp_audio.py --build fork=$F --build upstream=$U --work /tmp/dwrun/udp \
     /tmp/dwrun/final_if/rx_1200_A_default.wav      # receive audio written by interfaces.py (gen_packets -n 100, 44.1 kHz)
 
-## CPU time and memory (cpu_mem.csv).  Same note; the round 3 run gave fork -S1 / -S2 only for two cases.
+## CPU time and memory (cpu_mem.csv), 3 runs of each
 python3 test/benchmark/cpu_mem.py --atest upstream=$U/src/atest --atest upstream-dev=$D/src/atest --atest fork=$F/src/atest \
-    --atest 'fork -S1=$F/src/atest:-S1' --atest 'fork -S2=$F/src/atest:-S2' --gen-packets $U/src/gen_packets --work $S/cpumem --out cpu_mem.csv
+    --atest 'fork -S1=$F/src/atest:-S1' --atest 'fork -S2=$F/src/atest:-S2' --gen-packets $U/src/gen_packets --runs 3 --work $S/cpumem --out cpu_mem.csv
 
 ## Sensitivity (sens_*.csv); atest_fork_s1 / _s2 are wrappers: exec $F/src/atest -S1 "$@" (-S2)
 B=test/benchmark/rx_sensitivity.py
