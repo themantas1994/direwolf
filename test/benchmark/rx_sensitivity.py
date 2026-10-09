@@ -122,6 +122,78 @@ def write_wav(path, fs, x):
 
 
 # ----------------------------------------------------------------------------
+# Independent AFSK modulator (--generator numpy)
+#
+# Written from the AX.25 2.2 and Bell 202 descriptions, sharing no code with
+# gen_packets, so a mistake in the project's own modulator can't hide the same
+# mistake in the demodulator.  Bit and tone rates may be fractional.
+# ----------------------------------------------------------------------------
+
+def ax25_fcs(data):
+    """CRC-16/X.25: reflected polynomial 0x8408, initial 0xFFFF, final XOR 0xFFFF."""
+    crc = 0xFFFF
+    for b in data:
+        crc ^= b
+        for _ in range(8):
+            crc = (crc >> 1) ^ 0x8408 if crc & 1 else crc >> 1
+    return crc ^ 0xFFFF
+
+
+def ax25_frame(tnc2):
+    """'SRC>DST,DIGI1,DIGI2:info' -> frame bytes without FCS (UI, PID F0)."""
+    head, _, info = tnc2.partition(':')
+    src, _, rest = head.partition('>')
+    calls = rest.split(',')
+    calls = [calls[0], src] + calls[1:]          # destination, source, digipeaters
+    out = bytearray()
+    for i, c in enumerate(calls):
+        call, _, ssid = c.partition('-')
+        out += bytes(ord(ch) << 1 for ch in call.ljust(6))
+        last = 1 if i == len(calls) - 1 else 0
+        out.append(0x60 | (int(ssid or 0) << 1) | last)
+    out += b'\x03\xf0' + info.encode('latin-1')
+    return bytes(out)
+
+
+def hdlc_bits(frame, preamble=32, postamble=2):
+    """Flags, data with FCS (LSB first, bit stuffed), flags."""
+    flag = [0, 1, 1, 1, 1, 1, 1, 0]
+    data = frame + ax25_fcs(frame).to_bytes(2, 'little')
+    bits = flag * preamble
+    ones = 0
+    for b in data:
+        for k in range(8):
+            v = (b >> k) & 1
+            bits.append(v)
+            ones = ones + 1 if v else 0
+            if ones == 5:
+                bits.append(0)
+                ones = 0
+    return bits + flag * postamble
+
+
+def numpy_afsk(msgs, fs, baud, mark, space, gap_s=0.25, amp=16000.0):
+    """Phase continuous AFSK for a list of TNC2 packets, silence between frames."""
+    parts = [np.zeros(int(gap_s * fs))]
+    phase = 0.0
+    for m in msgs:
+        bits = hdlc_bits(ax25_frame(m))
+        tone = []
+        f = mark
+        for v in bits:                            # NRZI: 0 = change tone, 1 = no change
+            if v == 0:
+                f = space if f == mark else mark
+            tone.append(f)
+        n = int(math.ceil(len(bits) * fs / baud))
+        sym = np.minimum((np.arange(n) * baud / fs).astype(np.int64), len(bits) - 1)
+        inst = np.asarray(tone, dtype=np.float64)[sym]
+        ph = phase + np.cumsum(2 * math.pi * inst / fs)
+        phase = float(ph[-1]) % (2 * math.pi)
+        parts += [amp * np.sin(ph), np.zeros(int(gap_s * fs))]
+    return np.concatenate(parts)
+
+
+# ----------------------------------------------------------------------------
 # Impairments
 # ----------------------------------------------------------------------------
 
@@ -347,7 +419,10 @@ def main():
     ap.add_argument('--keep-wav', action='store_true')
     ap.add_argument('--out', default='rx_sensitivity.csv', help='per point results (CSV)')
     ap.add_argument('--summary', default=None, help='threshold summary (CSV), default <out>_summary.csv')
-    ap.add_argument('--targets', default='0.5,0.9', help='decode probabilities for threshold report')
+    ap.add_argument('--targets', default='0.5,0.9,0.99', help='decode probabilities for threshold report')
+    ap.add_argument('--generator', default='gen_packets', choices=['gen_packets', 'numpy'],
+                    help='modulator for the clean signal: the project\'s gen_packets, or an independent '
+                         'numpy AFSK modulator (300 and 1200 only)')
     ap.add_argument('--dump-bad', default=None, metavar='FILE',
                     help='append every incorrectly accepted frame (and what was sent) to this file')
     a = ap.parse_args()
@@ -367,6 +442,8 @@ def main():
     targets = [float(t) for t in a.targets.split(',')]
     extra = a.extra.split()
     mode = MODES[a.mode]
+    if a.generator == 'numpy' and 'baud' not in mode:
+        sys.exit('--generator numpy supports AFSK modes 300 and 1200 only')
     os.makedirs(a.workdir, exist_ok=True)
 
     msgs = make_messages(a.frames, a.seed, a.min_len, a.max_len)
@@ -376,7 +453,7 @@ def main():
     # gen_packets keeps the trailing newline in the info part; atest shows it as <0x0a>.
     expected = {i: m + '<0x0a>' for i, m in enumerate(msgs)}
 
-    meta = dict(mode=a.mode, seed=a.seed, frames=a.frames, rate=a.rate, extra=' '.join(extra),
+    meta = dict(mode=a.mode, seed=a.seed, frames=a.frames, rate=a.rate, extra=' '.join(extra), generator=a.generator,
                 gen_packets_sha=file_sha(a.gen_packets))
     shas = {label: file_sha(path) for label, path in binaries}
 
@@ -393,9 +470,18 @@ def main():
             off = cond.get('tone_offset', 0)
             gen += ['-b', str(baud), '-m', str(round(mode['mark'] * ts + off)),
                     '-s', str(round(mode['space'] * ts + off))]
-        clean_wav = os.path.join(a.workdir, 'clean_%s_%s_%d_%d_%d.wav' % (a.mode, cname, a.seed, a.frames, a.rate))
-        subprocess.run([a.gen_packets, '-r', str(a.rate)] + gen + ['-o', clean_wav, msg_file],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        clean_wav = os.path.join(a.workdir, 'clean_%s_%s_%s_%d_%d_%d.wav' % (
+            a.mode, cname, a.generator, a.seed, a.frames, a.rate))
+        if a.generator == 'numpy':
+            ts = cond.get('tone_scale', 1.0)
+            off = cond.get('tone_offset', 0)
+            # Same packets as gen_packets sends, including the newline it keeps in the info part.
+            sig = numpy_afsk([m + '\n' for m in msgs], a.rate, mode['baud'] * cond.get('baud_scale', 1.0),
+                             mode['mark'] * ts + off, mode['space'] * ts + off)
+            write_wav(clean_wav, a.rate, sig)
+        else:
+            subprocess.run([a.gen_packets, '-r', str(a.rate)] + gen + ['-o', clean_wav, msg_file],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         fs, clean = read_wav(clean_wav)
         audio_s = len(clean) / fs
 
