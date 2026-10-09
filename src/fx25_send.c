@@ -246,15 +246,18 @@ static void send_bytes (int chan, unsigned char *b, int count)
  * NRZI encoding.
  * data 1 bit -> no change.
  * data 0 bit -> invert signal.
+ *
+ * Continue from the level last sent on the channel, by hdlc_send for the
+ * preamble or a previous frame.  See tone_gen_last_bit.
  */
 static void send_bit (int chan, int b)
 {
-	static int output[MAX_RADIO_CHANS];
+	int output = tone_gen_last_bit (chan);
 
 	if (b == 0) {
-	  output[chan] = ! output[chan];
+	  output = ! output;
 	}
-	tone_gen_put_bit (chan, output[chan]);
+	tone_gen_put_bit (chan, output);
 	number_of_bits_sent[chan]++;
 }
 #endif  // FXTEST

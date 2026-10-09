@@ -437,6 +437,28 @@ target_link_libraries(aistest
   )
 
 
+# Unit Test for the layer 2 transmit bit stream (hdlc_send.c with fx25_send.c).
+list(APPEND l2sendtest_SOURCES
+  ${CUSTOM_SRC_DIR}/l2send_test.c
+  ${CUSTOM_SRC_DIR}/hdlc_send.c
+  ${CUSTOM_SRC_DIR}/fx25_send.c
+  ${CUSTOM_SRC_DIR}/fx25_encode.c
+  ${CUSTOM_SRC_DIR}/fx25_init.c
+  ${CUSTOM_SRC_DIR}/fcs_calc.c
+  ${CUSTOM_SRC_DIR}/ax25_pad.c
+  ${CUSTOM_SRC_DIR}/ax25_pad2.c
+  ${CUSTOM_SRC_DIR}/textcolor.c
+  )
+
+add_executable(l2sendtest
+  ${l2sendtest_SOURCES}
+  )
+
+target_link_libraries(l2sendtest
+  ${MISC_LIBRARIES}
+  )
+
+
 # Unit Test for DTMF encode/decode.
 list(APPEND dtmftest_SOURCES
   ${CUSTOM_SRC_DIR}/dtmf.c
@@ -533,6 +555,7 @@ add_test(pad2test pad2test)
 add_test(xidtest xidtest)
 add_test(dtmftest dtmftest)
 add_test(aistest aistest)
+add_test(l2sendtest l2sendtest)
 add_test(NAME deviceidtest COMMAND deviceidtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../data)
 
 add_test(check-fx25 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-FX25_FILE}${CUSTOM_SCRIPT_SUFFIX}")

@@ -361,6 +361,25 @@ static const float ci[8] = { 1,	.7071,	0,	-.7071,	-1,	-.7071,	0,	.7071	};
 static const float sq[8] = { 0,	.7071,	1,	.7071,	0,	-.7071,	-1,	-.7071	};
 #endif
 
+/*
+ * The most recent bit sent on each channel, before any scrambling.
+ *
+ * Several modules send bits: hdlc_send (AX.25 with NRZI), fx25_send (FX.25
+ * with NRZI) and il2p_send (no NRZI).  They can follow each other in the same
+ * transmission, e.g. an AX.25 frame too long for FX.25 sent after an FX.25
+ * frame.  NRZI must continue from the level actually on the line, not from
+ * the last level that particular module sent, or the first bit after the
+ * switch is inverted.  That can be the only opening flag of the next frame.
+ */
+
+static int last_bit[MAX_RADIO_CHANS];
+
+int tone_gen_last_bit (int chan)
+{
+	assert (chan >= 0 && chan < MAX_RADIO_CHANS);
+	return (last_bit[chan]);
+}
+
 void tone_gen_put_bit (int chan, int dat)
 {
 	int a = ACHAN2ADEV(chan);	/* device for channel. */
@@ -378,6 +397,8 @@ void tone_gen_put_bit (int chan, int dat)
 	  bit_len_acc[chan] -= ticks_per_bit[chan]; 
 	  dat = 0; 
 	} 
+
+	last_bit[chan] = dat & 1;
 
 // TODO: change to switch instead of if if if
 
