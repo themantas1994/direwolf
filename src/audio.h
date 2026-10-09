@@ -278,8 +278,8 @@ struct audio_s {
 					/* Uses the demodulator's confidence for each bit */
 					/* and tries inverting only the least reliable ones. */
 					/* 0 = off */
-					/* 1 = try single bits */
-					/* 2 = also try pairs of bits */
+					/* 1 = try single bits (default) */
+					/* 2 = more single bits and pairs of bits */
 
 
 
@@ -463,10 +463,11 @@ struct audio_s {
 #define DEFAULT_FIX_BITS RETRY_NONE	// Interesting research project but even a single bit fix up
 					// will occasionally let corrupted packets through.
 
-#define DEFAULT_SOFT_FIX 2		// Soft decision repair tries only a few dozen of the least
+#define DEFAULT_SOFT_FIX 1		// Soft decision repair tries inverting only the few least
 					// reliable bits rather than every bit position in the frame.
 					// Frames recovered this way are, like FIX_BITS, never
-					// digipeated or sent to the IGate.
+					// digipeated or sent to the IGate.  Level 2 recovers more
+					// but lets more corrupted frames through.
 
 /* 
  * Standard for AFSK on VHF FM. 

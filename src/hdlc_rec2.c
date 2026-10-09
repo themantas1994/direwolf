@@ -489,7 +489,8 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		slice	- Which slicer.
  *		alevel	- Audio level for later reporting.
  *
- * Global In:	configuration soft_fix - 0 = off, 1 = single bits, 2 = also pairs.
+ * Global In:	configuration soft_fix - 0 = off, 1 = single bits (default),
+ *				2 = more single bits and pairs.
  *		configuration fix_bits - Don't repeat what try_to_fix_quick_now did.
  *
  * Returns:	1 for success.  "try_decode" has passed the result along to the
@@ -505,11 +506,19 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		frame, and each extra check is another chance of a corrupted frame
  *		getting a good FCS by accident.
  *
- *		Here we invert only the SOFT_FIX_SINGLES least reliable bits, then
- *		pairs from the SOFT_FIX_PAIRS least reliable.  Bits with confidence
- *		above SOFT_FIX_MAX_QUALITY are never touched.  That is at most
- *		16 + 66 FCS checks, yet it recovers about as many frames as
- *		FIX_BITS 1 plus most of the two bit errors.
+ *		Here we invert only the least reliable bits, one at a time:
+ *		SOFT_FIX_SINGLES_1 of them for level 1, SOFT_FIX_SINGLES_2 for
+ *		level 2.  Level 2 then tries pairs from the SOFT_FIX_PAIRS least
+ *		reliable.  Bits with confidence above SOFT_FIX_MAX_QUALITY are
+ *		never touched.
+ *
+ *		Every FCS check on a frame that has more errors than we can fix
+ *		is about a 1 in 65536 chance of accepting it with a wrong bit.
+ *		After NRZI, the AX.25 FCS always catches one or two remaining
+ *		bit errors, so a single inversion can't turn a frame with one bit
+ *		error into a wrong frame; a pair can (about 1 in 32767).  Level 1,
+ *		at most 8 checks, is the default.  Level 2, at most 16 + 66 checks,
+ *		recovers more frames but measurably more corrupted ones too.
  *
  *		As with FIX_BITS, the result must pass the sanity test and is
  *		reported with the corresponding retry level, so it is displayed and
@@ -518,8 +527,9 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *
  ***********************************************************************************/
 
-#define SOFT_FIX_SINGLES 16		/* Candidates for single bit inversion. */
-#define SOFT_FIX_PAIRS 12		/* Candidates for pairs.  Must be <= SOFT_FIX_SINGLES. */
+#define SOFT_FIX_SINGLES_1 8		/* Candidates for single bit inversion, level 1. */
+#define SOFT_FIX_SINGLES_2 16		/* Candidates for single bit inversion, level 2. */
+#define SOFT_FIX_PAIRS 12		/* Candidates for pairs, level 2.  Must be <= SOFT_FIX_SINGLES_2. */
 #define SOFT_FIX_MAX_QUALITY 30		/* Leave alone bits with confidence above this. */
 					/* (0 - 100 scale, as passed to hdlc_rec_bit.) */
 					/* In tests, every successful inversion was below 28. */
@@ -528,8 +538,9 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 {
 	int soft_fix = save_audio_config_p->achan[chan].soft_fix;
 	retry_t fix_bits = save_audio_config_p->achan[chan].fix_bits;
-	int cand[SOFT_FIX_SINGLES];	/* Bit positions, least reliable first. */
+	int cand[SOFT_FIX_SINGLES_2];	/* Bit positions, least reliable first. */
 	int ncand = 0;
+	int maxcand = soft_fix >= 2 ? SOFT_FIX_SINGLES_2 : SOFT_FIX_SINGLES_1;
 	int len = rrbb_get_len(block);
 	int i, a, b;
 	retry_conf_t retry_cfg;
@@ -550,9 +561,9 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	  int j;
 
 	  if (q > SOFT_FIX_MAX_QUALITY) continue;
-	  if (ncand == SOFT_FIX_SINGLES && q >= rrbb_get_quality(block, cand[ncand-1])) continue;
+	  if (ncand == maxcand && q >= rrbb_get_quality(block, cand[ncand-1])) continue;
 
-	  j = (ncand < SOFT_FIX_SINGLES) ? ncand++ : ncand - 1;
+	  j = (ncand < maxcand) ? ncand++ : ncand - 1;
 	  while (j > 0 && rrbb_get_quality(block, cand[j-1]) > q) {
 	    cand[j] = cand[j-1];
 	    j--;

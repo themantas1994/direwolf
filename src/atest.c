@@ -1011,8 +1011,9 @@ static void usage (void) {
 	dw_printf ("\n");
 	dw_printf ("        -S n   Soft decision repair of frames with an invalid CRC, using\n");
 	dw_printf ("               the demodulator's confidence in each bit.\n");
-	dw_printf ("               0 = off.  1 = least reliable single bits.\n");
-	dw_printf ("               2 (default) = also pairs of least reliable bits.\n");
+	dw_printf ("               0 = off.  1 (default) = least reliable single bits.\n");
+	dw_printf ("               2 = more single bits and pairs.  Recovers more frames\n");
+	dw_printf ("               but also lets more corrupted frames through.\n");
 	dw_printf ("\n");
 	dw_printf ("        -d x   Debug information for FX.25.  Repeat for more detail.\n");
 	dw_printf ("\n");
