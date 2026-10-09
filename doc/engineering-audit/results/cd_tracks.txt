@@ -1,0 +1,10 @@
+track1 A+ base=1015 | S1=1018 gained=3 lost=0 gained_not_seen_clean=0 | S2=1021 gained=6 lost=0 gained_not_seen_clean=0
+track1 A  base=1005 | S1=1016 gained=11 lost=0 gained_not_seen_clean=0 | S2=1022 gained=17 lost=0 gained_not_seen_clean=0
+track2 A+ base=1002 | S1=1007 gained=5 lost=0 gained_not_seen_clean=0 | S2=1014 gained=12 lost=0 gained_not_seen_clean=0
+track2 A  base=983 | S1=999 gained=16 lost=0 gained_not_seen_clean=0 | S2=1006 gained=23 lost=0 gained_not_seen_clean=0
+track3 A+ base=100 | S1=100 gained=0 lost=0 gained_not_seen_clean=0 | S2=100 gained=0 lost=0 gained_not_seen_clean=0
+track4 A+ base=107 | S1=108 gained=1 lost=0 gained_not_seen_clean=1
+      S1  nmea=None  WA8LMF>STPXYR,WIDE2-2:'.Zp!*u>/]"5o}<0x0d> | S2=110 gained=3 lost=0 gained_not_seen_clean=3
+      S2  nmea=None  WA8LMF>STPXYR,WIDE2-2:'.Zp!*u>/]"5o}<0x0d>
+      S2  nmea=None  WA8LMF>STPXYQ,WIDE2-2:'.ZB!4{>/]"5e}<0x0d>
+      S2  nmea=None  WA8LMF>STPTXW,WIDE2-2:'.[an^`>/]"4q}<0x0d>

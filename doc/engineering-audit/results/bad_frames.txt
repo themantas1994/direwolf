@@ -1,0 +1,12 @@
+flutter A new_S2 Eb/N0=13.0 repaired=1
+  got:  'N0CALL-1>APDWBN,WIDE1-1:>00193 MJ0TtT2i#zILt##kWBGEAI#hLQtj+PGzuf@*@9I(lK0O3#(zb6;W Yu!pc#RaA*(15ioq-p-3b*R=e(9sB?D+zhA1-g/@(A0iwy<0x0a>'
+  sent: 'N0CALL-1>APDWBN,WIDE1-1:>00193 MJ0TtT2i#zILt##kWBGEAI#hLRtj+PGzuf@*@9I(lK0O3#(zb6;W Yu!pc#2aA*(15ioq-p-3b*R=e(9sB?D+zhA1-g/@(A0ioy<0x0a>'
+flutter A new_S2 Eb/N0=14.0 repaired=1
+  got:  'N0CALL-12>APDWBN,WIDE1-1,WIHE2-1:>00188 s0etm+!bad?Eq8Fl6mCx"fJ/yeK(!C=8 hKAF*yeHM)+k24+ @/lXq0TVG+/\'n8X@ -4?Gy@WbOW*Tick91iUKQdXoe3yG6XD.#GuCTSmNuq*)*fc5Vwiw<0x0a>'
+  sent: 'N0CALL-12>APDWBN,WIDE1-1,WIDE2-1:>00188 s0etm+!bad?Eq8Fl6mCx!fJ/yeK(!C=8 hKAF*yeHM)+k24+ @/lXw0TVG+/+n8X@ -4?Gy@WbOW*Tick91iUKQdXoe3yG6XD(#GuCTSmNuq*)*fc5Vwiw<0x0a>'
+flat  new_S2 Eb/N0=8.0 repaired=1
+  got:  'N0CA4L-3>APDWBN,WIDE1-1,WIDE2-1:>00731 t/3Wyu3Ve2YAjw0PU:MJPB@2lJn=/D<0x0a>'
+  sent: None
+flat A+ new_S2 Eb/N0=8.5 repaired=1
+  got:  'N0CDLL>APDWBN:>00624 mJSw:Q+h;w/sS (qdABojxPMXyj+inQ6wkWRZ,GUjUuM.Y/_1dgDXwbm;=1b\\;tvzxaKQs47hsYgg/ryy_F#T0X(lnv2aWyV23e<0x0a>'
+  sent: 'N0CALL>APDWBN:>00624 mJSw:W+h;w/sS (qdABojxPMXyZ+inQ6wkWRZ,GUZUEM.Y/?1dgDXwbm;=1bZ;tvzxaKQs47hsYgk/ryy?F#T0X(lnv2aWyV23e<0x0a>'

@@ -1,5 +1,27 @@
 # Revision History
 
+## Unreleased (fork) -- receive sensitivity work
+
+See [doc/engineering-audit/RECEIVE_SENSITIVITY_AUDIT.md](doc/engineering-audit/RECEIVE_SENSITIVITY_AUDIT.md) for methods and measurements.
+
+### New Features:
+
+- Soft decision repair of received frames with a bad FCS.  The demodulator's confidence in each bit is now kept and, when the frame check fails, only the least reliable bits are inverted, one at a time (and, at level 2, in pairs).  With several slicers ("+"), only the copy from the slicer that best matches the signal's tone balance is repaired.  Like FIX_BITS, repaired frames are shown with the retry level, e.g. [SINGLE], and are never digipeated or sent to the IGate.  New channel setting `SOFT_FIX 0|1|2` (off, single bits (default), more single bits and pairs) and `atest -S n`.  Measurements, including how often each level lets a corrupted frame through, are in the audit report.
+
+- Automatic decimation when the 1200 baud band pass filter would not fit at high sample rates (96 kHz -> /2, 192 kHz -> /4).  It used to be truncated, costing about 0.5 dB at 96 kHz.
+
+- `test/benchmark/rx_sensitivity.py`: reproducible receive sensitivity benchmark with impairments and false decode counting.
+
+### Performance:
+
+- AFSK demodulator no longer moves every filter's delay line with memmove for each audio sample.  About 31% less CPU time for the default demodulator (39% for single slicer "A"), with identical results.
+
+### Bugs Fixed:
+
+- Undefined behavior: PHG/DFS height code from a received packet used as a shift count; signed shifts in the G3RUH scrambler, descrambler and FX.25 receiver.
+
+- The 9600 baud demodulator passed the descrambler state where a bit confidence value was expected (previously unused).
+
 ## Version 1.8.2 -- May 2026
 
 ### Bugs Fixed:

@@ -1,0 +1,6 @@
+base    A   cpu median=20.25 runs=20.25 20.20 20.33
+base    A+  cpu median=23.36 runs=23.93 23.29 23.36
+new     A   cpu median=12.36 runs=12.36 12.47 12.28
+new     A+  cpu median=16.02 runs=16.02 16.11 15.98
+new_S0  A   cpu median=12.36 runs=12.35 12.43 12.36
+new_S0  A+  cpu median=15.95 runs=16.32 15.95 15.92
