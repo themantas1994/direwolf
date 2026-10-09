@@ -1,0 +1,72 @@
+src/ais.c:484:4: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+   snprintf (mssi, mssi_size, "%09d", get_field(ais, 8, 30));
+   ^
+src/decode_aprs.c:4545:16: warning: Either the condition 'clen>0' is redundant or the array 'A->g_comment[256]' is accessed at index 256, which is out of bounds. [arrayIndexOutOfBoundsCond]
+   A->g_comment[clen] = '\0';
+               ^
+src/decode_aprs.c:4543:11: note: Assuming that condition 'clen>0' is not redundant
+ if (clen > 0) {
+          ^
+src/decode_aprs.c:4545:16: note: Array index out of bounds
+   A->g_comment[clen] = '\0';
+               ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 1) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 2) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 3) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 4) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 5) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 6) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 7) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 8) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 9) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 10) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 11) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 12) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3372:8: warning: %hx in format string (no. 13) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+5, "%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3424:8: warning: %hx in format string (no. 1) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+2, "%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3424:8: warning: %hx in format string (no. 2) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+2, "%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3424:8: warning: %hx in format string (no. 3) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+2, "%4hx%4hx%4hx%4hx",
+       ^
+src/decode_aprs.c:3424:8: warning: %hx in format string (no. 4) requires 'unsigned short *' but the argument type is 'signed short *'. [invalidScanfArgType_int]
+   n = sscanf (info+2, "%4hx%4hx%4hx%4hx",
+       ^
+src/demod.c:441:14: warning: Identical inner 'if' condition is always true. [identicalInnerCondition]
+         if (have_plus) {
+             ^
+src/demod.c:400:17: note: outer condition: have_plus
+       else if (have_plus) {
+                ^
+src/demod.c:441:14: note: identical inner condition: have_plus
+         if (have_plus) {
+             ^

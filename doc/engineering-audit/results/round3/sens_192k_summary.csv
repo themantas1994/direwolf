@@ -1,0 +1,5 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se,ebn0_p99_interp,ebn0_p99_logit,ebn0_p99_logit_se
+flat,A+,upstream,3300,1721,0,0,0,0,328.5,10.76,10.76,0.04,11.95,11.83,0.06,12.88,12.99,0.11
+flat,A+,fork,3300,1933,1,0,237,25,44.44,10.04,10.06,0.04,11.42,11.19,0.07,12.67,12.43,0.11
+flat,A,upstream,3300,1506,0,0,0,0,310.16,11.45,11.48,0.05,12.9,12.91,0.07,14.89,14.47,0.13
+flat,A,fork,3300,1840,0,0,360,26,35.43,10.31,10.37,0.04,11.86,11.66,0.07,13.0,13.06,0.12

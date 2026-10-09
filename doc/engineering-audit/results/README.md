@@ -19,6 +19,10 @@ prefixes of the binaries and WAV files and the seed, so any row can be regenerat
 Labels: `base` = original code (commit `eda1383`, upstream 1.8.2); `new` = final code
 with defaults (`SOFT_FIX 1`); `new_S2` = final code with `SOFT_FIX 2` (`atest -S2`).
 
+Since round 3 the default is `SOFT_FIX 0` (repair off, like upstream); `new` above is the
+repair at level 1, now enabled with `SOFT_FIX 1` / `atest -S1`.  Round 3's raw results are in
+`round3/` (see `../UPSTREAM_COMPATIBILITY_AND_REGRESSION_AUDIT.md`).
+
 ## Development history (superseded settings, kept as evidence)
 
 | file | content |

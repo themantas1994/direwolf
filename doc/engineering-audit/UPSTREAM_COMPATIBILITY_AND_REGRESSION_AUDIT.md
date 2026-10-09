@@ -71,7 +71,7 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 | FCS (CRC-16/X.25) generation and check | PASS | Check value 0x906E; FCS of every vector; every frame decoded over the air has a good FCS by construction |
 | Invalid frames: length < 15 or > 2123, bad address field, no end bit, > 10 addresses | PASS | `ax25goldentest` L vectors (same result in upstream) |
 | HDLC bit stuffing, flags, NRZI; binary payloads (all 256 byte values, 0x7E/0x7D/0xC0/0xDB, runs of ones) | PASS | Corpus and raw frames through every modem, decoded bit exact by every build and by multimon-ng; independent modulator decoded by every build |
-| Maximum frame size | PASS | 2048 byte info accepted, 2108 rejected (vectors); 1132 byte frame transmitted and decoded end to end; 512 byte frames over KISS |
+| Maximum frame size | PASS | 2064 byte frame (2048 byte info) accepted, 2124 byte frame rejected (vectors); 1132 byte frame transmitted and decoded end to end; 512 byte frames over KISS |
 | Truncated / corrupted / malformed received frames | PASS | Fuzzing (section 8.4); FCS rejects; sanity tests |
 | Connected mode (link layer), v2.2 XID negotiation, segmentation | PASS | Fork <-> upstream 1.8.2 and fork <-> dev, each side calling, data both ways incl. all byte values and > PACLEN blocks (section 5.4) |
 
@@ -81,7 +81,7 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 |---|---|---|
 | Decoding of every APRS data type (positions, compressed, Mic-E, objects, items, messages, acks/rejs, bulletins, NWS, status, capabilities, queries, weather, telemetry and PARM/UNIT/EQNS/BITS, third party, user defined, NMEA, Maidenhead) | PASS | 12000 packets: fork = upstream 1.8.2 except 77 packets explained by intended fixes (section 4.2) |
 | Interpretation of positions | PASS | aprslib agrees with the fork on all 3225 comparable positions; 496 ambiguity-convention differences (same in upstream) |
-| Malformed APRS payloads | PASS | 12000 truncated/substituted packets: no crash in any build; valgrind 0 errors for the fork (858 for upstream) |
+| Malformed APRS payloads | PASS | 12000 truncated/substituted packets: no crash in any build; valgrind 0 errors for the fork (858 for upstream 1.8.2) |
 | Device identification (tocalls, Mic-E suffixes) | PASS | `deviceidtest`; decode comparison |
 | AIS user data | PARTIAL | `aistest`, fuzzing, decode comparison; no AIS RF signal test |
 | Digipeater: WIDEn-N, aliases, TRACE, preemption of used paths, duplicate suppression | PASS | 13 input frames -> identical 12 digipeated frames in fork, upstream and dev (section 5.3) |
@@ -98,7 +98,7 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 | Mode | Status | Evidence |
 |---|---|---|
 | 1200 AFSK, profiles A, A+, B, AB, E+ | PASS | TX audio identical to upstream; cross decoding 103/103 at 8 - 192 kHz; independent modulator 103/103; multimon-ng 103/103; noisy audio: default fork identical to upstream below 54.9 kHz |
-| 1200 AFSK at 64 - 192 kHz (automatic decimation) | PASS | Clean signals 103/103; noisy: PENDING-DECIM |
+| 1200 AFSK at 64 - 192 kHz (automatic decimation) | PASS | Clean signals 103/103.  Noisy (88.2 / 96 / 192 kHz): more frames than upstream in total and at P90 / P99, but not a superset: 25 - 65 of 3300 frames upstream decodes are lost per run, all near threshold (section 6.3); 1 corrupted frame accepted at 192 kHz (section 6.5) |
 | 300 AFSK (A, B) | PASS | Same tests (11 - 96 kHz) |
 | 2400 QPSK V.26 A and B (default B) | PASS | TX identical; cross decoding; noisy identical |
 | 2400 G3RUH | PASS | TX identical; cross decoding |
@@ -138,14 +138,190 @@ incomplete.  NOT TESTED = no executed test.  FAIL = confirmed defect still prese
 
 | Platform | Status | Evidence |
 |---|---|---|
-| Linux x86-64, gcc 13.3 Release / Debug | PASS | ctest 28/28 |
-| Linux x86-64, clang 18 | PASS | ctest 28/28 |
+| Linux x86-64, gcc 13.3 Release / Debug | PASS | ctest 28/28; Release 0 warnings (section 8.1) |
+| Linux x86-64, clang 18 | PASS | ctest 28/28; same 54 warnings as upstream 1.8.2 with clang, none in fork code |
 | ASan + UBSan | PASS | 28/28 with leak detection off; 0 memory errors, 0 UB reports (leak reports: upstream code, section 8.3) |
-| Windows x86-64 (MinGW cross) | PARTIAL | Builds; unit tests 18/18 and modem script lines 41/41 under wine; direwolf.exe not run |
-| Linux aarch64 (cross, qemu-user) | PARTIAL | Builds with 0 warnings; unit tests 18/18 and modem script lines 24/24 under qemu; TX audio identical to x86 |
+| Windows x86-64 (MinGW cross) | PARTIAL | Builds with 0 warnings; unit test programs 18/18 and modem script lines 71/71 under wine; TX audio identical to Linux (7 modes); direwolf.exe not run |
+| Linux aarch64 (cross, qemu-user) | PARTIAL | Builds with 0 warnings; unit test programs 18/18 and modem script lines 24/24 under qemu; TX audio identical to x86 (4 modes); not on real hardware |
 | macOS, 32 bit ARM, real Raspberry Pi | NOT TESTED | Not available |
 
-PENDING-SECTIONS-4-6
+## 4. AX.25 and APRS compatibility results
+
+### 4.1 AX.25 frames
+
+Reference: `test/compat/ax25ref.py`, an encoder/decoder written for this audit from the
+AX.25 v2.2 specification (address encoding, SSID byte, C/H bits, control field layouts for
+modulo 8 and 128, CRC-16/X.25), not derived from Dire Wolf's code.  `make_golden.py` writes
+749 vectors to `test/compat/golden/ax25_vectors.txt`, checked by the new ctest
+`ax25goldentest` (`src/ax25golden_test.c`):
+
+| Vectors | Content | Fork | Upstream 1.8.2 code | Upstream dev code |
+|---|---|---|---|---|
+| 103 `T` | Every corpus packet (all APRS types, 0 - 8 digipeaters, SSIDs 0 - 15, H bits, all 256 byte values, 0x7E / 0x7D / 0xC0 / 0xDB, 256 byte info): monitor text -> exact frame bytes, FCS, and back to the same addresses and info | 103 / 103 | 103 / 103 | 103 / 103 |
+| 636 `R` | I, RR, RNR, REJ, SREJ, SABM, SABME, DISC, DM, UA, FRMR, UI, XID, TEST with every combination of C/R bits, P/F, N(R), N(S), modulo 8 and 128: frame type, C/R, P/F, N(R), N(S); frame kept intact | 636 / 636 | 636 / 636 | 636 / 636 |
+| 10 `L` | 1 and 14 byte frames, 2124 byte frame (rejected); 15 byte frame and 2048 byte info (accepted); end bit on the destination, 11 addresses, bit 0 set in a callsign octet, no end bit (invalid address field); 10 addresses (accepted) | 10 / 10 | 10 / 10 | 10 / 10 |
+
+The same test program was compiled against upstream's `ax25_pad.c` and `fcs_calc.c` (1.8.2
+and dev) to show the vectors describe upstream's behaviour, not the fork's.  A copy of
+the vectors with two lines deliberately altered (one bit of a destination address, one C/R
+bit) fails with "6 errors in 749 vectors": the test detects what it should.  Raw results:
+`results/round3/ax25golden.txt`.
+
+On the air, every corpus frame plus 24 raw frames (all frame types, binary info) were
+sent through every modem by each build and by an independent modulator, and decoded bit
+exact (section 5.1); the FCS of each received frame is checked by construction.
+
+### 4.2 APRS decoding
+
+`test/compat/aprs_decode_compare.py` runs `decode_aprs` from each build on 12000 packets:
+the 123 line corpus (`aprs_ax25_corpus.txt`: positions with and without timestamp,
+compressed, Mic-E incl. telemetry and device suffixes, objects, items, messages, acks,
+rejects, bulletins, NWS, status, capabilities, queries, weather (positionless, with
+position, Peet / Ultimeter raw), telemetry with PARM/UNIT/EQNS/BITS, third party, user
+defined, raw NMEA, Maidenhead, DF / PHG / RNG / DFS extensions), every truncation of each
+information field, random single character substitutions, and a regression list of the
+packets behind the defects in section 9.  Output is compared line by line.
+
+| Comparison | Identical | Differences, all explained |
+|---|---|---|
+| fork vs upstream 1.8.2 | 11923 / 12000 | 47 invalid PHG/DFS height shown without a height instead of -999999 (9.4); 8 uninitialized course/speed/range no longer shown (9.3); 21 debug output removed (#656); 1 "100%" no longer read as a CTCSS tone (#657) |
+| fork vs upstream dev | 10636 / 12000 | 1315 from dev changes not in 1.8.2 (more weather fields, symbol names, tocalls, display); 47 PHG height (9.4); 2 uninitialized values (9.3; dev still has the defect) |
+
+No build crashed on any of the 12000 packets (each packet is run separately on a crash, so
+one crash can't hide others).  valgrind on all 12000: **fork 0 errors**; upstream 1.8.2 858
+errors in 118 contexts; upstream dev 776 in 116 (uses of uninitialized values in the code
+fixed in 9.3 and in round 2's AIS / Mic-E fixes).
+
+Independent interpretation: [aprslib](https://github.com/rossengeorgiev/aprs-python)
+(Python APRS parser) decoded the same packets; for every packet both decode as a position,
+latitude and longitude are compared (to 0.0001 degree).  3225 agree; 496 differ only in
+the position ambiguity convention (Dire Wolf gives the corner of the ambiguity box,
+aprslib its centre; upstream identical to the fork); 0 corpus packets differ; 21 mutated
+(invalid) packets are read differently by the two parsers, identically by fork and
+upstream.  Raw results: `results/round3/aprs_decode.csv`, `aprs_decode.log`.
+
+## 5. Transmit-to-receive and receive-to-transmit interoperability
+
+### 5.1 Modem audio: fork, upstream, an independent modulator and multimon-ng
+
+`test/compat/interop.py`, final run on the branch head: **436 checks, 0 failed**
+(`results/round3/interop.csv`).  Frames: the 103 packet corpus (section 4.1).  "Decoded"
+means the received frame is byte identical to the transmitted one (address bits included;
+for IL2P, after the C bit normalisation the IL2P type 1 header defines).
+
+| Check | What | Result |
+|---|---|---|
+| TX identical (51) | `gen_packets` of fork, upstream 1.8.2 and dev on the corpus, md5 of the audio: 300 bd (11 - 96 kHz), 1200 bd A / A+ / B / AB (8 - 192 kHz), 2400 V.26A / V.26B / G3RUH, 4800, 9600 (44.1 - 192 kHz), 19200, IL2P 1200 / 9600 incl. inverted and weak FEC | 46 byte identical; 5 FX.25 cases differ, **only** by the NRZI fix (9.2), labelled EXPECTED-DIFF |
+| Cross decoding (244) | Every build's audio decoded by every build (fork, fork with `-S1`, upstream, dev), every mode and rate above, FX.25 16 / 32 / 64 check bytes in all 12 TX x RX combinations | 103 / 103 everywhere |
+| Independent modulator (40) | `ax25ref.py` writes AFSK 1200 (Bell 202, phase continuous), AFSK 300 and G3RUH 9600 (NRZI, x^17+x^12+1 scrambler, baseband) audio from the spec, without Dire Wolf code; decoded by every build | 103 / 103 everywhere |
+| multimon-ng (14) | Independent decoder (AFSK1200, FSK9600 at 22050 Hz) on each build's audio and on the independent modulator's | 103 / 103 everywhere (multimon-ng's text compared with ax25ref's rendering of each transmitted frame) |
+| Morse ID (3) | multimon-ng MORSE_CW on the CW identification | fork and dev correct; upstream 1.8.2 sends `-` as `=` (UPSTREAM-DEFECT, fixed in the fork by #597) |
+| Noise (84) | One noisy test file per mode (gen_packets `-n`); the default fork must decode **exactly** the same frames as upstream; `-S1` must be a superset | 1200 / 300 / 2400 / 4800 / 9600 / 19200 / FX.25 / IL2P at 22.05 - 48 kHz: identical.  1200 bd at 96 kHz: fork gains 2 / loses 0 (A+) and gains 3 / loses 1 (A) because of automatic decimation (EXPECTED-DIFF).  `-S1` never misses a frame the default decodes |
+
+Both directions therefore hold for every modem: the fork decodes all frames transmitted
+by upstream (1.8.2 and dev) and by an independent modulator, and upstream and multimon-ng
+decode all frames the fork transmits.  The FX.25 difference is in the fork's favour: upstream
+1.8.2 and dev cannot decode a plain AX.25 frame that follows an FX.25 frame in the same
+transmission from their *own* transmitter (9.2).
+
+PENDING-SECTION-5-REST
+
+## 6. DSP and modem results
+
+### 6.1 Method
+
+`test/benchmark/rx_sensitivity.py`: UI frames with random 10 - 120 character payloads and a
+sequence number are modulated by **upstream's** `gen_packets` (so the transmitter is the
+reference, not the fork), white Gaussian noise is added at a given Eb/N0 (signal power
+measured while transmitting, N0 of real white noise over the full audio band), optionally
+with an impairment (`deemph6`: space tone 6 dB below mark, as after FM de-emphasis;
+`impulse`: 20 random clicks per second), and the same WAV file is decoded by each build's
+`atest`.  A frame counts as decoded only if its text is exactly the one sent (address,
+info, sequence number); anything else that passes the FCS is a **corrupted frame** (false
+acceptance).  `gained` / `lost` count frames one build decodes and upstream doesn't, and
+the reverse, on identical audio.  Thresholds: Eb/N0 for 90 % and 99 % decoding, by linear
+interpolation between points and by a logistic fit (with its standard error); "-" where the
+sweep doesn't reach that probability.  Seeds, sample counts and binary / WAV hashes are in
+every CSV row.  Repaired frames (only with `-S1`/`-S2`) are counted separately
+(`frames_fixed`), and the plain decoder's count is reported next to them.
+
+Confidence: with 300 - 500 frames per point, a decode probability near 50 % has a
+standard error of about 2 - 3 percentage points per point; the logistic thresholds'
+standard errors are 0.05 - 0.09 dB.  Differences of 0.1 dB between builds are not
+significant; identical frame sets (the default fork vs upstream below 54.9 kHz) need no
+statistics.
+
+### 6.2 Default configuration: identical to upstream where the receive path is unchanged
+
+| Mode, rate | Condition, profile | Frames | Upstream decoded | Fork decoded | Gained / lost | P90 (interp.) upstream / fork | P99 upstream / fork |
+|---|---|---|---|---|---|---|---|
+| 1200, 44.1 kHz | flat, A+ | 4500 | 2252 | 2252 | 0 / 0 | 11.35 / 11.35 dB | 12.29 / 12.29 dB |
+| 1200, 44.1 kHz | flat, A | 4500 | 2083 | 2083 | 0 / 0 | 11.86 / 11.86 | 12.97 / 12.97 |
+| 1200, 44.1 kHz | impulse, A+ | 4500 | 1829 | 1829 | 0 / 0 | 13.62 / 13.62 | not reached |
+| 1200, 44.1 kHz | impulse, A | 4500 | 1516 | 1516 | 0 / 0 | not reached | not reached |
+| 300, 44.1 kHz | flat | 3900 | 2608 | 2608 | 0 / 0 | 10.85 / 10.85 | 11.80 / 11.80 |
+| 2400 QPSK, 44.1 kHz | flat | 3900 | 2237 | 2237 | 0 / 0 | 12.61 / 12.61 | 13.80 / 13.80 |
+| 4800 8PSK, 44.1 kHz | flat | 3900 | 903 | 903 | 0 / 0 | 17.19 / 17.19 | not reached |
+| 9600, 44.1 kHz | flat | 3900 | 3084 | 3084 | 0 / 0 | 9.55 / 9.55 | 10.83 / 10.83 |
+
+Sweeps: 1200 bd Eb/N0 6 - 14 dB, 500 frames per point, seed 304; other modes 6 - 18 dB,
+300 frames per point, seed 305 (`sens_44k*.csv`, `sens_{300,2400,4800,9600}*.csv`).  The
+default fork decodes **exactly the same frames** as upstream 1.8.2: the round 1 / 2
+demodulator changes (circular buffers, UB fixes) are transparent, and with repair off
+nothing else differs.  The same holds in every noisy test of section 5.1 (300 to 19200 bd,
+FX.25, IL2P, 22.05 - 48 kHz).  The logistic fit fails for 9600 and 4800 bd (degenerate fit:
+it returns the 50 % point with a zero error); the interpolated thresholds are used.
+
+### 6.3 Automatic decimation (1200 bd at 54.9 kHz and above)
+
+Upstream truncates the 1200 bd filters to 479 taps when they don't fit `MAX_FILTER_SIZE`
+(480), with a warning suggesting `-D2` / `-D3`; the fork decimates automatically first, so the
+filters have their intended length.  This changes the
+receive DSP, so decodes are not identical:
+
+| Rate | Condition, profile | Frames | Upstream | Fork | Gained / lost | P90 upstream / fork | P99 upstream / fork |
+|---|---|---|---|---|---|---|---|
+| 88.2 kHz | flat, A+ | 3300 | 1918 | 1942 | 69 / 45 | 11.30 / 11.29 dB | 12.50 / 12.00 dB |
+| 96 kHz | flat, A+ | 3300 | 1873 | 1930 | 88 / 31 | 11.57 / 11.36 | 12.25 / 11.98 |
+| 96 kHz | flat, A | 3300 | 1742 | 1848 | 133 / 27 | 12.15 / 11.78 | 13.83 / 12.87 |
+| 96 kHz | flat, B | 3300 | 1893 | 1893 | 0 / 0 | 11.67 / 11.67 | 12.75 / 12.75 |
+| 96 kHz | deemph6, A+ | 3300 | 1061 | 1163 | 148 / 46 | 14.32 / 14.00 | 15.40 / 14.93 |
+| 96 kHz | deemph6, A | 3300 | 914 | 967 | 118 / 65 | 14.94 / 14.91 | not reached |
+| 192 kHz | flat, A+ | 3300 | 1721 | 1933 | 237 / 25 | 11.95 / 11.42 | 12.88 / 12.67 |
+| 192 kHz | flat, A | 3300 | 1506 | 1840 | 360 / 26 | 12.90 / 11.86 | 14.89 / 13.00 |
+
+Eb/N0 6 - 16 dB, 300 frames per point (seeds 301 - 303, `sens_{88k,96k,192k}*.csv`).  Profile B
+doesn't use the long prefilter and is not decimated: identical.  The fork is better at
+every rate in total and at the 90 / 99 % points (up to 1 - 1.9 dB at 192 kHz), but **the
+frame sets differ**: every lost frame is in the transition region (Eb/N0 8 - 14 dB flat, 11 -
+16 dB de-emphasised) where both builds decode only part of the frames, the usual
+behaviour of two different demodulators near threshold.  From 13 dB up (flat) the fork
+decodes 300 / 300 at every rate; upstream at 192 kHz profile A does not (298 / 300 at 16
+dB).  Clean signals: 103 / 103 at 64 - 192 kHz in every check of section 5.1.  At 48 kHz and
+below the receive path is unchanged (section 6.2).  One corrupted frame was accepted at
+192 kHz, section 6.5.
+
+### 6.4 Soft decision repair (opt in), measured separately
+
+| Run | Condition, profile | Frames | Plain decoder (= default fork = upstream) | With `-S1`: repaired / corrupted / lost | With `-S2`: repaired / corrupted / lost |
+|---|---|---|---|---|---|
+| 1200, 44.1 kHz | flat, A+ | 4500 | 2252 | +155 / 0 / 0 | +266 / 0 / 0 |
+| 1200, 44.1 kHz | flat, A | 4500 | 2083 | +266 / 0 / 0 | +392 / 0 / 0 |
+| 1200, 44.1 kHz | impulse, A+ | 4500 | 1829 | +264 / 0 / 0 | +434 / 0 / 0 |
+| 1200, 44.1 kHz | impulse, A | 4500 | 1516 | +504 / 0 / 0 | +721 / 0 / 0 |
+| 300, 44.1 kHz | flat | 3900 | 2608 | +104 / 0 / 0 | - |
+| 2400, 44.1 kHz | flat | 3900 | 2237 | +94 / 0 / 0 | - |
+| 4800, 44.1 kHz | flat | 3900 | 903 | +101 / 0 / 0 | - |
+| 9600, 44.1 kHz | flat | 3900 | 3084 | +94 / 0 / 0 | - |
+
+The plain decoder's frames with `-S1` / `-S2` are exactly the default's (repair only runs
+after a failed FCS), so the extra frames are entirely from repair, and every one of them
+is marked as repaired.  P90 with `-S1`: 1200 A+ 11.35 -> 10.90 dB, A 11.86 -> 10.97 dB, 300 bd
+10.85 -> 10.53 dB, 2400 12.61 -> 12.34 dB, 4800 17.19 -> 16.76 dB, 9600 9.55 -> 9.18 dB.  In section 5.1's noisy files,
+`-S1` gained 0 - 6 frames per mode and lost none.  No repaired frame was corrupted in this
+round (18,000 frame decodes at 1200 bd above alone; see also section 6.5).
+
+PENDING-SECTION-6-REST
 
 ## 7. Upstream issues, pull requests and `dev` commits reviewed
 
@@ -176,7 +352,53 @@ section 3) were rechecked against the current upstream state.
 No upstream issue or pull request reports a receive decoding regression in 1.8.x; upstream
 has no soft decision repair.
 
-PENDING-SECTION-8
+## 8. Build, test, sanitizer and fuzzing results
+
+All on the branch head (`results/round3/build_matrix.txt`, `buildmatrix.sh`).
+
+### 8.1 Builds and unit tests
+
+| Configuration | Build | Warnings | Tests |
+|---|---|---|---|
+| gcc 13.3 Release (`-DUNITTEST=ON`) | OK | 0 | ctest 28 / 28 |
+| gcc 13.3 Debug | OK | 1 (`aprs_tt.c` format truncation; upstream code, same in 1.8.2) | ctest 28 / 28 |
+| clang 18.1 Release | OK | 54, **the same 54 as upstream 1.8.2** built with clang (50 `-Wnan-infinity-disabled` from `gps.h` with `-ffast-math`, 2 unused `interpol8`, 2 literal conversions in `gen_packets.c`); none in code the fork changed | ctest 28 / 28 |
+| gcc ASan + UBSan (`-fno-sanitize-recover=undefined`), Debug | OK | 4 (format truncation, upstream code) | 28 / 28 with leak detection off; 0 sanitizer errors (see 8.3) |
+| Windows x86-64, mingw-w64 gcc 13 cross build | OK | 0 | 18 / 18 unit test programs and 71 / 71 modem test lines (`test/scripts/check-*`, 11 scripts) under wine 9.0 |
+| Linux aarch64, gcc 13.3 cross build | OK | 0 | 18 / 18 unit test programs and 24 / 24 modem test lines under qemu-user 8.2 |
+
+The 28 ctests are upstream 1.8.2's 24 (its `check-modem*` scripts with upstream's lines
+unchanged plus the fork's `-S1`/`-S2` lines, section 9.1),
+round 2's `aistest` and `deviceidtest`, and this round's `l2sendtest` and `ax25goldentest`.
+
+Windows and aarch64 audio: `gen_packets` output of the Windows build (under wine) and of
+the aarch64 build (under qemu) is byte identical to the x86-64 Linux build's for every mode
+tried (1200, 300, 9600, 2400 V.26B, 4800, FX.25 and IL2P on Windows; 1200, 9600, 2400 and
+FX.25 on aarch64), and each decodes the other's audio 103 / 103.  These are emulated runs:
+they show the code computes the same thing on those targets, not that sound cards, serial
+ports or networking work there (section 10.2).  In the matrix run, the 7 lines of
+`check-modem300` under wine failed because `gen_packets` did not complete while the disk
+was nearly full; rerun afterwards, 7 / 7 pass (`build_matrix_addendum.txt`).
+
+### 8.2 Static analysis
+
+cppcheck 2.13 (`--enable=warning,portability`) on the 21 C files the fork changes or adds, in the
+fork and in upstream 1.8.2: 20 findings in the fork, 22 in upstream.  The two upstream
+findings the fork no longer has are the signed 64 bit shift in `fx25_rec.c` (fixed in round 2)
+and a string comparison in `il2p_test.c` (#576).  The fork adds none (`cppcheck_*.txt`).
+
+### 8.3 Sanitizers and valgrind
+
+* ASan + UBSan, all 28 ctests: no memory error and no undefined behaviour report.  With
+  leak detection on, `dtest` and `deviceidtest` report leaks: `dtest` leaks 114904 bytes in
+  53 allocations in the fork and **exactly the same in upstream 1.8.2** built with ASan
+  (test packets the digipeater unit test never frees); `deviceidtest` reports 665 bytes,
+  the tables `deviceid_init` keeps for the life of the process (`asan_leaks.txt`).
+* valgrind, `decode_aprs` on 12000 packets: fork 0 errors; upstream 1.8.2 858; dev 776
+  (section 4.2).
+* Every fuzzing run below ran with ASan and UBSan.
+
+PENDING-SECTION-8-FUZZ
 
 ## 9. Defects found and fixes applied in this round
 
@@ -247,7 +469,7 @@ then uses `n` uninitialized.  Reachable from received packets: a nul in a weathe
 wind field (`_<nul>90/000...`), a truncated report (`_090/`), course/speed followed by
 spaces (`088/   `), `RNG` followed by spaces.  Upstream printed garbage such as "wind 253.2
 mph", "direction -1479100416", "range=21918.0", in the display, log file and waypoint
-sentences.  valgrind over 12000 test packets: upstream 1.8.2 858 errors in 117 contexts (all
+sentences.  valgrind over 12000 test packets: upstream 1.8.2 858 errors in 118 contexts (all
 in this code and in the AIS / MIC-E code the fork fixed in round 2), fork 0.
 
 ## 10. Known limitations, untested areas and remaining risks
@@ -265,14 +487,14 @@ in this code and in the AIS / MIC-E code the fork fixed in round 2), fork 0.
    report the KISS TCP case upstream with `interfaces.py --only stall` as the reproduction.
 2. **Opting in to soft repair** (`SOFT_FIX 1/2`) sends repaired frames to KISS/AGW clients,
    which can't tell them apart (same as `FIX_BITS` upstream).  The repair budget makes a
-   corrupted repaired frame rare (none at level 1 in this round's runs, section 6.3), not
+   corrupted repaired frame rare (none at level 1 or 2 in this round's runs, sections 6.4 - 6.5), not
    impossible.  Recommendation if it should ever be on by default: deliver repaired frames
    only to clients that ask for them (e.g. upstream PR #669's AGW signal quality extension).
 3. **IL2P at 9600 bd with frames over 1023 bytes** (upstream defect 9.8): sent unscrambled,
    lost.  Rare; would need the scrambler state to follow the frame type plus extra flags.
 4. **Automatic decimation (>= 54.9 kHz)** changes which marginal frames decode at 64 - 192
-   kHz: better on average (section 6.2) but individual frames upstream decodes can be lost.
-5. `deviceid_init` keeps ~650 bytes for the life of the process (LeakSanitizer) and
+   kHz: better on average (section 6.3) but individual frames upstream decodes can be lost.
+5. `deviceid_init` keeps 665 bytes for the life of the process (LeakSanitizer) and
    upstream's `digipeater.c` unit test leaks test packets; both upstream, harmless.
 
 ### 10.2 Not tested, and why
@@ -336,7 +558,10 @@ The exact command lines of every run in this report are in `results/round3/comma
 | `2a91953` | Windows build warning in a test; cppcheck finding in a test | mingw build 0 warnings in fork code; cppcheck |
 | `270fb06` | Cherry-pick of upstream #597 (Morse `-`) | multimon-ng MORSE_CW: `N0CALL=1` -> `N0CALL-1`; identical to upstream dev's audio |
 | `79bc61e` | Morse check and result labels in `interop.py` | Section 5.1 |
-| PENDING-LAST-COMMITS | | |
+| `cb4d6dc` | Fuzzing harness for KISS input and the FX.25 / IL2P decoders (`test/fuzz/fuzz_kiss_fec.c`); FEC fallback checks in `interfaces.py` | Section 8.4; tx-fallback rows (section 5.3) |
+| `a5db110` | `interop.py` noise checks: default fork must equal upstream (decimated rates reported as gained / lost), `-S1` must be a superset | Section 5.1: 84 noise rows |
+| `30bff2c` | This report (draft) | - |
+| PENDING-FINAL-COMMIT | Report completed; raw results in `results/round3/`; scripts used for the measurements (`results/round3/*.py`, `*.sh`) | This document |
 
 Nothing was force-pushed and no upstream or third-party repository was modified.
 

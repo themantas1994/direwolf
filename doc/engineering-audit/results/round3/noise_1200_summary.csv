@@ -1,0 +1,17 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se,ebn0_p99_interp,ebn0_p99_logit,ebn0_p99_logit_se
+flat,A+,upstream,10,5,0,0,0,0,0.17,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A+,fork,10,5,0,0,0,0,0.1,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A+,fork-S1,10,6,0,1,1,0,0.13,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A+,fork-S2,10,8,0,3,3,0,0.1,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A,upstream,10,3,0,0,0,0,0.14,nan,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A,fork,10,3,0,0,0,0,0.09,nan,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A,fork-S1,10,6,0,3,3,0,0.09,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+flat,A,fork-S2,10,7,0,4,4,0,0.09,-inf,nan,nan,nan,nan,nan,nan,nan,nan
+noise_only,A+,upstream,,,0,,,,54.939,,,,,,,,,
+noise_only,A+,fork,,,0,,,,36.109,,,,,,,,,
+noise_only,A+,fork-S1,,,0,,,,36.128,,,,,,,,,
+noise_only,A+,fork-S2,,,0,,,,35.763,,,,,,,,,
+noise_only,A,upstream,,,0,,,,46.391,,,,,,,,,
+noise_only,A,fork,,,0,,,,26.393,,,,,,,,,
+noise_only,A,fork-S1,,,0,,,,26.326,,,,,,,,,
+noise_only,A,fork-S2,,,0,,,,27.088,,,,,,,,,

@@ -1,0 +1,13 @@
+compare,category,count,example
+fork vs upstream,'100%' is not a CTCSS tone (#657),1,N0CALL>APRS:!4903.50N/07201.75W-Battery 100%
+fork vs upstream,"invalid PHG/DFS height code: shown without height, not a garbage value",47,N0CALL>APRS:!4903.50N/07201.75W#PHG5~32
+fork vs upstream,sscanf EOF: uninitialized course/speed/range no longer shown,8,N0CALL>APRS:@092345z4903.50N/07201.75W_<0x00>90/000g000t066r000p000
+fork vs upstream,upstream debug output removed (#656),21,"N0CALL>APRS:?APRS? 34.02,-117.15,0200"
+fork vs upstream-dev,"invalid PHG/DFS height code: shown without height, not a garbage value",47,N0CALL>APRS:!4903.50N/07201.75W#PHG5~32
+fork vs upstream-dev,sscanf EOF: uninitialized course/speed/range no longer shown,2,N0CALL>APRS:!4903.50N/07201.75W>088/   
+fork vs upstream-dev,upstream dev change (not in 1.8.2),1315,N0CALL>APRS:@092345z4903.50N/07201.75W_<0x00>90/000g000t066r000p000
+aprslib positions vs fork,agree,3225,
+aprslib positions vs fork,ambiguity convention,496,
+aprslib positions vs fork,"differ, corpus packet",0,
+aprslib positions vs fork,"differ, mutated packet",21,
+valgrind fork,errors,0,

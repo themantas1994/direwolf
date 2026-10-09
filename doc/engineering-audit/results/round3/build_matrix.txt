@@ -1,0 +1,45 @@
+HEAD 30bff2cdd6bbc3f60db534ae593c7f9f9c42c12a
+gcc-debug: build rc=0, compiler warnings=1
+gcc-debug: ctest  : 100% tests passed, 0 tests failed out of 28
+clang-release: build rc=0, compiler warnings=54
+clang-release: ctest  : 100% tests passed, 0 tests failed out of 28
+up-clang-release: build rc=0, compiler warnings=54
+clang-release warnings by kind:
+         50 [-Wnan-infinity-disabled]
+          2 [-Wunused-function]
+          2 [-Wliteral-conversion]
+up-clang-release warnings by kind:
+         50 [-Wnan-infinity-disabled]
+          2 [-Wunused-function]
+          2 [-Wliteral-conversion]
+clang warnings (file:line: text) in fork but not in upstream 1.8.2:
+gcc-asan-ubsan: build rc=0, compiler warnings=4
+gcc-asan-ubsan: ctest ASAN_OPTIONS=detect_leaks=1 : 93% tests passed, 2 tests failed out of 28
+     9/28 Test  #1: dtest ............................***Failed    5.24 sec
+    14/28 Test #15: deviceidtest .....................***Failed    0.15 sec
+gcc-asan-ubsan: ctest ASAN_OPTIONS=detect_leaks=0 : 100% tests passed, 0 tests failed out of 28
+mingw: build rc=0, compiler warnings=0
+mingw: unit test programs under wine: 18/18 exit 0
+    mingw FAIL: @GEN_PACKETS_BIN@ -B300 -n 100 -o test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PA -F0 -L65 -G71 test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PA -F1 -L69 -G75 test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PB -F0 -L69 -G75 test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PB -F1 -L73 -G79 test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PA -F0 -S2 -L70 -G76 test3.wav
+    mingw FAIL: @ATEST_BIN@ -B300 -PB -F0 -S2 -L73 -G79 test3.wav
+mingw: modem script lines under wine: 71 run, 7 failed
+mingw: gen_packets -B 1200: wav windows=799038e8 linux=799038e8; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 300: wav windows=96ec514c linux=96ec514c; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 9600: wav windows=efb12ab2 linux=efb12ab2; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 2400 -J: wav windows=8897ef5f linux=8897ef5f; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 4800: wav windows=f70f2392 linux=f70f2392; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 1200 -X 16: wav windows=6b380099 linux=6b380099; windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+mingw: gen_packets -B 9600 -I 1: wav windows=51ed315f linux=51ed315f; windows atest on linux audio: ; upstream linux atest on windows audio: 
+aarch64: build rc=0, compiler warnings=0
+aarch64: unit test programs under qemu: 18/18 exit 0
+aarch64: modem script lines under qemu: 24 run, 0 failed
+aarch64: gen_packets -B 1200: wav arm=799038e8 x86=799038e8; arm atest on x86 audio: 103 packets decoded; upstream x86 atest on arm audio: 103 packets decoded
+aarch64: gen_packets -B 9600: wav arm=efb12ab2 x86=efb12ab2; arm atest on x86 audio: 103 packets decoded; upstream x86 atest on arm audio: 103 packets decoded
+aarch64: gen_packets -B 2400 -J: wav arm=8897ef5f x86=8897ef5f; arm atest on x86 audio: 103 packets decoded; upstream x86 atest on arm audio: 103 packets decoded
+aarch64: gen_packets -B 1200 -X 16: wav arm=6b380099 x86=6b380099; arm atest on x86 audio: 103 packets decoded; upstream x86 atest on arm audio: 103 packets decoded
+done Fri Oct  9 23:02:33 UTC 2026

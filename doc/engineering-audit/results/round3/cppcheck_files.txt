@@ -1,0 +1,1 @@
+src/ais.c src/atest.c src/ax25golden_test.c src/config.c src/decode_aprs.c src/demod.c src/demod_9600.c src/demod_afsk.c src/deviceid.c src/direwolf.c src/fx25_rec.c src/fx25_send.c src/gen_tone.c src/hdlc_rec.c src/hdlc_rec2.c src/hdlc_send.c src/il2p_test.c src/l2send_test.c src/morse.c src/multi_modem.c src/server.c 
