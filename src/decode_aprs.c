@@ -4135,6 +4135,20 @@ int get_maidenhead (decode_aprs_t *A, char *p)
 
 const char *dir[9] = { "omni", "NE", "E", "SE", "S", "SW", "W", "NW", "N" };
 
+/* Antenna height, in feet, from the PHG or DFS height code. */
+/* Normally a digit for 10 * 2**n feet.  Received packets can contain */
+/* anything so avoid an undefined (negative or too large) shift. */
+
+static int phg_height (char code)
+{
+	int n = code - '0';
+
+	if (n < 0 || n > 20) {
+	  return (G_UNKNOWN);
+	}
+	return ((1 << n) * 10);
+}
+
 static int data_extension_comment (decode_aprs_t *A, char *pdext)
 {
 	int n;
@@ -4187,7 +4201,7 @@ static int data_extension_comment (decode_aprs_t *A, char *pdext)
 	if (strncmp(pdext, "PHG", 3) == 0)
 	{
 	  A->g_power = (pdext[3] - '0') * (pdext[3] - '0');
-	  A->g_height = (1 << (pdext[4] - '0')) * 10;
+	  A->g_height = phg_height (pdext[4]);
 	  A->g_gain = pdext[5] - '0';
 	  if (pdext[6] >= '0' && pdext[6] <= '8') {
 	    strlcpy (A->g_directivity, dir[pdext[6]-'0'], sizeof(A->g_directivity));
@@ -4217,7 +4231,7 @@ static int data_extension_comment (decode_aprs_t *A, char *pdext)
 	if (strncmp(pdext, "DFS", 3) == 0)
 	{
 	  //A->g_strength = pdext[3] - '0';
-	  A->g_height = (1 << (pdext[4] - '0')) * 10;
+	  A->g_height = phg_height (pdext[4]);
 	  A->g_gain = pdext[5] - '0';
 	  if (pdext[6] >= '0' && pdext[6] <= '8') {
 	    strlcpy (A->g_directivity, dir[pdext[6]-'0'], sizeof(A->g_directivity));

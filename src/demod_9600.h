@@ -20,6 +20,6 @@ static inline int descramble (int in, int *state)
 	int out;
 
 	out = (in ^ (*state >> 16) ^ (*state >> 11)) & 1;
-	*state = (*state << 1) | (in & 1);
+	*state = (int)(((unsigned)*state << 1) | (in & 1));	// unsigned shift avoids undefined behavior
 	return (out);
 }
