@@ -88,6 +88,7 @@
 #include "direwolf.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>
@@ -172,6 +173,12 @@ static int try_decode (rrbb_t block, int chan, int subchan, int slice, alevel_t 
 static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel);
 
 static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel);
+
+static int soft_fix_wanted (int chan);
+
+static void soft_fix_defer (rrbb_t block, int chan, int subchan, int slice);
+
+static void soft_fix_note_good (int chan);
 
 static int sanity_check (unsigned char *buf, int blen, retry_t bits_flipped, enum sanity_e sanity_test);
 
@@ -273,6 +280,7 @@ void hdlc_rec2_block (rrbb_t block)
 	  text_color_set(DW_COLOR_INFO);
 	  dw_printf ("Got it the first time.\n");
 #endif
+	 soft_fix_note_good (chan);
 	 rrbb_delete (block);
 	 return;
 	}
@@ -282,7 +290,21 @@ void hdlc_rec2_block (rrbb_t block)
  * See if we can "fix" it.
  */
 	if (try_to_fix_quick_now (block, chan, subchan, slice, alevel)) {
+	  soft_fix_note_good (chan);
 	  rrbb_delete (block);
+	  return;
+	}
+
+/*
+ * With several demodulators or slicers, each delivers its own copy of
+ * the frame.  Wait until all of them are in, then repair only the most
+ * promising copy, and only if none of them was decoded.
+ * hdlc_rec2_soft_fix_tick takes it from here and frees the block.
+ */
+	if (soft_fix_wanted (chan) &&
+	    save_audio_config_p->achan[chan].num_subchan * save_audio_config_p->achan[chan].num_slicers > 1 &&
+	    ! passall) {
+	  soft_fix_defer (block, chan, subchan, slice);
 	  return;
 	}
 
@@ -511,7 +533,8 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		SOFT_FIX_SINGLES_1 of them for level 1, SOFT_FIX_SINGLES_2 for
  *		level 2.  Level 2 then tries pairs from the SOFT_FIX_PAIRS least
  *		reliable.  Bits with confidence above SOFT_FIX_MAX_QUALITY are
- *		never touched.
+ *		never touched, and nothing is tried if more than
+ *		SOFT_FIX_MAX_DOUBTFUL per cent of the bits are doubtful.
  *
  *		Every FCS check on a frame that has more errors than we can fix
  *		is about a 1 in 65536 chance of accepting it with a wrong bit.
@@ -520,8 +543,10 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		error into a wrong frame; a pair can (about 1 in 32767).  Level 1,
  *		at most 8 checks, is the default.  Level 2, at most 16 + 66 checks,
  *		recovers more frames but measurably more corrupted ones too.
- *		With multiple slicers, only the best matched slicer's copy of
- *		the frame is repaired, for the same reason.
+ *
+ *		With multiple demodulators or slicers, the same budget of checks
+ *		applies to the frame as a whole, not to each copy of it
+ *		(soft_fix_defer, soft_fix_copies).
  *
  *		As with FIX_BITS, the result must pass the sanity test and is
  *		reported with the corresponding retry level, so it is displayed and
@@ -530,50 +555,53 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *
  ***********************************************************************************/
 
-#define SOFT_FIX_SINGLES_1 8		/* Candidates for single bit inversion, level 1. */
-#define SOFT_FIX_SINGLES_2 16		/* Candidates for single bit inversion, level 2. */
+#define SOFT_FIX_SINGLES_1 8		/* FCS checks for single bit inversion per frame, level 1. */
+#define SOFT_FIX_SINGLES_2 16		/* FCS checks for single bit inversion per frame, level 2. */
 #define SOFT_FIX_PAIRS 12		/* Candidates for pairs, level 2.  Must be <= SOFT_FIX_SINGLES_2. */
 #define SOFT_FIX_MAX_QUALITY 30		/* Leave alone bits with confidence above this. */
 					/* (0 - 100 scale, as passed to hdlc_rec_bit.) */
 					/* In tests, every successful inversion was below 28. */
+#define SOFT_FIX_MAX_DOUBTFUL 30	/* Don't try if more than this per cent of the bits */
+					/* are at or below SOFT_FIX_MAX_QUALITY.  That is noise, or */
+					/* a frame with too many errors.  In tests, frames that */
+					/* could be repaired had at most 16 per cent; noise over 40. */
+#define SOFT_FIX_MAX_COPIES 9		/* Failed copies of one frame kept for repair. */
+#define SOFT_FIX_MIN_COPIES 2		/* With several demodulators/slicers, repair only if at */
+					/* least this many failed copies arrive together. */
 
-static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel)
+static int soft_fix_wanted (int chan)
 {
 	int soft_fix = save_audio_config_p->achan[chan].soft_fix;
 	retry_t fix_bits = save_audio_config_p->achan[chan].fix_bits;
-	int cand[SOFT_FIX_SINGLES_2];	/* Bit positions, least reliable first. */
-	int ncand = 0;
-	int maxcand = soft_fix >= 2 ? SOFT_FIX_SINGLES_2 : SOFT_FIX_SINGLES_1;
-	int len = rrbb_get_len(block);
-	int i, a, b;
-	retry_conf_t retry_cfg;
 
-	if (soft_fix <= 0 ||
-	    fix_bits >= RETRY_INVERT_TWO_SEP ||		/* Already tried every single bit and pair. */
-	    save_audio_config_p->achan[chan].modem_type == MODEM_AIS ||
-	    save_audio_config_p->achan[chan].sanity_test == SANITY_NONE) {
-	  return 0;
-	}
+	return (soft_fix > 0 &&
+		! (soft_fix < 2 && fix_bits >= RETRY_INVERT_SINGLE) &&	/* Already tried every single bit. */
+		fix_bits < RETRY_INVERT_TWO_SEP &&			/* Already tried every single bit and pair. */
+		save_audio_config_p->achan[chan].modem_type != MODEM_AIS &&
+		save_audio_config_p->achan[chan].sanity_test != SANITY_NONE);
+}
+
 
 /*
- * With multiple slicers, each one delivers its own copy of a frame.
- * Repairing all of them multiplies the chances of a corrupted frame
- * getting a good FCS by accident, so use only the best matched one.
- */
-	if (save_audio_config_p->achan[chan].num_slicers > 1 &&
-	    slice != demod_best_slicer (chan, subchan)) {
-	  return 0;
-	}
-
-/*
- * Find the least reliable bits.  Simple insertion into a short sorted list.
+ * Positions of the least reliable bits, least reliable first.
+ * Simple insertion into a short sorted list.
  * Bit 0 is the last bit of the opening flag so leave it alone.
+ * None if too many bits are doubtful to be worth trying.
  */
+
+static int soft_fix_candidates (rrbb_t block, int *cand, int maxcand)
+{
+	int len = rrbb_get_len(block);
+	int ncand = 0;
+	int doubtful = 0;
+	int i;
+
 	for (i = 1; i < len; i++) {
 	  int q = rrbb_get_quality(block, i);
 	  int j;
 
 	  if (q > SOFT_FIX_MAX_QUALITY) continue;
+	  doubtful++;
 	  if (ncand == maxcand && q >= rrbb_get_quality(block, cand[ncand-1])) continue;
 
 	  j = (ncand < maxcand) ? ncand++ : ncand - 1;
@@ -584,8 +612,73 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	  cand[j] = i;
 	}
 
+	if (doubtful * 100 > len * SOFT_FIX_MAX_DOUBTFUL) {
+	  return (0);
+	}
+	return (ncand);
+}
+
+
+/* Is this copy bit for bit the same as another?  Then it would give the same results. */
+
+static int soft_fix_same (rrbb_t a, rrbb_t b)
+{
+	return (rrbb_get_len(a) == rrbb_get_len(b) &&
+		rrbb_get_is_scrambled(a) == rrbb_get_is_scrambled(b) &&
+		rrbb_get_descram_state(a) == rrbb_get_descram_state(b) &&
+		rrbb_get_prev_descram(a) == rrbb_get_prev_descram(b) &&
+		memcmp (a->fdata, b->fdata, rrbb_get_len(a)) == 0);
+}
+
+
+/***********************************************************************************
+ *
+ * Name:	soft_fix_copies
+ *
+ * Purpose:	Try to repair a frame, given one or more copies of it with a bad FCS.
+ *
+ * Inputs:	copies	- Copies of the same frame from different demodulators or
+ *			  slicers, most promising first.
+ *		ncopies	- How many.
+ *		chan	- Radio channel.
+ *
+ * Returns:	1 if a repaired frame was passed along.
+ *
+ * Description:	The number of FCS checks per frame is fixed: SOFT_FIX_SINGLES_1
+ *		for level 1, however many copies there are.  They are spread over
+ *		the copies by rank: the least reliable bit of each copy, then the
+ *		second least reliable bit of each, and so on.  Copies identical to
+ *		an earlier one are skipped since they would give the same results.
+ *		Level 2 then tries pairs of bits in the first copy.
+ *
+ ***********************************************************************************/
+
+static int soft_fix_copies (rrbb_t *copies, int ncopies, int chan)
+{
+	int soft_fix = save_audio_config_p->achan[chan].soft_fix;
+	retry_t fix_bits = save_audio_config_p->achan[chan].fix_bits;
+	int budget = soft_fix >= 2 ? SOFT_FIX_SINGLES_2 : SOFT_FIX_SINGLES_1;
+	int cand[SOFT_FIX_MAX_COPIES][SOFT_FIX_SINGLES_2];	/* Bit positions, least reliable first. */
+	int ncand[SOFT_FIX_MAX_COPIES];
+	retry_conf_t retry_cfg;
+	int c, r, a, b;
+	int checks = 0;
+
+	assert (ncopies >= 1 && ncopies <= SOFT_FIX_MAX_COPIES);
+
+	for (c = 0; c < ncopies; c++) {
+	  int d;
+	  ncand[c] = soft_fix_candidates (copies[c], cand[c], budget);
+	  for (d = 0; d < c; d++) {
+	    if (soft_fix_same (copies[c], copies[d])) {
+	      ncand[c] = 0;
+	      break;
+	    }
+	  }
+	}
+
 /*
- * Single bits, least reliable first.
+ * Single bits.
  */
 	if (fix_bits < RETRY_INVERT_SINGLE) {
 	  memset (&retry_cfg, 0, sizeof(retry_cfg));
@@ -594,15 +687,21 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	  retry_cfg.retry = RETRY_INVERT_SINGLE;
 	  retry_cfg.u_bits.contig.nr_bits = 1;
 
-	  for (a = 0; a < ncand; a++) {
-	    retry_cfg.u_bits.contig.bit_idx = cand[a];
-	    if (try_decode (block, chan, subchan, slice, alevel, retry_cfg, 0)) {
+	  for (r = 0; r < budget && checks < budget; r++) {
+	    for (c = 0; c < ncopies && checks < budget; c++) {
+	      rrbb_t block = copies[c];
+
+	      if (r >= ncand[c]) continue;
+	      retry_cfg.u_bits.contig.bit_idx = cand[c][r];
+	      checks++;
+	      if (try_decode (block, chan, rrbb_get_subchan(block), rrbb_get_slice(block), rrbb_get_audio_level(block), retry_cfg, 0)) {
 #if DEBUG
-	      text_color_set(DW_COLOR_DEBUG);
-	      dw_printf ("*** Soft fix: inverted bit %d (rank %d, quality %d) of %d ***\n",
-				cand[a], a, rrbb_get_quality(block, cand[a]), len);
+	        text_color_set(DW_COLOR_DEBUG);
+	        dw_printf ("*** Soft fix: inverted bit %d (rank %d, quality %d) of %d, copy %d ***\n",
+				cand[c][r], r, rrbb_get_quality(block, cand[c][r]), rrbb_get_len(block), c);
 #endif
-	      return 1;
+	        return 1;
+	      }
 	    }
 	  }
 	}
@@ -612,13 +711,16 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	}
 
 /*
- * Pairs of bits.  Use the existing retry types so the result is
- * reported and treated the same as from the FIX_BITS options.
+ * Pairs of bits, first copy only.  Use the existing retry types so the result
+ * is reported and treated the same as from the FIX_BITS options.
  */
-	for (a = 1; a < SOFT_FIX_PAIRS && a < ncand; a++) {
+	rrbb_t block = copies[0];
+	int *cd = cand[0];
+
+	for (a = 1; a < SOFT_FIX_PAIRS && a < ncand[0]; a++) {
 	  for (b = 0; b < a; b++) {
-	    int x = cand[a] < cand[b] ? cand[a] : cand[b];
-	    int y = cand[a] < cand[b] ? cand[b] : cand[a];
+	    int x = cd[a] < cd[b] ? cd[a] : cd[b];
+	    int y = cd[a] < cd[b] ? cd[b] : cd[a];
 
 	    memset (&retry_cfg, 0, sizeof(retry_cfg));
 	    retry_cfg.type = RETRY_TYPE_SWAP;
@@ -636,11 +738,11 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 	      retry_cfg.u_bits.sep.bit_idx_b = y;
 	      retry_cfg.u_bits.sep.bit_idx_c = -1;
 	    }
-	    if (try_decode (block, chan, subchan, slice, alevel, retry_cfg, 0)) {
+	    if (try_decode (block, chan, rrbb_get_subchan(block), rrbb_get_slice(block), rrbb_get_audio_level(block), retry_cfg, 0)) {
 #if DEBUG
 	      text_color_set(DW_COLOR_DEBUG);
 	      dw_printf ("*** Soft fix: inverted bits %d and %d (quality %d, %d) of %d ***\n",
-				x, y, rrbb_get_quality(block, x), rrbb_get_quality(block, y), len);
+				x, y, rrbb_get_quality(block, x), rrbb_get_quality(block, y), rrbb_get_len(block));
 #endif
 	      return 1;
 	    }
@@ -649,8 +751,174 @@ static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_
 
 	return 0;
 
-} /* end try_soft_fix */
+} /* end soft_fix_copies */
 
+
+/*
+ * Repair right away.  Used when there is only one demodulator and slicer
+ * on the channel, so there is only one copy of each frame, and with PASSALL.
+ */
+
+static int try_soft_fix (rrbb_t block, int chan, int subchan, int slice, alevel_t alevel)
+{
+	(void) alevel;
+
+	if ( ! soft_fix_wanted (chan)) {
+	  return 0;
+	}
+
+/*
+ * With multiple slicers, each one delivers its own copy of a frame.
+ * Repairing all of them separately multiplies the chances of a corrupted
+ * frame getting a good FCS by accident, so use only the best matched one.
+ */
+	if (save_audio_config_p->achan[chan].num_slicers > 1 &&
+	    slice != demod_best_slicer (chan, subchan)) {
+	  return 0;
+	}
+
+	return (soft_fix_copies (&block, 1, chan));
+}
+
+
+/***********************************************************************************
+ *
+ * Name:	soft_fix_defer, soft_fix_note_good, hdlc_rec2_soft_fix_tick
+ *
+ * Purpose:	Soft decision repair when a channel has more than one demodulator
+ *		or slicer.
+ *
+ * Description:	Each demodulator/slicer delivers its own copy of a frame, a few
+ *		bit times apart at most.  The failed copies are collected until
+ *		the time window multi_modem uses to pick the best candidate has
+ *		passed.  If any copy was decoded (with no bits changed, or by
+ *		FIX_BITS) nothing more is done.  Otherwise the most promising
+ *		copy from each demodulator goes to soft_fix_copies, with the same
+ *		number of FCS checks as for a single copy.  The most promising is
+ *		the best matched slicer's (demod_best_slicer), or the nearest
+ *		slicer's if that one has no copy.
+ *
+ *		Noise produces junk "frames" at random times on each slicer.
+ *		A real frame produces copies on several at the same time, so at
+ *		least SOFT_FIX_MIN_COPIES failed copies must arrive together.
+ *		On noise this cut the number of FCS checks about tenfold compared
+ *		to repairing every copy from the best slicer.
+ *
+ *		All called from the audio receive thread, as is hdlc_rec2_block.
+ *
+ ***********************************************************************************/
+
+static struct {
+	rrbb_t block[SOFT_FIX_MAX_COPIES];	/* Failed copies, most promising first. */
+	int prio[SOFT_FIX_MAX_COPIES];		/* Lower is more promising. */
+	int n;					/* Number in block[]; 0 if nothing pending. */
+	int copies;				/* Number of failed copies in this window. */
+	int age;				/* Samples since the first one. */
+	int good;				/* Another copy of this frame was decoded. */
+} soft_pending[MAX_RADIO_CHANS];
+
+static int soft_since_good[MAX_RADIO_CHANS];	/* Samples since a frame was decoded without soft repair. */
+static int soft_window[MAX_RADIO_CHANS];	/* Window in samples, from multi_modem. */
+
+static void soft_fix_note_good (int chan)
+{
+	soft_since_good[chan] = 0;
+	if (soft_pending[chan].n > 0) {
+	  soft_pending[chan].good = 1;
+	}
+}
+
+static void soft_fix_defer (rrbb_t block, int chan, int subchan, int slice)
+{
+	int prio = 0;
+	int i;
+
+	if (soft_since_good[chan] <= soft_window[chan]) {
+	  rrbb_delete (block);		/* Another copy of this frame was just decoded. */
+	  return;
+	}
+
+	if (save_audio_config_p->achan[chan].num_slicers > 1) {
+	  prio = abs (slice - demod_best_slicer (chan, subchan));
+	}
+
+	if (soft_pending[chan].n == 0) {
+	  soft_pending[chan].copies = 0;
+	  soft_pending[chan].age = 0;
+	  soft_pending[chan].good = 0;
+	}
+	soft_pending[chan].copies++;
+
+	i = soft_pending[chan].n;
+	if (i == SOFT_FIX_MAX_COPIES) {
+	  if (prio >= soft_pending[chan].prio[i-1]) {
+	    rrbb_delete (block);
+	    return;
+	  }
+	  i--;
+	  rrbb_delete (soft_pending[chan].block[i]);
+	}
+	else {
+	  soft_pending[chan].n++;
+	}
+
+	/* Insert, keeping arrival order among equals. */
+	while (i > 0 && soft_pending[chan].prio[i-1] > prio) {
+	  soft_pending[chan].block[i] = soft_pending[chan].block[i-1];
+	  soft_pending[chan].prio[i] = soft_pending[chan].prio[i-1];
+	  i--;
+	}
+	soft_pending[chan].block[i] = block;
+	soft_pending[chan].prio[i] = prio;
+}
+
+
+/*
+ * Called by multi_modem for every audio sample.
+ * window is the number of samples multi_modem waits for other copies of a frame.
+ */
+
+void hdlc_rec2_soft_fix_tick (int chan, int window)
+{
+	int i;
+
+	soft_window[chan] = window;
+
+	if (soft_since_good[chan] <= window) {
+	  soft_since_good[chan]++;
+	}
+
+	if (soft_pending[chan].n == 0) {
+	  return;
+	}
+
+	soft_pending[chan].age++;
+	if (soft_pending[chan].age <= window) {
+	  return;
+	}
+
+	if ( ! soft_pending[chan].good && soft_pending[chan].copies >= SOFT_FIX_MIN_COPIES) {
+
+	  /* The most promising copy from each demodulator. */
+
+	  rrbb_t use[SOFT_FIX_MAX_COPIES];
+	  int nuse = 0;
+	  int j;
+
+	  for (i = 0; i < soft_pending[chan].n; i++) {
+	    int sc = rrbb_get_subchan(soft_pending[chan].block[i]);
+	    for (j = 0; j < nuse && rrbb_get_subchan(use[j]) != sc; j++) ;
+	    if (j == nuse) use[nuse++] = soft_pending[chan].block[i];
+	  }
+	  soft_fix_copies (use, nuse, chan);
+	}
+
+	for (i = 0; i < soft_pending[chan].n; i++) {
+	  rrbb_delete (soft_pending[chan].block[i]);
+	  soft_pending[chan].block[i] = NULL;
+	}
+	soft_pending[chan].n = 0;
+}
 
 
 // TODO:  Remove this.  but first figure out what to do in atest.c

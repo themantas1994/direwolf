@@ -268,6 +268,10 @@ void multi_modem_process_sample (int chan, int audio_sample)
 	  demod_process_sample(chan, d, audio_sample);
 	}
 
+	if (save_audio_config_p->achan[chan].soft_fix > 0) {
+	  hdlc_rec2_soft_fix_tick (chan, process_age[chan]);
+	}
+
 	for (subchan = 0; subchan < save_audio_config_p->achan[chan].num_subchan; subchan++) {
 	  int slice;
 

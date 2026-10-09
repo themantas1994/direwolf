@@ -9,6 +9,8 @@
 @ATEST_BIN@ -F0 -PA+ -D1 -S1 -L76 -G82 test12.wav
 @ATEST_BIN@ -F0 -PA -D1 -S2 -L74 -G80 test12.wav
 @ATEST_BIN@ -F0 -PA+ -D1 -S2 -L81 -G87 test12.wav
+@ATEST_BIN@ -F0 -PAB -D1 -S0 -L71 -G77 test12.wav
+@ATEST_BIN@ -F0 -PAB -D1 -S1 -L75 -G81 test12.wav
 @GEN_PACKETS_BIN@ -r 96000 -n 100 -o test12-96k.wav
 @ATEST_BIN@ -F0 -PA+ -S0 -L96 -G100 test12-96k.wav
 @ATEST_BIN@ -F0 -PA+ -S2 -L97 -G100 test12-96k.wav

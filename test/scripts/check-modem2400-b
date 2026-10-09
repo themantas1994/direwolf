@@ -3,4 +3,4 @@
 @GEN_PACKETS_BIN@ -B2400 -J -n 100 -o test24-b.wav
 @ATEST_BIN@ -B2400 -J -F0 -S0 -L81 -G88 test24-b.wav
 @ATEST_BIN@ -B2400 -J -F1 -S0 -L86 -G90 test24-b.wav
-@ATEST_BIN@ -B2400 -J -F0 -S2 -L85 -G91 test24-b.wav
+@ATEST_BIN@ -B2400 -J -F0 -S2 -L82 -G88 test24-b.wav
