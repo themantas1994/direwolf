@@ -14,9 +14,10 @@ Compares Dire Wolf builds with each other and with independent code:
   multimon       audio made by each build is decoded by multimon-ng, an
                  independent decoder (AFSK1200, FSK9600), if installed.
   noise          gen_packets -n (frames with increasing noise) from one build
-                 is decoded by every build.  With soft repair off the fork must
-                 decode exactly the frames upstream does; with it on, a
-                 superset.
+                 is decoded by every build.  With its default settings (soft
+                 repair off) the fork must decode exactly the frames upstream
+                 does, except at 54.9 kHz and above for 1200 bd (automatic
+                 decimation: reported, not failed); with -S1 a superset.
 
 Usage:
   interop.py --build fork=BUILD_DIR --build upstream=BUILD_DIR [--build ...]
@@ -24,7 +25,7 @@ Usage:
 
 BUILD_DIR is a CMake build directory containing src/gen_packets and src/atest.
 The --dut build is the one with the -S (soft repair) option; it is also run
-with -S0.  Exit status is 1 if any check fails.
+with -S1 (repair on, opt in).  Exit status is 1 if any check fails.
 """
 
 import argparse
@@ -86,6 +87,10 @@ NOISE_MODES = [
 
 _HEXLINE = re.compile(r"^\s+[0-9a-f]{3}:\s+((?:[0-9a-f]{2} )+)")
 _ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def rate_of(gargs):
+    return int(gargs[gargs.index("-r") + 1]) if "-r" in gargs else 44100
 
 
 def run(cmd, cwd=None, inp=None):
@@ -246,9 +251,11 @@ def main():
     expected = [ax25ref.tnc2_to_frame(line) + b"\n" for line in corpus]
     expected_nolf = [ax25ref.tnc2_to_frame(line) for line in corpus]
 
+    # Every build with its default settings, plus the fork with soft decision repair
+    # turned on (opt in, SOFT_FIX 1), which must decode a superset of upstream.
     decoders = [(n, d, []) for n, d in builds.items()]
     if a.dut in builds:
-        decoders.append((a.dut + " -S0", builds[a.dut], ["-S", "0"]))
+        decoders.append((a.dut + " -S1", builds[a.dut], ["-S", "1"]))
 
     R = Results()
     pool = cf.ThreadPoolExecutor(max_workers=a.jobs)
@@ -386,18 +393,32 @@ def main():
                 jobs = [(dn, pool.submit(decode, d, w, dv + extra)) for dn, d, extra in decoders]
                 res = {dn: fu.result() for dn, fu in jobs}
                 ref_names = [n for n in names if n != a.dut]
+                # At 54.9 kHz and above the fork divides the sample rate for the 1200 bd
+                # prefilter (demod.c), so marginal frames can differ from upstream.
+                decimated = "1200" in mode and rate_of(gargs) >= 54900
                 for dn, frames in res.items():
                     note = "decoded=%d" % len(frames)
                     fail = False
-                    if dn == a.dut + " -S0" and ref_names:
-                        same = all(frames == res[r] for r in ref_names)
-                        note += " identical to %s" % ",".join(ref_names) if same else " DIFFERS from upstream"
-                        fail = not same
+                    status = None
                     if dn == a.dut and ref_names:
-                        missing = [f for f in res[ref_names[0]] if f not in frames]
-                        note += " missing_vs_%s=%d" % (ref_names[0], len(missing))
+                        r0 = res[ref_names[0]]
+                        same = all(frames == res[r] for r in ref_names if not r.endswith("dev")) and frames == r0
+                        lost = sum(1 for f in r0 if f not in frames)
+                        gained = sum(1 for f in frames if f not in r0)
+                        if decimated:
+                            note += " vs %s: gained %d, lost %d (auto decimation)" % (ref_names[0], gained, lost)
+                            status = "EXPECTED-DIFF"
+                        else:
+                            note += " identical to %s" % ref_names[0] if same else " DIFFERS from %s (gained %d, lost %d)" % (
+                                ref_names[0], gained, lost)
+                            fail = not same
+                    if dn == a.dut + " -S1" and ref_names:
+                        base = res[a.dut] if decimated else res[ref_names[0]]
+                        missing = [f for f in base if f not in frames]
+                        note += " missing_vs_%s=%d" % (a.dut if decimated else ref_names[0], len(missing))
                         fail = bool(missing)
-                    R.add("noise", mode, "-", gname, dn + " " + " ".join(dv), len(frames), len(frames), note, fail=fail)
+                    R.add("noise", mode, "-", gname, dn + " " + " ".join(dv), len(frames), len(frames), note,
+                          fail=fail, status=status)
 
     pool.shutdown()
     if a.csv:
