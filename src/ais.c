@@ -728,7 +728,7 @@ static void get_ship_data(char *mssi, char *comment, int comment_size)
 
 #if AISTEST
 
-#define NEAR(a,b) ((a) - (b) < 0.000001 && (b) - (a) < 0.000001)
+#define AIS_NEAR(a,b) ((a) - (b) < 0.000001 && (b) - (a) < 0.000001)
 
 /* Parse body, which starts with !, after appending the NMEA checksum. */
 
@@ -760,8 +760,8 @@ int main (int argc, char *argv[])
 	assert (try_parse ("!AIVDM,1,1,,A,15M67FC000G?ufbE`FepT@3n00Sa,0", &lat, &lon, mssi) == 0);
 	dw_printf ("%s %.6f %.6f\n", mssi, lat, lon);
 	assert (strcmp(mssi, "366053209") == 0);
-	assert (NEAR(lat, 37 + 48.1271 / 60));
-	assert (NEAR(lon, -(122 + 20.4971 / 60)));
+	assert (AIS_NEAR(lat, 37 + 48.1271 / 60));
+	assert (AIS_NEAR(lon, -(122 + 20.4971 / 60)));
 
 	// Malformed sentences must be rejected, not crash.
 

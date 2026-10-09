@@ -165,13 +165,14 @@ int main (int argc, char *argv[])
 	  else if (line[0] == 'R') {
 	    // R <type> <cr> <pf> <nr> <ns> <modulo> <hex> <fcs>
 	    char tname[16], crs[8], h[MAXLINE];
-	    int pf, nr, ns, modulo, fcs;
+	    int pf, nr, ns, modulo;
+	    unsigned int fcs;
 	    if (sscanf (line + 2, "%15s %7s %d %d %d %d %9999s %x", tname, crs, &pf, &nr, &ns, &modulo, h, &fcs) != 8) {
 	      fail (lineno, "bad line", line);
 	      continue;
 	    }
 	    int flen = unhex (h, frame, sizeof(frame));
-	    if (fcs_calc (frame, flen) != fcs) fail (lineno, "FCS differs", line);
+	    if ((unsigned int)fcs_calc (frame, flen) != fcs) fail (lineno, "FCS differs", line);
 
 	    packet_t pp = ax25_from_frame (frame, flen, (alevel_t){0});
 	    if (pp == NULL) { fail (lineno, "ax25_from_frame failed", line); continue; }
