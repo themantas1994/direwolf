@@ -512,7 +512,7 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		slice	- Which slicer.
  *		alevel	- Audio level for later reporting.
  *
- * Global In:	configuration soft_fix - 0 = off, 1 = single bits (default),
+ * Global In:	configuration soft_fix - 0 = off (default), 1 = single bits,
  *				2 = more single bits and pairs.
  *		configuration fix_bits - Don't repeat what try_to_fix_quick_now did.
  *
@@ -539,10 +539,13 @@ static int try_to_fix_quick_now (rrbb_t block, int chan, int subchan, int slice,
  *		Every FCS check on a frame that has more errors than we can fix
  *		is about a 1 in 65536 chance of accepting it with a wrong bit.
  *		After NRZI, the AX.25 FCS always catches one or two remaining
- *		bit errors, so a single inversion can't turn a frame with one bit
- *		error into a wrong frame; a pair can (about 1 in 32767).  Level 1,
- *		at most 8 checks, is the default.  Level 2, at most 16 + 66 checks,
- *		recovers more frames but measurably more corrupted ones too.
+ *		bit errors, so inverting the wrong single bit of a frame with one
+ *		bit error can't give a wrong frame with a good FCS, unless the
+ *		inversion also changes where bit stuffing happens, which shifts
+ *		the rest of the frame (then about 1 in 65536 again).  A pair can
+ *		(about 1 in 32767).  Level 1 makes at most 8 checks per frame.
+ *		Level 2, at most 16 + 66 checks, recovers more frames but
+ *		measurably more corrupted ones too.  Off by default.
  *
  *		With multiple demodulators or slicers, the same budget of checks
  *		applies to the frame as a whole, not to each copy of it

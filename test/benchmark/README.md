@@ -67,19 +67,22 @@ decodes pure noise; anything decoded there is a false decode.
 
 ## Examples
 
-Compare two builds with the default receive configuration (A+):
+Compare two builds with the default receive configuration (A+; soft
+decision repair is off by default):
 
     python3 test/benchmark/rx_sensitivity.py \
         --atest old=../old/build/src/atest --atest new=build/src/atest \
         --gen-packets build/src/gen_packets \
         --profiles A+,A --conditions flat,deemph6 --ebn0 6:16:0.5 --frames 300
 
-Compare soft decision repair settings of one build (`atest -S`):
+Compare soft decision repair settings of one build (`atest -S`).  Frames
+recovered by repair are counted separately from the plain decoder's
+(`frames_fixed`, and `bad_fixed` for corrupted ones):
 
-    printf '#!/bin/sh\nexec build/src/atest -S0 "$@"\n' > /tmp/atest_s0
-    chmod +x /tmp/atest_s0
-    python3 test/benchmark/rx_sensitivity.py --atest S0=/tmp/atest_s0 \
-        --atest S2=build/src/atest --gen-packets build/src/gen_packets \
+    printf '#!/bin/sh\nexec build/src/atest -S1 "$@"\n' > /tmp/atest_s1
+    chmod +x /tmp/atest_s1
+    python3 test/benchmark/rx_sensitivity.py --atest S0=build/src/atest \
+        --atest S1=/tmp/atest_s1 --gen-packets build/src/gen_packets \
         --ebn0 7:12:0.5 --frames 1000 --noise-only 3600
 
 Other modes: `--mode 300|1200|2400|4800|9600`.  Other sample rates: `--rate 96000` etc.
