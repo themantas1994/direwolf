@@ -81,8 +81,8 @@ kept is set in Settings.
 ### APRS map & stations (Ctrl+3)
 Stations and objects heard, with last heard time, distance and bearing from your home
 position, symbol, channel and origin, comment and status.  Positions come only from real
-reports: decoded by Dire Wolf itself (its CSV log, enabled in Settings) or parsed from the
-packet; their source and time are shown, and stations not heard for an hour are drawn as
+reports: decoded by Dire Wolf itself (its CSV packet log, on by default, see Settings) or
+parsed from the packet; their source and time are shown, and stations not heard for an hour are drawn as
 stale.  Tracks, labels and fit-to-stations on the map; export stations to CSV and tracks to
 GPX.  The map works offline as a latitude/longitude grid; OpenStreetMap tiles can be
 turned on in Settings (they are cached and attributed).
@@ -166,8 +166,9 @@ only programs on this computer can connect; without it any computer on your netw
 
 Theme (Windows, light or dark), locations of `direwolf.exe` and the configuration, Dire
 Wolf's working folder, the audio statistics interval (Dire Wolf's `-a` option: periodic
-sample rate and level reports for the dashboard), Dire Wolf's CSV packet log (lets the map
-use Dire Wolf's own position decoding), how many log lines and packets to keep, the AGW
+sample rate and level reports for the dashboard), Dire Wolf's CSV packet log (on by default: daily files in
+`%LOCALAPPDATA%\DireWolfStation\logs` that let the map use Dire Wolf's own position decoding;
+delete old files as you like), how many log lines and packets to keep, the AGW
 address used by the monitor, messaging and automatic acknowledgements, map tiles (off by
 default; URL, attribution and cache), and your home position for distances.
 

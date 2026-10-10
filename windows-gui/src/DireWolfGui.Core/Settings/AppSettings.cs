@@ -36,7 +36,7 @@ public sealed class AppSettings
     public bool FirstRunCompleted { get; set; }
 
     // Logs
-    public bool CsvLogEnabled { get; set; }
+    public bool CsvLogEnabled { get; set; } = true;
     /// <summary>Directory for Dire Wolf's daily CSV logs (direwolf -l); null = <see cref="DefaultCsvLogDirectory"/>.</summary>
     public string? CsvLogDirectory { get; set; }
     public int LogRetentionLines { get; set; } = 20000;
