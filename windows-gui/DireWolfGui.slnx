@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DireWolfGui.Core/DireWolfGui.Core.csproj" />
+    <Project Path="src/DireWolfGui/DireWolfGui.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DireWolfGui.Core.Tests/DireWolfGui.Core.Tests.csproj" />
+  </Folder>
+</Solution>
