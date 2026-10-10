@@ -11,5 +11,11 @@ internal static class PageFactory
         yield return new MessagesViewModel(main);
         yield return new TerminalViewModel(main);
         yield return new LogViewModel(main);
+        yield return new ConfigurationViewModel(main);
+        yield return new ServicesViewModel(main);
+        yield return new WaprViewModel(main);
+        yield return new IntegrationsViewModel(main);
+        yield return new SetupWizardViewModel(main);
+        yield return new SettingsViewModel(main);
     }
 }

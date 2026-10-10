@@ -9,4 +9,10 @@
     <DataTemplate DataType="{x:Type vm:MessagesViewModel}"><v:MessagesView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:TerminalViewModel}"><v:TerminalView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:LogViewModel}"><v:LogView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ConfigurationViewModel}"><v:ConfigurationView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ServicesViewModel}"><v:ServicesView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:WaprViewModel}"><v:WaprView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:IntegrationsViewModel}"><v:IntegrationsView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SetupWizardViewModel}"><v:SetupWizardView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
 </ResourceDictionary>
