@@ -70,10 +70,10 @@ public static partial class ConfigChecker
         };
         foreach (var a in new[] { "-t", "0", "--check-config", "-c", full }) psi.ArgumentList.Add(a);
 
-        Process proc;
+        System.Diagnostics.Process proc;
         try
         {
-            proc = Process.Start(psi) ?? throw new InvalidOperationException("Process.Start returned null.");
+            proc = System.Diagnostics.Process.Start(psi) ?? throw new InvalidOperationException("Process.Start returned null.");
         }
         catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
         {

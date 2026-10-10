@@ -11,17 +11,22 @@ Environment facts (Linux dev container):
 Backend (C) changes, all opt-in:
 - [x] `--check-config` (real parser summary, exit 1 on diagnostics) + ctest `check-config`
 - [x] Windows: stdout unbuffered when redirected (live log in GUI)
+- [x] `TCPBIND LOCAL|ANY` (opt-in loopback-only servers)
+- [x] --check-config counts printed messages only (valid TXDELAY no longer counted)
 
 Core (src/DireWolfGui.Core):
-- [ ] Process: launch/stop (Ctrl+C via AttachConsole on Windows, SIGINT elsewhere), probe, resources
-- [ ] Console parser: packets rx/tx/igate, audio level, audio stats, notices, WAPR
-- [ ] AGW client + terminal session, KISS TCP client, connection tests
-- [ ] APRS parser, Dire Wolf CSV log tailer, station tracker, messages (ack/retry), exports
-- [ ] Config document (lossless), tokenizer, catalog (checked against src/config.c), validator
-- [ ] check-config runner/parser, services/transmit analysis, backups, profiles, diff, templates
-- [ ] WAPR support, settings store, external app profiles
+- [x] Process: launch/stop (Ctrl+C via AttachConsole on Windows, SIGINT elsewhere), probe, resources
+- [x] Console parser: packets rx/tx/igate, audio level, audio stats, notices, WAPR
+- [x] AGW client + terminal session, KISS TCP client, connection tests
+- [x] APRS parser, Dire Wolf CSV log tailer, station tracker, messages (ack/retry), exports
+- [x] Config document (lossless), tokenizer, catalog (checked against src/config.c), validator
+- [x] check-config runner/parser, services/transmit analysis, backups, profiles, diff, templates
+- [x] WAPR support, settings store, external app profiles
 
 GUI (src/DireWolfGui): shell/themes/navigation, dashboard, logs, monitor, APRS+map,
 messages, terminal, config editor, wizard, gateway/digi, WAPR, integrations, about.
 
 Release: Windows CI workflow, publish/ZIP script, USER_GUIDE, known limitations.
+
+Core API docs: docs/CORE_RUNTIME_API.md, docs/CORE_CONFIG_API.md.  Inside DireWolfGui.Core.* use
+`System.Diagnostics.Process` fully qualified (the Process folder namespace shadows it).

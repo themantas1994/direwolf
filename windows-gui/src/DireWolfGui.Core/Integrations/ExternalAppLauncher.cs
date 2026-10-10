@@ -42,7 +42,7 @@ public static class ExternalAppLauncher
     {
         try
         {
-            using var p = Process.Start(psi);
+            using var p = System.Diagnostics.Process.Start(psi);
             return p == null ? LaunchResult.Fail($"\"{psi.FileName}\" did not start.") : new LaunchResult(true, p.Id, null);
         }
         catch (Exception e) when (e is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException or PlatformNotSupportedException)
