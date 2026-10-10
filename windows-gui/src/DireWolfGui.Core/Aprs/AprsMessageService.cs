@@ -26,6 +26,10 @@ public sealed record AprsMessage
     public string? Error { get; init; }
     /// <summary>For incoming messages: whether we sent an ack.</summary>
     public bool AckSent { get; init; }
+    /// <summary>Radio channel the message was sent on (outgoing; retries use it too) or heard on (incoming; null if not from radio).</summary>
+    public int? Channel { get; init; }
+    /// <summary>Digipeater path used for an outgoing message and its retries.</summary>
+    public IReadOnlyList<string> Path { get; init; } = Array.Empty<string>();
 }
 
 /// <summary>
@@ -124,6 +128,7 @@ public sealed class AprsMessageService : IDisposable
             {
                 LocalId = ++_nextLocalId, Direction = AprsMessageDirection.Outgoing, From = MyCall.ToUpperInvariant(), To = to, Text = text,
                 MessageId = id, State = AprsMessageState.Queued, Created = _time.GetUtcNow(),
+                Channel = Channel, Path = Path.ToArray(),
             };
             Add(m);
         }
@@ -134,7 +139,7 @@ public sealed class AprsMessageService : IDisposable
     {
         try
         {
-            await _sender.SendUnprotoAsync(Channel, m.From, Destination, Path, ComposeInfo(m.To, m.Text, m.MessageId), ct).ConfigureAwait(false);
+            await _sender.SendUnprotoAsync(m.Channel ?? Channel, m.From, Destination, m.Path, ComposeInfo(m.To, m.Text, m.MessageId), ct).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -207,26 +212,29 @@ public sealed class AprsMessageService : IDisposable
             {
                 LocalId = ++_nextLocalId, Direction = AprsMessageDirection.Incoming, From = from, To = Normalize(a.Addressee!),
                 Text = a.MessageText ?? "", MessageId = a.MessageId, State = AprsMessageState.Received, Created = now,
+                Channel = p.Origin == PacketOrigin.Radio ? p.Channel : null,
             };
             if (existing == null) Add(result);
         }
         if (existing == null) Raise(result);
 
-        // A duplicate usually means our ack was lost, so acknowledge again.
-        if (AutoAcknowledge && a.MessageId != null && !string.IsNullOrWhiteSpace(MyCall))
+        // A duplicate usually means our ack was lost, so acknowledge again.  Only messages heard on
+        // a radio channel are acknowledged, on that same channel (not ones arriving through APRS-IS).
+        if (AutoAcknowledge && a.MessageId != null && !string.IsNullOrWhiteSpace(MyCall)
+            && p.Origin == PacketOrigin.Radio && p.Channel is int heardOn)
         {
             string myCall = MyCall.ToUpperInvariant();
             long id = result.LocalId;
-            _ = SendAckAsync(myCall, p.Source, a.MessageId, id);
+            _ = SendAckAsync(myCall, p.Source, a.MessageId, id, heardOn);
         }
         return result;
     }
 
-    private async Task SendAckAsync(string myCall, string to, string messageId, long localId)
+    private async Task SendAckAsync(string myCall, string to, string messageId, long localId, int channel)
     {
         try
         {
-            await _sender.SendUnprotoAsync(Channel, myCall, Destination, Path, ComposeInfo(to, "ack" + messageId, null)).ConfigureAwait(false);
+            await _sender.SendUnprotoAsync(channel, myCall, Destination, Path, ComposeInfo(to, "ack" + messageId, null)).ConfigureAwait(false);
             Replace(localId, x => x with { AckSent = true });
         }
         catch (Exception ex)

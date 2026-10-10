@@ -279,3 +279,32 @@ public class PacketStoreTests
         Assert.Single(s.GetSince(3));
     }
 }
+
+
+public class WaprGatewayOriginTests
+{
+    [Fact]
+    public void FramesRelayedByAWaprGatewayAreLabelledGateway()
+    {
+        var p = new ConsoleOutputParser();
+        var packets = new List<PacketRecord>();
+        p.PacketParsed += packets.Add;
+        var t = DateTimeOffset.UnixEpoch;
+        p.ProcessLine("[1] N0AAA>APZWAP,WAPRGW*:!4237.14N/07120.83W-relayed", t);
+        p.ProcessLine("[1] N0BBB>APZWAP:!4237.14N/07120.83W-direct", t);
+        Assert.Equal(PacketOrigin.Gateway, packets[0].Origin);
+        Assert.Equal(PacketOrigin.Radio, packets[1].Origin);
+    }
+}
+
+public class TerminalNewlineTests
+{
+    [Fact]
+    public void CrLfSplitAcrossFramesGivesOneNewline()
+    {
+        using var s = new DireWolfGui.Core.Net.AgwTerminalSession(new DireWolfGui.Core.Net.AgwClient(), 0, "N0TEST");
+        Assert.Equal("line1\n", s.NormalizeNewlines("line1\r"));
+        Assert.Equal("line2\n", s.NormalizeNewlines("\nline2\r\n"));
+        Assert.Equal("a\nb\n\nc", s.NormalizeNewlines("a\rb\r\rc"));
+    }
+}

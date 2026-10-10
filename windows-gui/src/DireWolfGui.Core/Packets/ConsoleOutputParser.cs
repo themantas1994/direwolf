@@ -255,6 +255,11 @@ public sealed partial class ConsoleOutputParser
             if (sm.Success) wapr = sm.Value;
         }
 
+        // Frames relayed by a WAPR gateway carry WAPRGW in the path (doc/wapr/USAGE.md).
+        var path = mm.Groups["path"].Success ? mm.Groups["path"].Value : "";
+        if (dir == PacketDirection.Received && origin == PacketOrigin.Radio && path.Contains("WAPRGW", StringComparison.Ordinal))
+            origin = PacketOrigin.Gateway;
+
         var rec = new PacketRecord
         {
             Time = time,

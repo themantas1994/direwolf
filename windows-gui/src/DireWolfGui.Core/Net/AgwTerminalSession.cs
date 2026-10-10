@@ -98,7 +98,7 @@ public sealed class AgwTerminalSession : IDisposable
                 SetState(TerminalState.Connected);
                 break;
             case 'D' when IsOurs(f):
-                DataReceived?.Invoke(TextEncoding.GetString(f.Payload).Replace("\r\n", "\n").Replace('\r', '\n'));
+                DataReceived?.Invoke(NormalizeNewlines(TextEncoding.GetString(f.Payload)));
                 break;
             case 'd' when IsOurs(f):
                 Notification?.Invoke(f.DataText.TrimEnd('\r', '\n'));
@@ -128,5 +128,22 @@ public sealed class AgwTerminalSession : IDisposable
     {
         _client.FrameReceived -= OnFrame;
         _client.Disconnected -= OnClientDisconnected;
+    }
+
+    private bool _lastWasCr;
+
+    /// <summary>
+    /// CR, LF and CR LF all become one LF, also when a CR ends one frame and its LF starts the next.
+    /// </summary>
+    internal string NormalizeNewlines(string text)
+    {
+        var sb = new System.Text.StringBuilder(text.Length);
+        foreach (char c in text)
+        {
+            if (c == '\n' && _lastWasCr) { _lastWasCr = false; continue; }
+            _lastWasCr = c == '\r';
+            sb.Append(c == '\r' ? '\n' : c);
+        }
+        return sb.ToString();
     }
 }

@@ -483,7 +483,7 @@ public sealed class MainViewModel : ObservableObject, IShell, IAsyncDisposable
         var m = Session.Messages;
         // Automatic acknowledgements transmit, so they only happen when the user enabled messaging.
         m.AutoAcknowledge = Settings.MessagingEnabled && Settings.AutoAck;
-        m.MaxTries = Math.Clamp(Settings.MessageRetryCount, 1, 10);
+        m.MaxTries = 1 + Math.Clamp(Settings.MessageRetryCount, 0, 10);   // first transmission + retries
         m.FirstRetryDelay = TimeSpan.FromSeconds(Math.Clamp(Settings.MessageRetrySeconds, 10, 600));
         var call = _lastCheck?.Summary?.Channel(0)?.MyCall;
         if (!string.IsNullOrWhiteSpace(call) && !call.Equals("N0CALL", StringComparison.OrdinalIgnoreCase)) m.MyCall = call;

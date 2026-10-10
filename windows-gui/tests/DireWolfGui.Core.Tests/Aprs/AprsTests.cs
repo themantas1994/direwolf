@@ -370,6 +370,39 @@ public class AprsMessageServiceTests
     }
 
     [Fact]
+    public async Task RetriesKeepTheMessagesOwnChannelAndPath()
+    {
+        var time = new FakeTime(T0);
+        var sender = new FakeSender();
+        var svc = new AprsMessageService(sender, time) { MyCall = "N0TEST", Channel = 1, Path = new[] { "WIDE1-1" } };
+        await svc.SendAsync("N0ABC", "on one");
+        svc.Channel = 0;                       // the composer moved on to another channel and path
+        svc.Path = new[] { "WIDE2-2" };
+        time.Advance(TimeSpan.FromSeconds(30)); await svc.ProcessDueAsync();
+        Assert.Equal(2, sender.Sent.Count);
+        Assert.All(sender.Sent, s => Assert.Equal(1, s.Port));
+        Assert.All(sender.Sent, s => Assert.Equal(new[] { "WIDE1-1" }, s.Path));
+    }
+
+    [Fact]
+    public async Task AutoAckGoesOutOnTheChannelTheMessageWasHeardOnAndNeverForAprsIs()
+    {
+        var sender = new FakeSender();
+        var svc = new AprsMessageService(sender, new FakeTime(T0)) { MyCall = "N0TEST", Channel = 0, AutoAcknowledge = true };
+        var heard = Rx("N0ABC", ":N0TEST   :on two{5");
+        svc.HandleIncoming(new PacketRecord { Time = T0, Channel = 2, Direction = PacketDirection.Received, Origin = PacketOrigin.Radio,
+            Source = heard.Source, Destination = heard.Destination, Info = heard.Info, Aprs = heard.Aprs });
+        await Task.Delay(50);
+        Assert.Equal(2, Assert.Single(sender.Sent).Port);
+
+        var fromIs = svc.HandleIncoming(new PacketRecord { Time = T0, Channel = 0, Direction = PacketDirection.Received, Origin = PacketOrigin.FromAprsIs,
+            Source = "N0XYZ", Destination = "APRS", Info = ":N0TEST   :via internet{6", Aprs = AprsParser.Parse("APRS", ":N0TEST   :via internet{6") });
+        await Task.Delay(50);
+        Assert.Equal(AprsMessageState.Received, fromIs!.State);   // shown to the user...
+        Assert.Single(sender.Sent);                              // ...but not acknowledged on radio
+    }
+
+    [Fact]
     public async Task ValidationAndSendFailure()
     {
         var sender = new FakeSender();

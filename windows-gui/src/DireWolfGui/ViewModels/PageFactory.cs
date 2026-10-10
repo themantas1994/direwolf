@@ -6,6 +6,10 @@ internal static class PageFactory
     public static IEnumerable<PageViewModel> CreatePages(MainViewModel main)
     {
         yield return new DashboardViewModel(main);
+        yield return new MonitorViewModel(main);
+        yield return new AprsViewModel(main);
+        yield return new MessagesViewModel(main);
+        yield return new TerminalViewModel(main);
         yield return new LogViewModel(main);
     }
 }
