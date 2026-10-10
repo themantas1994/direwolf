@@ -48,7 +48,7 @@ jobs:
 
       - name: package
         shell: pwsh
-        run: windows-gui/build/package.ps1 -DireWolfDir build/src -Configuration Release
+        run: windows-gui/scripts/package.ps1 -DireWolfDir build/src -Configuration Release
 
       - uses: actions/upload-artifact@v4
         with:
