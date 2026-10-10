@@ -1,0 +1,59 @@
+<UserControl x:Class="DireWolfGui.Views.LogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Style="{StaticResource PageTitle}" Text="Log" />
+            <TextBlock Style="{StaticResource PageSubtitle}"
+                       Text="Everything Dire Wolf prints, as it happens. APRS-IS passcodes are masked. A copy is kept in rotating files on disk." />
+        </StackPanel>
+
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8" VerticalAlignment="Center">
+            <TextBox x:Name="SearchBox" Width="260" Margin="0,0,12,4" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=250}"
+                     AutomationProperties.Name="Search the log" ToolTip="Search (Ctrl+F)" />
+            <CheckBox Content="Errors" IsChecked="{Binding ShowErrors}" Margin="0,0,10,4" />
+            <CheckBox Content="Warnings" IsChecked="{Binding ShowWarnings}" Margin="0,0,10,4" />
+            <CheckBox Content="Packets" IsChecked="{Binding ShowPackets}" Margin="0,0,10,4" />
+            <CheckBox Content="Information" IsChecked="{Binding ShowInfo}" Margin="0,0,10,4" />
+            <CheckBox Content="Debug" IsChecked="{Binding ShowDebug}" Margin="0,0,20,4" />
+            <ToggleButton Content="Pause" IsChecked="{Binding Paused}" Margin="0,0,6,4" ToolTip="Stop updating the view (Dire Wolf keeps running)" />
+            <CheckBox Content="Follow newest" IsChecked="{Binding AutoScroll}" Margin="4,0,12,4" />
+            <Button Content="Clear view" Command="{Binding ClearCommand}" Margin="0,0,6,4" />
+            <Button Content="Export…" Command="{Binding ExportCommand}" Margin="0,0,6,4" />
+            <Button Content="Open log folder" Command="{Binding OpenFolderCommand}" Margin="0,0,6,4" />
+            <TextBlock Text="{Binding PausedText}" Style="{StaticResource Caption}" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" />
+        </WrapPanel>
+
+        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0" Padding="0">
+            <Grid>
+                <ListBox x:Name="List" ItemsSource="{Binding Lines}" BorderThickness="0" Background="{DynamicResource CodeBackgroundBrush}"
+                         SelectionMode="Extended" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Log lines">
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="C" Modifiers="Ctrl" Command="ApplicationCommands.Copy" />
+                    </ListBox.InputBindings>
+                    <ListBox.CommandBindings>
+                        <CommandBinding Command="ApplicationCommands.Copy" Executed="OnCopy" />
+                    </ListBox.CommandBindings>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Text="{Binding Time, Converter={StaticResource LocalTime}, ConverterParameter=HH:mm:ss.fff}" Margin="0,0,10,0" />
+                                <TextBlock Style="{StaticResource Mono}" Text="{Binding Text}"
+                                           Foreground="{Binding Severity, Converter={StaticResource LogBrush}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Text="{Binding EmptyText}" Style="{StaticResource Caption}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="{Binding Lines.Count, Converter={StaticResource NotEmptyToVis}, ConverterParameter=invert}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

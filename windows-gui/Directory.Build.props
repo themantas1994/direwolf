@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.1.0</Version>
+    <Company>Dire Wolf GUI contributors</Company>
+    <Product>Dire Wolf Station</Product>
+    <Copyright>GPL-2.0-or-later, see LICENSE in the repository root</Copyright>
+    <!-- WPF projects can be built (not run) on Linux/macOS for CI and development. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+</Project>

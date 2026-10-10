@@ -36,6 +36,9 @@ struct misc_config_s {
 
 	int agwpe_port;		/* TCP Port number for the "AGW TCPIP Socket Interface" */
 
+	int tcp_bind_local;	/* TCPBIND LOCAL: AGW and KISS TCP servers accept connections */
+				/* only from this computer (127.0.0.1).  Default 0: any interface. */
+
 	// Previously we allowed only a single TCP port for KISS.
 	// An increasing number of people want to run multiple radios.
 	// Unfortunately, most applications don't know how to deal with multi-radio TNCs.

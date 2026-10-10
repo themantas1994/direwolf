@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:DireWolfGui.ViewModels"
+                    xmlns:v="clr-namespace:DireWolfGui.Views">
+    <!-- Maps each page view model to its view. -->
+    <DataTemplate DataType="{x:Type vm:DashboardViewModel}"><v:DashboardView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MonitorViewModel}"><v:MonitorView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:AprsViewModel}"><v:AprsView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MessagesViewModel}"><v:MessagesView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:TerminalViewModel}"><v:TerminalView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:LogViewModel}"><v:LogView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ConfigurationViewModel}"><v:ConfigurationView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ServicesViewModel}"><v:ServicesView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:WaprViewModel}"><v:WaprView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:IntegrationsViewModel}"><v:IntegrationsView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SetupWizardViewModel}"><v:SetupWizardView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+</ResourceDictionary>

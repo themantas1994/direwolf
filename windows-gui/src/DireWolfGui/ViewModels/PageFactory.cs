@@ -1,0 +1,21 @@
+namespace DireWolfGui.ViewModels;
+
+/// <summary>The workspace pages, in navigation order (Ctrl+1 … Ctrl+9 follow this order).</summary>
+internal static class PageFactory
+{
+    public static IEnumerable<PageViewModel> CreatePages(MainViewModel main)
+    {
+        yield return new DashboardViewModel(main);
+        yield return new MonitorViewModel(main);
+        yield return new AprsViewModel(main);
+        yield return new MessagesViewModel(main);
+        yield return new TerminalViewModel(main);
+        yield return new LogViewModel(main);
+        yield return new ConfigurationViewModel(main);
+        yield return new ServicesViewModel(main);
+        yield return new WaprViewModel(main);
+        yield return new IntegrationsViewModel(main);
+        yield return new SetupWizardViewModel(main);
+        yield return new SettingsViewModel(main);
+    }
+}

@@ -172,6 +172,16 @@ static const char clear_eos[]	= "\e[0J";
 
 static int g_enable_color = 1;
 
+static int g_error_count = 0;		/* Number of error or warning messages printed, */
+					/* for --check-config: text printed after the */
+					/* error color was selected (once per selection). */
+static int g_error_pending = 0;
+
+int text_color_error_count (void)
+{
+	return (g_error_count);
+}
+
 
 void text_color_init (int enable_color)
 {
@@ -250,6 +260,8 @@ void text_color_set ( enum dw_color_e c )
 	WORD attr;
 	HANDLE h;
 
+	g_error_pending = (c == DW_COLOR_ERROR);
+
 	if (g_enable_color == 0) {
 	  return;
 	}
@@ -296,6 +308,8 @@ void text_color_set ( enum dw_color_e c )
 
 void text_color_set ( enum dw_color_e c )
 {
+
+	g_error_pending = (c == DW_COLOR_ERROR);
 
 	if (g_enable_color == 0) {
 	  return;
@@ -376,6 +390,11 @@ int dw_printf (const char *fmt, ...)
 	va_end (args);
 
 // TODO: other possible destinations...
+
+	if (g_error_pending && len > 0) {
+	  g_error_count++;
+	  g_error_pending = 0;
+	}
 
 	fputs (buffer, stdout);
 	return (len);

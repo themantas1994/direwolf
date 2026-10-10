@@ -844,3 +844,8 @@ if(OPTIONAL_TEST)
   # testagc48
   # ./atest48 -B 4800 test4800.wav | grep "packets decoded in" >atest.out
 endif()  # OPTIONAL_TEST
+
+# --check-config: the configuration is read with the real parser and reported; nothing is opened.
+add_test(NAME check-config
+  COMMAND ${CMAKE_COMMAND} -DDIREWOLF=$<TARGET_FILE:direwolf> -DDIR=${CUSTOM_SRC_DIR}/../test/check-config
+          -P ${CUSTOM_SRC_DIR}/../test/check-config/check_config.cmake)

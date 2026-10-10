@@ -26,6 +26,8 @@ void text_color_init (int enable_color);
 void text_color_set (dw_color_t c);
 void text_color_term (void);
 
+int text_color_error_count (void);
+
 
 /* Degree symbol. */
 

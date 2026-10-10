@@ -1,0 +1,194 @@
+<UserControl x:Class="DireWolfGui.Views.MessagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DireWolfGui.ViewModels">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Style="{StaticResource PageTitle}" Text="APRS messages" />
+            <TextBlock Style="{StaticResource PageSubtitle}"
+                       Text="One-to-one APRS messages. Acknowledgements and retries are done by this application: Dire Wolf itself does not retry APRS messages. On WAPR channels the WAPR link layer also has its own acknowledgements." />
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource WarningBanner}"
+                Visibility="{Binding MessagingDisabled, Converter={StaticResource BoolToVis}}">
+            <TextBlock Style="{StaticResource Body}"
+                       Text="Messaging is turned off, so nothing can be sent and received messages are not acknowledged. Enable messaging in Settings (it transmits on the air with your callsign)." />
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260" MinWidth="180" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="320" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Conversations -->
+            <DockPanel Grid.Column="0">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                    <Button DockPanel.Dock="Right" Command="{Binding NewConversationCommand}" Padding="8,3"
+                            ToolTip="Show all messages and start a new conversation">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource IconText}" Text="&#xE710;" FontSize="12" Margin="0,0,6,0" />
+                            <TextBlock Text="New" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Style="{StaticResource SectionHeader}" Text="Conversations" Margin="0" VerticalAlignment="Center" />
+                </DockPanel>
+                <Grid>
+                    <ListBox ItemsSource="{Binding Conversations}" SelectedItem="{Binding SelectedConversation}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Conversations"
+                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ConversationItem}">
+                                <Grid Margin="2,4" ToolTip="{Binding Summary}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{Binding Callsign}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{Binding LastTime}" Style="{StaticResource Caption}" />
+                                    <TextBlock Grid.Row="1" Text="{Binding LastText}" Style="{StaticResource Caption}"
+                                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Pill}" Background="{DynamicResource WarningBrush}"
+                                            Margin="4,0,0,0" ToolTip="Messages waiting for an acknowledgement"
+                                            Visibility="{Binding PendingCount, Converter={StaticResource NotEmptyToVis}}">
+                                        <TextBlock Style="{StaticResource PillText}" Text="{Binding PendingCount, StringFormat={}{0} pending}" FontSize="11" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Text="No conversations yet." Style="{StaticResource Caption}" Margin="12" IsHitTestVisible="False"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"
+                               Visibility="{Binding Conversations.Count, Converter={StaticResource NotEmptyToVis}, ConverterParameter=invert}" />
+                </Grid>
+            </DockPanel>
+
+            <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                          Background="Transparent" ResizeBehavior="PreviousAndNext" AutomationProperties.Name="Resize conversations" />
+
+            <!-- Messages and composer -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Style="{StaticResource SectionHeader}" Text="{Binding ConversationTitle}" />
+
+                <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1" CornerRadius="6">
+                    <Grid>
+                        <ListBox x:Name="MessageList" ItemsSource="{Binding Messages}" BorderThickness="0" Background="Transparent"
+                                 HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                 VirtualizingPanel.ScrollUnit="Pixel" AutomationProperties.Name="Messages">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:MessageItemViewModel}">
+                                    <Border HorizontalAlignment="{Binding Alignment}" MaxWidth="560" Margin="4,3" Padding="10,6" CornerRadius="6"
+                                            Background="{DynamicResource CodeBackgroundBrush}" BorderThickness="2,0,0,0"
+                                            BorderBrush="{Binding StateKind, Converter={StaticResource ThemeBrush}}">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding TimeText}" Style="{StaticResource Caption}" Margin="12,0,0,0" />
+                                                <TextBlock Text="{Binding DirectionText}" FontWeight="SemiBold" />
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding Text}" Style="{StaticResource Body}" Margin="0,3,0,3" FontSize="14" />
+                                            <WrapPanel>
+                                                <Border Style="{StaticResource Pill}" Background="{Binding StateKind, Converter={StaticResource ThemeBrush}}">
+                                                    <TextBlock Style="{StaticResource PillText}" Text="{Binding StateText}" FontSize="11" TextWrapping="Wrap" />
+                                                </Border>
+                                                <TextBlock Text="{Binding IdText}" Style="{StaticResource Caption}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                                <Button Content="Cancel retries" Padding="8,1" Margin="0,0,0,0"
+                                                        Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"
+                                                        Visibility="{Binding CanCancel, Converter={StaticResource BoolToVis}}"
+                                                        ToolTip="Stop retransmitting this message" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock Text="{Binding EmptyText}" Style="{StaticResource Body}" TextAlignment="Center" MaxWidth="380"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Visibility="{Binding EmptyText, Converter={StaticResource NotEmptyToVis}}" />
+                    </Grid>
+                </Border>
+
+                <!-- Composer -->
+                <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource Caption}" Margin="0,0,0,6">
+                            <Run Text="{Binding MyCallText, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding SettingsText, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <TextBlock Grid.Row="1" Text="To" Style="{StaticResource FormLabel}" />
+                        <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,2">
+                            <TextBox Width="120" Text="{Binding ComposeTo, UpdateSourceTrigger=PropertyChanged}" CharacterCasing="Upper"
+                                     MaxLength="9" AutomationProperties.Name="Recipient callsign" />
+                            <TextBlock Text="Channel" Style="{StaticResource FormLabel}" Margin="16,4,6,4" />
+                            <ComboBox Width="110" ItemsSource="{Binding Channels}" SelectedItem="{Binding ComposeChannel}"
+                                      ItemStringFormat="Channel {0}" AutomationProperties.Name="Radio channel" />
+                            <TextBlock Text="Path" Style="{StaticResource FormLabel}" Margin="16,4,6,4" />
+                            <TextBox Width="170" Text="{Binding ComposePath, UpdateSourceTrigger=PropertyChanged}" CharacterCasing="Upper"
+                                     AutomationProperties.Name="Digipeater path" ToolTip="Comma separated digipeaters; empty for none" />
+                            <Button Command="{Binding ResetPathCommand}" Padding="6,2" Margin="4,0,0,0"
+                                    ToolTip="Use the default path WIDE1-1,WIDE2-1" AutomationProperties.Name="Reset path to default">
+                                <TextBlock Style="{StaticResource IconText}" Text="&#xE777;" FontSize="12" />
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="2" Text="Message" Style="{StaticResource FormLabel}" />
+                        <TextBox x:Name="ComposeBox" Grid.Row="2" Grid.Column="1" Margin="0,2"
+                                 Text="{Binding ComposeText, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="{Binding MaxTextLength, Mode=OneTime}" AutomationProperties.Name="Message text">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding SendCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding CounterText}" Style="{StaticResource Caption}"
+                                   VerticalAlignment="Center" Margin="8,0" AutomationProperties.Name="Characters used" />
+
+                        <DockPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,0" LastChildFill="True">
+                            <Button DockPanel.Dock="Right" Command="{Binding SendCommand}" Padding="16,5"
+                                    ToolTip="Transmit this message on the air (Enter)">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource IconText}" Text="&#xE724;" FontSize="13" Margin="0,0,6,0" />
+                                    <TextBlock Text="Send" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock Text="{Binding SendBlockedReason}" Style="{StaticResource Caption}" Foreground="{DynamicResource WarningBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,12,0" />
+                        </DockPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

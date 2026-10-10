@@ -1,0 +1,43 @@
+# Test of "direwolf --check-config":  cmake -DDIREWOLF=path -DDIR=path -P check_config.cmake
+# The configuration is read and reported; nothing is opened.
+
+function(expect_contains out what)
+  string(FIND "${out}" "${what}" pos)
+  if(pos EQUAL -1)
+    message(FATAL_ERROR "missing from output: ${what}\n----\n${out}")
+  endif()
+endfunction()
+
+execute_process(COMMAND "${DIREWOLF}" -t 0 --check-config -c "${DIR}/good.conf"
+                RESULT_VARIABLE rc OUTPUT_VARIABLE out ERROR_VARIABLE out)
+if(NOT rc EQUAL 0)
+  message(FATAL_ERROR "good.conf: exit status ${rc}, expected 0\n${out}")
+endif()
+expect_contains("${out}" "check-config: features wapr")
+expect_contains("${out}" "check-config: adevice 0 in \"stdin\" out \"null\"")
+expect_contains("${out}" "check-config: channel 0 radio mycall N0CALL-1 modem AFSK baud 1200")
+expect_contains("${out}" "check-config: channel 1 radio mycall N0CALL-2 modem WAPR")
+expect_contains("${out}" " wapr H150 airtime 10")
+expect_contains("${out}" "check-config: agwport 8000")
+expect_contains("${out}" "check-config: tcpbind local")
+expect_contains("${out}" "check-config: kissport 8001 chan -1")
+expect_contains("${out}" "check-config: digipeat 0 0")
+expect_contains("${out}" "check-config: igate server \"noam.aprs2.net\" port 14580 login N0CALL")
+expect_contains("${out}" "check-config: waprgate 1 0")
+expect_contains("${out}" "check-config: beacon POSITION sendto XMIT chan 0 line 18")
+expect_contains("${out}" "check-config: result 0 diagnostics")
+string(FIND "${out}" "12345" pos)
+if(NOT pos EQUAL -1)
+  message(FATAL_ERROR "the IGate passcode must never be printed\n${out}")
+endif()
+
+execute_process(COMMAND "${DIREWOLF}" -t 0 --check-config -c "${DIR}/bad.conf"
+                RESULT_VARIABLE rc OUTPUT_VARIABLE out ERROR_VARIABLE out)
+if(rc EQUAL 0)
+  message(FATAL_ERROR "bad.conf: exit status 0, expected failure\n${out}")
+endif()
+expect_contains("${out}" "Unrecognized command 'BOGUS' on line 4")
+expect_contains("${out}" "Line 5: MODEM WAPR needs a profile name")
+expect_contains("${out}" "Line 6: TCPBIND must be followed by LOCAL or ANY")
+expect_contains("${out}" "check-config: tcpbind any")
+expect_contains("${out}" "check-config: result 3 diagnostics")

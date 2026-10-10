@@ -207,6 +207,8 @@ static int enable_send_monitor_to_client[MAX_NET_CLIENTS];
 #endif
 
 static THREAD_F connect_listen_thread (void *arg);
+
+static int s_bind_local = 0;	/* TCPBIND LOCAL: listen on 127.0.0.1 only. */
 static THREAD_F cmd_listen_thread (void *arg);
 
 /*
@@ -450,6 +452,12 @@ void server_init (struct audio_s *audio_config_p, struct misc_config_s *mc)
 #endif
 	int server_port = mc->agwpe_port;		/* Usually 8000 but can be changed. */
 
+	s_bind_local = mc->tcp_bind_local;
+	if (s_bind_local && server_port > 0) {
+	  text_color_set(DW_COLOR_INFO);
+	  dw_printf ("AGW network protocol: accepting connections from this computer only (TCPBIND LOCAL).\n");
+	}
+
 
 #if DEBUG
 	text_color_set(DW_COLOR_DEBUG);
@@ -576,7 +584,7 @@ static THREAD_F connect_listen_thread (void *arg)
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
 
-	err = getaddrinfo(NULL, server_port_str, &hints, &ai);
+	err = getaddrinfo(s_bind_local ? "127.0.0.1" : NULL, server_port_str, &hints, &ai);
 	if (err != 0) {
 	    text_color_set(DW_COLOR_ERROR);
 	    dw_printf("getaddrinfo failed: %d\n", err);
@@ -693,7 +701,7 @@ static THREAD_F connect_listen_thread (void *arg)
         setsockopt (listen_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&bcopt, 4);
 
 
-    	sockaddr.sin_addr.s_addr = INADDR_ANY;
+    	sockaddr.sin_addr.s_addr = s_bind_local ? htonl(INADDR_LOOPBACK) : INADDR_ANY;
     	sockaddr.sin_port = htons(server_port);
     	sockaddr.sin_family = AF_INET;
 

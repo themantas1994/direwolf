@@ -145,6 +145,12 @@ static void cleanup_linux (int);
 
 static void usage (void);
 
+/* --check-config has no single letter; use a value getopt can't return for one. */
+#define CHECK_CONFIG_OPT 1001
+static int check_config_only = 0;
+static void check_config_report (struct audio_s *pa, struct digi_config_s *pd, struct cdigi_config_s *pc,
+		struct igate_config_s *pi, struct misc_config_s *pm, int diagnostics);
+
 #if defined(__SSE__) && !defined(__APPLE__)
 
 static void __cpuid(int cpuinfo[4], int infotype){
@@ -336,7 +342,12 @@ int main (int argc, char *argv[])
 
 
 #if __WIN32__
-	//setlinebuf (stdout);   setvbuf???
+	// When stdout is redirected to a pipe or file (e.g. by a GUI that shows the log),
+	// the C library buffers it in large blocks and the output would arrive late.
+	// Make it unbuffered in that case, which is what a console already gets.
+	if ( ! _isatty(_fileno(stdout))) {
+	  setvbuf (stdout, NULL, _IONBF, 0);
+	}
 	SetConsoleCtrlHandler ((PHANDLER_ROUTINE)cleanup_win, TRUE);
 #else
 	setlinebuf (stdout);
@@ -435,6 +446,7 @@ int main (int argc, char *argv[])
             {"future1", 1, 0, 0},
             {"future2", 0, 0, 0},
             {"future3", 1, 0, 'c'},
+            {"check-config", 0, 0, CHECK_CONFIG_OPT},
             {0, 0, 0, 0}
           };
 
@@ -446,6 +458,10 @@ int main (int argc, char *argv[])
             break;
 
           switch (c) {
+
+          case CHECK_CONFIG_OPT:		/* --check-config: read configuration, report, exit. */
+	    check_config_only = 1;
+	    break;
 
           case 0:				/* possible future use */
 	    text_color_set(DW_COLOR_DEBUG);
@@ -794,7 +810,15 @@ int main (int argc, char *argv[])
 
 	(void)dwsock_init();
 
+	int diagnostics_before = text_color_error_count();
+
 	config_init (config_file, &audio_config, &digi_config, &cdigi_config, &tt_config, &igate_config, &misc_config);
+
+	if (check_config_only) {
+	  int diagnostics = text_color_error_count() - diagnostics_before;
+	  check_config_report (&audio_config, &digi_config, &cdigi_config, &igate_config, &misc_config, diagnostics);
+	  exit (diagnostics > 0 ? EXIT_FAILURE : EXIT_SUCCESS);
+	}
 
 	if (r_opt != 0) {
 	  audio_config.adev[0].samples_per_sec = r_opt;
@@ -1691,6 +1715,130 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 
 
 
+/*-------------------------------------------------------------------
+ *
+ * Name:	check_config_report
+ *
+ * Purpose:	For --check-config: print what the configuration file produced, one
+ *		item per line, each starting with "check-config: ", for people and for
+ *		programs (e.g. a GUI) that want to validate a configuration with the real
+ *		parser without opening audio devices, PTT or network ports.
+ *		Credentials (e.g. the IGate passcode) are never printed.
+ *
+ *--------------------------------------------------------------------*/
+
+static void check_config_report (struct audio_s *pa, struct digi_config_s *pd, struct cdigi_config_s *pc,
+		struct igate_config_s *pi, struct misc_config_s *pm, int diagnostics)
+{
+	static const char *modem_names[] = { "AFSK", "BASEBAND", "SCRAMBLE", "QPSK", "8PSK", "OFF", "16QAM", "64QAM", "AIS", "EAS", "WAPR" };
+	static const char *ptt_names[] = { "NONE", "SERIAL", "GPIO", "GPIOD", "LPT", "HAMLIB", "CM108" };
+	int a, c, d, b;
+
+	text_color_set(DW_COLOR_INFO);
+	dw_printf ("check-config: version %d.%d.%d\n", MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
+	dw_printf ("check-config: features wapr fx25 il2p%s%s%s%s\n",
+#if defined(USE_HAMLIB)
+		" hamlib",
+#else
+		"",
+#endif
+#if defined(USE_CM108)
+		" cm108",
+#else
+		"",
+#endif
+#if defined(ENABLE_GPSD)
+		" gpsd",
+#else
+		"",
+#endif
+#if defined(USE_GPIOD)
+		" gpiod"
+#else
+		""
+#endif
+		);
+
+	for (a = 0; a < MAX_ADEVS; a++) {
+	  if (pa->adev[a].defined) {
+	    dw_printf ("check-config: adevice %d in \"%s\" out \"%s\" rate %d channels %d\n", a,
+		pa->adev[a].adevice_in, pa->adev[a].adevice_out, pa->adev[a].samples_per_sec, pa->adev[a].num_channels);
+	  }
+	}
+
+	for (c = 0; c < MAX_TOTAL_CHANS; c++) {
+	  switch (pa->chan_medium[c]) {
+	    case MEDIUM_RADIO:
+	      {
+	        int mt = (int)(pa->achan[c].modem_type);
+	        int pm_ = (int)(pa->achan[c].octrl[OCTYPE_PTT].ptt_method);
+	        dw_printf ("check-config: channel %d radio mycall %s modem %s baud %d mark %d space %d profiles \"%s\" ptt %s",
+			c, pa->mycall[c],
+			(mt >= 0 && mt < (int)(sizeof(modem_names)/sizeof(modem_names[0]))) ? modem_names[mt] : "?",
+			pa->achan[c].baud, pa->achan[c].mark_freq, pa->achan[c].space_freq, pa->achan[c].profiles,
+			(pm_ >= 0 && pm_ < (int)(sizeof(ptt_names)/sizeof(ptt_names[0]))) ? ptt_names[pm_] : "?");
+	        if (pa->achan[c].layer2_xmit == LAYER2_FX25) dw_printf (" fx25tx %d", pa->achan[c].fx25_strength);
+	        if (pa->achan[c].layer2_xmit == LAYER2_IL2P) dw_printf (" il2ptx %d", pa->achan[c].il2p_max_fec);
+	        if (pa->achan[c].modem_type == MODEM_WAPR) dw_printf (" wapr %s airtime %.0f", pa->achan[c].wapr_profile, pa->achan[c].wapr_duty * 100.0);
+	        dw_printf ("\n");
+	      }
+	      break;
+	    case MEDIUM_IGATE:
+	      dw_printf ("check-config: channel %d igate mycall %s\n", c, pa->mycall[c]);
+	      break;
+	    case MEDIUM_NETTNC:
+	      dw_printf ("check-config: channel %d nettnc mycall %s\n", c, pa->mycall[c]);
+	      break;
+	    case MEDIUM_NONE:
+	    default:
+	      break;
+	  }
+	}
+
+	if (pm->agwpe_port > 0) dw_printf ("check-config: agwport %d\n", pm->agwpe_port);
+	dw_printf ("check-config: tcpbind %s\n", pm->tcp_bind_local ? "local" : "any");
+	for (b = 0; b < MAX_KISS_TCP_PORTS; b++) {
+	  if (pm->kiss_port[b] > 0) dw_printf ("check-config: kissport %d chan %d\n", pm->kiss_port[b], pm->kiss_chan[b]);
+	}
+	if (strlen(pm->kiss_serial_port) > 0) dw_printf ("check-config: serialkiss \"%s\" speed %d\n", pm->kiss_serial_port, pm->kiss_serial_speed);
+
+	for (c = 0; c < MAX_TOTAL_CHANS; c++) {
+	  for (d = 0; d < MAX_TOTAL_CHANS; d++) {
+	    if (pd->enabled[c][d]) dw_printf ("check-config: digipeat %d %d\n", c, d);
+	    if (pd->regen[c][d]) dw_printf ("check-config: regen %d %d\n", c, d);
+	  }
+	}
+	for (c = 0; c < MAX_RADIO_CHANS; c++) {
+	  for (d = 0; d < MAX_RADIO_CHANS; d++) {
+	    if (pc->enabled[c][d]) dw_printf ("check-config: cdigipeat %d %d\n", c, d);
+	  }
+	}
+
+	if (strlen(pi->t2_server_name) > 0) {
+	  dw_printf ("check-config: igate server \"%s\" port %d login %s txchan %d\n",
+		pi->t2_server_name, pi->t2_server_port, pi->t2_login, pi->tx_chan);
+	}
+
+	for (b = 0; b < pm->num_beacons; b++) {
+	  if (pm->beacon[b].btype != BEACON_IGNORE) {
+	    static const char *bnames[] = { "IGNORE", "POSITION", "OBJECT", "TRACKER", "CUSTOM", "IGATE" };
+	    static const char *snames[] = { "XMIT", "IGATE", "RECV" };
+	    dw_printf ("check-config: beacon %s sendto %s chan %d line %d\n",
+		bnames[(int)(pm->beacon[b].btype)], snames[(int)(pm->beacon[b].sendto_type)],
+		pm->beacon[b].sendto_chan, pm->beacon[b].lineno);
+	  }
+	}
+
+	for (b = 0; b < pm->num_wapr_gates; b++) {
+	  dw_printf ("check-config: waprgate %d %d types 0x%x\n", pm->wapr_gate[b].from, pm->wapr_gate[b].to, pm->wapr_gate[b].types);
+	}
+
+	dw_printf ("check-config: result %d diagnostics\n", diagnostics);
+
+} /* end check_config_report */
+
+
+
 /* Process control C and window close events. */
 
 #if __WIN32__
@@ -1800,6 +1948,9 @@ static void usage (void)
 	dw_printf ("    -S             Print symbol tables and exit.\n");
 	dw_printf ("    -T fmt         Time stamp format for sent and received frames.\n");
 	dw_printf ("    -e ber         Receive Bit Error Rate (BER), e.g. 1e-5\n");
+	dw_printf ("    --check-config Read the configuration file, print a summary of the result and exit.\n");
+	dw_printf ("                     Nothing is opened (audio, PTT, network).  Exit status 1 if the\n");
+	dw_printf ("                     configuration produced error or warning messages.\n");
 	dw_printf ("\n");
 
 	dw_printf ("After any options, there can be a single command line argument for the source of\n");

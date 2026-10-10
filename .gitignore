@@ -113,3 +113,6 @@ build*/
 tmp/
 # Python
 __pycache__/
+
+# Claude Code agent worktrees
+.claude/worktrees/

@@ -878,6 +878,7 @@ void config_init (char *fname, struct audio_s *p_audio_config,
 
 	memset (p_misc_config, 0, sizeof(struct misc_config_s));
 	p_misc_config->agwpe_port = DEFAULT_AGWPE_PORT;
+	p_misc_config->tcp_bind_local = 0;
 
 	for (int i=0; i<MAX_KISS_TCP_PORTS; i++) {
 	  p_misc_config->kiss_port[i] = 0;	// entry not used.
@@ -5039,6 +5040,27 @@ void config_init (char *fname, struct audio_s *p_audio_config,
               dw_printf ("Line %d: Invalid port number for AGW TCPIP Socket Interface. Using %d.\n", 
 			line, p_misc_config->agwpe_port);
    	    }
+	  }
+
+/*
+ * TCPBIND LOCAL | ANY		- Interfaces for the AGW and KISS TCP servers.  (new)
+ *
+ *	ANY (default, as before):  accept connections from other computers too.
+ *	LOCAL:  accept connections only from this computer (127.0.0.1).
+ */
+
+	  else if (strcasecmp(t, "TCPBIND") == 0) {
+	    t = split(NULL,0);
+	    if (t != NULL && strcasecmp(t, "LOCAL") == 0) {
+	      p_misc_config->tcp_bind_local = 1;
+	    }
+	    else if (t != NULL && strcasecmp(t, "ANY") == 0) {
+	      p_misc_config->tcp_bind_local = 0;
+	    }
+	    else {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: TCPBIND must be followed by LOCAL or ANY.\n", line);
+	    }
 	  }
 
 /*

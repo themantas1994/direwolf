@@ -1,5 +1,17 @@
 # Revision History
 
+## Unreleased (fork) -- Windows GUI integration
+
+Additions for the Windows GUI in `windows-gui/` (Dire Wolf Station).  All are opt-in;
+existing configurations and command lines behave as before.
+
+- New command line option `--check-config`: read the configuration file with the real parser, print the usual messages and a machine readable summary (lines starting with `check-config:`: version, features, audio devices, channels and modems, ports, digipeater, IGate server without credentials, beacons, WAPR gates), then exit with status 1 if any error or warning was printed.  Nothing is opened: no audio device, PTT or network port.
+
+- New configuration directive `TCPBIND LOCAL | ANY`.  `LOCAL` makes the AGW and KISS TCP servers accept connections only from this computer (127.0.0.1).  `ANY`, the default, accepts connections from other computers as before.
+
+- Windows: when standard output is redirected (to a pipe or file) it is no longer block buffered, so a program showing the log receives each line as it is written.
+
+
 ## Unreleased (fork) -- second round: upstream review, safety and robustness
 
 See [doc/engineering-audit/UPSTREAM_COMPATIBILITY_AND_OPTIMIZATION_AUDIT.md](doc/engineering-audit/UPSTREAM_COMPATIBILITY_AND_OPTIMIZATION_AUDIT.md).
