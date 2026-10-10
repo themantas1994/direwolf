@@ -6,4 +6,10 @@
     <DataTemplate DataType="{x:Type vm:MonitorViewModel}">
         <v:MonitorView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:AprsViewModel}">
+        <v:AprsView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MessagesViewModel}">
+        <v:MessagesView />
+    </DataTemplate>
 </ResourceDictionary>
