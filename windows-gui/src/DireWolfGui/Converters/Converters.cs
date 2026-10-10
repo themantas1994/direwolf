@@ -108,3 +108,24 @@ public sealed class AgeConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>Colour for a log line by severity.</summary>
+public sealed class LogSeverityBrushConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var key = value?.ToString() switch
+        {
+            "Error" => "ErrorBrush",
+            "Warning" => "WarningBrush",
+            "Packet" => "RxBrush",
+            "Transmit" => "TxBrush",
+            "Debug" => "SecondaryForegroundBrush",
+            _ => "ForegroundBrush",
+        };
+        return Application.Current?.TryFindResource(key) as Brush ?? Brushes.Gray;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

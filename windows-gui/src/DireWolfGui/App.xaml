@@ -17,6 +17,7 @@
             <c:DurationConverter x:Key="Duration" />
             <c:LocalTimeConverter x:Key="LocalTime" />
             <c:AgeConverter x:Key="Age" />
+            <c:LogSeverityBrushConverter x:Key="LogBrush" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
