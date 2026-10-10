@@ -426,11 +426,11 @@ int wapr_receive (const wapr_profile_t *p, const float *x, int n, int fs, wapr_r
 	cand_t pick[MAX_CANDIDATES];
 	int npick = 0;
 	for (int i = 0; i < na && npick < MAX_CANDIDATES; i++) {
-	  int near = 0;
+	  int close_by = 0;	/* not "near": a macro in the Windows headers */
 	  for (int j = 0; j < npick; j++) {
-	    if (abs(all[i].t - pick[j].t) <= TIME_STEPS && abs(all[i].ob - pick[j].ob) <= FREQ_OVERSAMPLE) near = 1;
+	    if (abs(all[i].t - pick[j].t) <= TIME_STEPS && abs(all[i].ob - pick[j].ob) <= FREQ_OVERSAMPLE) close_by = 1;
 	  }
-	  if (! near) pick[npick++] = all[i];
+	  if (! close_by) pick[npick++] = all[i];
 	}
 	free (all);
 	free (P);

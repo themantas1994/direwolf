@@ -84,6 +84,10 @@ list(APPEND direwolf_SOURCES
   log.c
   morse.c
   multi_modem.c
+  wapr_codec.c
+  wapr_modem.c
+  wapr_rx.c
+  wapr_tx.c
   waypoint.c
   nettnc.c
   serial_port.c
@@ -327,6 +331,9 @@ list(APPEND gen_packets_SOURCES
   dtmf.c
   textcolor.c
   dsp.c
+  wapr_codec.c
+  wapr_modem.c
+  wapr_tx.c
   )
 
 add_executable(gen_packets
@@ -377,6 +384,9 @@ list(APPEND atest_SOURCES
   symbols.c
   tt_text.c
   textcolor.c
+  wapr_codec.c
+  wapr_modem.c
+  wapr_rx.c
   )
 
 if(WIN32 OR CYGWIN)

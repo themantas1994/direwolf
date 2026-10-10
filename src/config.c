@@ -56,6 +56,7 @@
 #include "digipeater.h"
 #include "cdigipeater.h"
 #include "config.h"
+#include "wapr.h"
 #include "aprs_tt.h"
 #include "igate.h"
 #include "latlong.h"
@@ -1441,6 +1442,9 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  * New style, version 1.2:
  *	MODEM  speed [ option ] ...
  *
+ * Experimental (doc/wapr):
+ *	MODEM  WAPR  profile		- F600, H150 or R25.  Whole channel is WAPR.
+ *
  * Options:
  *	mark:space	- AFSK tones.  Defaults based on speed.
  *	num@offset	- Multiple decoders on different frequencies.
@@ -1463,6 +1467,32 @@ void config_init (char *fname, struct audio_s *p_audio_config,
 	    if (t == NULL) {
 	      text_color_set(DW_COLOR_ERROR);
 	      dw_printf ("Line %d: Missing data transmission speed for MODEM command.\n", line);
+	      continue;
+	    }
+	    if (strcasecmp(t,"WAPR") == 0) {
+
+	      /* Experimental WAPR modem (doc/wapr).  The whole channel becomes WAPR: */
+	      /* nothing is sent as AX.25 on this channel and nothing AX.25 is heard. */
+
+	      char *pname = split(NULL,0);
+	      const wapr_profile_t *wp = pname != NULL ? wapr_profile_find(pname) : NULL;
+	      if (wp == NULL) {
+	        text_color_set(DW_COLOR_ERROR);
+	        dw_printf ("Line %d: MODEM WAPR needs a profile name: F600, H150 or R25.\n", line);
+	        continue;
+	      }
+	      p_audio_config->achan[channel].modem_type = MODEM_WAPR;
+	      p_audio_config->achan[channel].baud = (int)wp->baud;	/* symbols / s: transmit timing counts symbols */
+	      p_audio_config->achan[channel].mark_freq = 0;
+	      p_audio_config->achan[channel].space_freq = 0;
+	      strlcpy (p_audio_config->achan[channel].wapr_profile, wp->name, sizeof(p_audio_config->achan[channel].wapr_profile));
+	      if (split(NULL,0) != NULL) {
+	        text_color_set(DW_COLOR_ERROR);
+	        dw_printf ("Line %d: Options after MODEM WAPR %s are ignored.\n", line, wp->name);
+	      }
+	      text_color_set(DW_COLOR_INFO);
+	      dw_printf ("Channel %d: EXPERIMENTAL WAPR modem, profile %s.  Not compatible with AX.25 / APRS radios.\n",
+				channel, wp->name);
 	      continue;
 	    }
 	    if (strcasecmp(t,"AIS") == 0) {

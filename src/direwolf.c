@@ -1235,6 +1235,9 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 	  case fec_type_il2p:
 	    strlcpy (display_retries, " IL2P ", sizeof(display_retries));
 	    break;
+	  case fec_type_wapr:
+	    strlcpy (display_retries, " WAPR ", sizeof(display_retries));
+	    break;
 	  case fec_type_none:
 	  default:
 	    // Possible fix_bits or soft fix indication.
@@ -1595,6 +1598,16 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 
 	if (chan == audio_config.igate_vchannel) {
 	    return;
+	}
+
+/*
+ * Experimental WAPR frames (doc/wapr) go to the display, log and client
+ * applications above, but not to the IGate, digipeaters, REGEN or APRStt:
+ * forwarding needs an explicit policy, which does not exist yet.
+ */
+
+	if (fec_type == fec_type_wapr) {
+	  return;
 	}
 
 /* 

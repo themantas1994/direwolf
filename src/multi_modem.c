@@ -103,6 +103,7 @@
 #include "fx25.h"
 #include "version.h"
 #include "ais.h"
+#include "wapr_rx.h"
 
 
 
@@ -209,6 +210,7 @@ void multi_modem_init (struct audio_s *pa)
 	  }
 	}
 
+	wapr_rx_init (save_audio_config_p);	/* Does nothing unless a channel has MODEM WAPR. */
 }
 
 

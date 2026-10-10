@@ -7,6 +7,7 @@ set(ATEST_BIN "${CMAKE_BINARY_DIR}/src/atest${CMAKE_EXECUTABLE_SUFFIX}")
 set(FXSEND_BIN "${CMAKE_BINARY_DIR}/test/fxsend${CMAKE_EXECUTABLE_SUFFIX}")
 set(FXREC_BIN "${CMAKE_BINARY_DIR}/test/fxrec${CMAKE_EXECUTABLE_SUFFIX}")
 set(IL2P_TEST_BIN "${CMAKE_BINARY_DIR}/test/il2p_test${CMAKE_EXECUTABLE_SUFFIX}")
+set(WAPR_CHECK_MSGS "${CUSTOM_SRC_DIR}/../test/wapr/golden/wapr_check_msgs.txt")
 
 if(WIN32)
   set(CUSTOM_SCRIPT_SUFFIX ".bat")
@@ -27,6 +28,8 @@ set(TEST_CHECK-MODEM2400-b_FILE "check-modem2400-b")
 set(TEST_CHECK-MODEM2400-g_FILE "check-modem2400-g")
 set(TEST_CHECK-MODEM4800_FILE "check-modem4800")
 set(TEST_CHECK-MODEMEAS_FILE "check-modemeas")
+set(TEST_CHECK-WAPR-H150_FILE "check-wapr-h150")
+set(TEST_CHECK-WAPR-F600_FILE "check-wapr-f600")
 
 # generate the scripts that run the tests
 
@@ -45,6 +48,18 @@ configure_file(
 configure_file(
   "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-MODEM1200_FILE}"
   "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM1200_FILE}${CUSTOM_SCRIPT_SUFFIX}"
+  @ONLY
+  )
+
+configure_file(
+  "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-WAPR-H150_FILE}"
+  "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-H150_FILE}${CUSTOM_SCRIPT_SUFFIX}"
+  @ONLY
+  )
+
+configure_file(
+  "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-WAPR-F600_FILE}"
+  "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-F600_FILE}${CUSTOM_SCRIPT_SUFFIX}"
   @ONLY
   )
 
@@ -481,6 +496,7 @@ list(APPEND waprtest_SOURCES
   ${CUSTOM_SRC_DIR}/wapr_test.c
   ${CUSTOM_SRC_DIR}/wapr_codec.c
   ${CUSTOM_SRC_DIR}/wapr_modem.c
+  ${CUSTOM_SRC_DIR}/textcolor.c
   )
 
 add_executable(waprtest
@@ -606,6 +622,8 @@ add_test(check-modem2400-b "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM2400-b_F
 add_test(check-modem2400-g "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM2400-g_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-modem4800 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM4800_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-modemeas "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEMEAS_FILE}${CUSTOM_SCRIPT_SUFFIX}")
+add_test(check-wapr-h150 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-H150_FILE}${CUSTOM_SCRIPT_SUFFIX}")
+add_test(check-wapr-f600 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-F600_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 
 
 
@@ -686,6 +704,9 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/tt_text.c
     ${CUSTOM_SRC_DIR}/symbols.c
     ${CUSTOM_SRC_DIR}/textcolor.c
+    ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_modem.c
+    ${CUSTOM_SRC_DIR}/wapr_rx.c
     )
 
   if(WIN32 OR CYGWIN)
@@ -744,6 +765,10 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/audio_stats.c
     ${CUSTOM_SRC_DIR}/dtime_now.c
     ${CUSTOM_SRC_DIR}/dlq.c
+    ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_modem.c
+    ${CUSTOM_SRC_DIR}/wapr_rx.c
+    ${CUSTOM_SRC_DIR}/wapr_tx.c
     )
 
   if(LINUX)

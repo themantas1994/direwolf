@@ -185,13 +185,17 @@ struct audio_s {
 	    // What else should be moved out of structure and enlarged when NETTNC is implemented.  ???
 
 
-	    enum modem_t { MODEM_AFSK, MODEM_BASEBAND, MODEM_SCRAMBLE, MODEM_QPSK, MODEM_8PSK, MODEM_OFF, MODEM_16_QAM, MODEM_64_QAM, MODEM_AIS, MODEM_EAS } modem_type;
+	    enum modem_t { MODEM_AFSK, MODEM_BASEBAND, MODEM_SCRAMBLE, MODEM_QPSK, MODEM_8PSK, MODEM_OFF, MODEM_16_QAM, MODEM_64_QAM, MODEM_AIS, MODEM_EAS, MODEM_WAPR } modem_type;
 
 					/* Usual AFSK. */
 					/* Baseband signal. Not used yet. */
 					/* Scrambled http://www.amsat.org/amsat/articles/g3ruh/109/fig03.gif */
 					/* Might try MFJ-2400 / CCITT v.26 / Bell 201 someday. */
 					/* No modem.  Might want this for DTMF only channel. */
+					/* MODEM_WAPR: experimental weak signal modem, only with */
+					/* an explicit "MODEM WAPR profile".  See doc/wapr. */
+
+	    char wapr_profile[8];	/* WAPR profile name (F600, H150, R25) when modem_type is MODEM_WAPR. */
 
 	    enum layer2_t { LAYER2_AX25 = 0, LAYER2_FX25, LAYER2_IL2P } layer2_xmit;	// Must keep in sync with layer2_tx, below.
 

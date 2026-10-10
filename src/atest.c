@@ -84,6 +84,8 @@
 #include "dtime_now.h"
 #include "fx25.h"
 #include "il2p.h"
+#include "wapr.h"
+#include "wapr_rx.h"
 #include "hdlc_rec.h"
 
 
@@ -189,6 +191,7 @@ static int j_opt = 0;			/* 2400 bps PSK compatible with direwolf <= 1.5 */
 static int J_opt = 0;			/* 2400 bps PSK compatible MFJ-2400 and maybe others. */
 static int h_opt = 0;			// Hexadecimal display of received packet.
 static char P_opt[16] = "";		// Demodulator profiles.
+static char W_opt[16] = "";		// Experimental WAPR profile (doc/wapr).
 static int d_x_opt = 1;			// FX.25 debug.
 static int d_o_opt = 0;			// "-d o" option for DCD output control. */	
 static int d_2_opt = 0;			// "-d 2" option for IL2P details. */
@@ -268,7 +271,7 @@ int main (int argc, char *argv[])
 
 	  /* ':' following option character means arg is required. */
 
-          c = getopt_long(argc, argv, "B:P:D:U:gjJF:S:L:G:012he:d:",
+          c = getopt_long(argc, argv, "B:P:D:U:gjJF:S:L:G:012he:d:W:",
                         long_options, &option_index);
           if (c == -1)
             break;
@@ -287,6 +290,16 @@ int main (int argc, char *argv[])
 	      else {
 	        B_opt = atoi(optarg);
 	      }
+              break;
+
+            case 'W':				/* -W experimental WAPR profile */
+
+	      if (wapr_profile_find(optarg) == NULL) {
+	        text_color_set(DW_COLOR_ERROR);
+	        dw_printf ("Unknown WAPR profile \"%s\".  Use F600, H150 or R25.\n", optarg);
+	        exit (EXIT_FAILURE);
+	      }
+	      strlcpy (W_opt, optarg, sizeof(W_opt));
               break;
 
             case 'g':				/* -G Force G3RUH regardless of speed. */
@@ -543,6 +556,14 @@ int main (int argc, char *argv[])
 	  strlcpy (my_audio_config.achan[0].profiles, P_opt, sizeof(my_audio_config.achan[0].profiles));
 	}
 
+	if (strlen(W_opt) > 0) {
+	  const wapr_profile_t *wp = wapr_profile_find (W_opt);
+	  my_audio_config.achan[0].modem_type = MODEM_WAPR;
+	  my_audio_config.achan[0].baud = (int)wp->baud;
+	  strlcpy (my_audio_config.achan[0].wapr_profile, wp->name, sizeof(my_audio_config.achan[0].wapr_profile));
+	}
+	wapr_rx_set_synchronous (1);		// results must not depend on timing
+
 	memcpy (&my_audio_config.achan[1], &my_audio_config.achan[0], sizeof(my_audio_config.achan[0]));
 
 
@@ -692,6 +713,9 @@ int main (int argc, char *argv[])
                 /* When a complete frame is accumulated, */
                 /* process_rec_frame, below, is called. */
 
+	}
+	for (int c = 0; c < (int)(my_audio_config.adev[0].num_channels); c++) {
+	  wapr_rx_flush (c);		// does nothing unless WAPR
 	}
 	text_color_set(DW_COLOR_INFO);
 	dw_printf ("\n\n");
@@ -850,6 +874,10 @@ void dlq_rec_frame (int chan, int subchan, int slice, packet_t pp, alevel_t alev
 	    dw_printf ("%s audio level = %s   IL2P  %s\n", heard, alevel_text, spectrum);
 	    break;
 
+	  case fec_type_wapr:
+	    dw_printf ("%s audio level = %s   WAPR  %s\n", heard, alevel_text, spectrum);
+	    break;
+
 	  case fec_type_none:
 	  default:
 	    if (my_audio_config.achan[chan].fix_bits == RETRY_NONE && my_audio_config.achan[chan].passall == 0 && retries == RETRY_NONE) {
@@ -999,6 +1027,8 @@ static void usage (void) {
 	dw_printf ("        -g     Use G3RUH modem rather rather than default for data rate.\n");
 	dw_printf ("        -j     2400 bps QPSK compatible with direwolf <= 1.5.\n");
 	dw_printf ("        -J     2400 bps QPSK compatible with MFJ-2400.\n");
+	dw_printf ("\n");
+	dw_printf ("        -W p   EXPERIMENTAL WAPR modem, profile F600, H150 or R25.\n");
 	dw_printf ("\n");
 	dw_printf ("        -D n   Divide audio sample rate by n.\n");
 	dw_printf ("\n");

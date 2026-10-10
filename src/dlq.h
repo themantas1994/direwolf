@@ -38,7 +38,8 @@ typedef struct cdata_s {
 
 typedef enum dlq_type_e {DLQ_REC_FRAME, DLQ_CONNECT_REQUEST, DLQ_DISCONNECT_REQUEST, DLQ_XMIT_DATA_REQUEST, DLQ_REGISTER_CALLSIGN, DLQ_UNREGISTER_CALLSIGN, DLQ_OUTSTANDING_FRAMES_REQUEST, DLQ_CHANNEL_BUSY, DLQ_SEIZE_CONFIRM, DLQ_CLIENT_CLEANUP} dlq_type_t;
 
-typedef enum fec_type_e {fec_type_none=0, fec_type_fx25=1, fec_type_il2p=2} fec_type_t;
+typedef enum fec_type_e {fec_type_none=0, fec_type_fx25=1, fec_type_il2p=2, fec_type_wapr=3} fec_type_t;
+				// fec_type_wapr: experimental WAPR modem (doc/wapr), not AX.25 on the air.
 
 
 /* A queue item. */
