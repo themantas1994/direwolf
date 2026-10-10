@@ -104,7 +104,7 @@ public sealed class IntegrationsViewModel : PageViewModel
 {
     private readonly IShell _shell;
 
-    public IntegrationsViewModel(IShell shell) : base("External programs", "")
+    public IntegrationsViewModel(IShell shell) : base("External programs", "\uE71D")
     {
         _shell = shell;
         Apps = new ObservableCollection<ExternalAppItem>(_shell.Settings.ExternalApps.Select(a => new ExternalAppItem(a)));

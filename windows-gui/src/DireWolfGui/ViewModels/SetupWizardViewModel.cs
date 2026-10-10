@@ -24,7 +24,7 @@ public sealed class SetupWizardViewModel : PageViewModel
     private CheckConfigSummary? _buildSummary;
     private string? _buildCheckMessage;
 
-    public SetupWizardViewModel(IShell shell) : base("Setup wizard", "\uE82E")
+    public SetupWizardViewModel(IShell shell) : base("Setup wizard", "\uE7BE")
     {
         _shell = shell;
         Steps =

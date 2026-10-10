@@ -16,7 +16,7 @@ public sealed class SettingsViewModel : PageViewModel
     private readonly IShell _shell;
     private bool _loading;
 
-    public SettingsViewModel(IShell shell) : base("Settings", "")
+    public SettingsViewModel(IShell shell) : base("Settings", "\uE713")
     {
         _shell = shell;
         SaveCommand = new AsyncCommand(SaveAsync, () => IsModified);

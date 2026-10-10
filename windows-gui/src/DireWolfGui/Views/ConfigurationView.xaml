@@ -469,7 +469,7 @@
                             <Button DockPanel.Dock="Right" Command="{Binding CheckCommand}" Padding="10,4"
                                     ToolTip="Run direwolf --check-config: reads the configuration, opens no audio device, PTT or network port">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource IconText}" Text="&#xE9D5;" FontSize="13" Margin="0,0,6,0" />
+                                    <TextBlock Style="{StaticResource IconText}" Text="&#xE73E;" FontSize="13" Margin="0,0,6,0" />
                                     <TextBlock Text="Check with Dire Wolf" />
                                 </StackPanel>
                             </Button>

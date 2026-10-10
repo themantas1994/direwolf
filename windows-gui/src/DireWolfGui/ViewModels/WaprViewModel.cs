@@ -79,7 +79,7 @@ public sealed class WaprViewModel : PageViewModel
     private readonly IShell _shell;
     private int _builtVersion = -1;
 
-    public WaprViewModel(IShell shell) : base("WAPR (experimental)", "")
+    public WaprViewModel(IShell shell) : base("WAPR (experimental)", "\uE945")
     {
         _shell = shell;
         Session = ConfigurationSession.For(shell);

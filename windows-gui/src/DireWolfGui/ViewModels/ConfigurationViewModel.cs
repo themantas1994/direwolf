@@ -25,7 +25,7 @@ public sealed class ConfigurationViewModel : PageViewModel
     private List<(string Call, string Secret)> _rawSecrets = [];
     private DateTime? _rawValidateAt;
 
-    public ConfigurationViewModel(IShell shell) : base("Configuration", "")
+    public ConfigurationViewModel(IShell shell) : base("Configuration", "\uE70F")
     {
         _shell = shell;
         Session = ConfigurationSession.For(shell);

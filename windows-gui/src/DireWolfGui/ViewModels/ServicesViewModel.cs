@@ -27,7 +27,7 @@ public sealed class ServicesViewModel : PageViewModel
     private readonly IShell _shell;
     private int _builtVersion = -1;
 
-    public ServicesViewModel(IShell shell) : base("Gateway & digipeater", "")
+    public ServicesViewModel(IShell shell) : base("Gateway & digipeater", "\uE909")
     {
         _shell = shell;
         Session = ConfigurationSession.For(shell);
