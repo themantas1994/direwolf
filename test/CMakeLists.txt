@@ -476,6 +476,22 @@ target_link_libraries(ax25goldentest
   )
 
 
+# Experimental WAPR codec and modem (doc/wapr/), against the Python reference.
+list(APPEND waprtest_SOURCES
+  ${CUSTOM_SRC_DIR}/wapr_test.c
+  ${CUSTOM_SRC_DIR}/wapr_codec.c
+  ${CUSTOM_SRC_DIR}/wapr_modem.c
+  )
+
+add_executable(waprtest
+  ${waprtest_SOURCES}
+  )
+
+target_link_libraries(waprtest
+  ${MISC_LIBRARIES}
+  )
+
+
 # Unit Test for DTMF encode/decode.
 list(APPEND dtmftest_SOURCES
   ${CUSTOM_SRC_DIR}/dtmf.c
@@ -575,6 +591,7 @@ add_test(aistest aistest)
 add_test(l2sendtest l2sendtest)
 add_test(NAME ax25goldentest COMMAND ax25goldentest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../test/compat/golden)
 add_test(NAME deviceidtest COMMAND deviceidtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../data)
+add_test(NAME waprtest COMMAND waprtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../test/wapr/golden)
 
 add_test(check-fx25 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-FX25_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-il2p "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-IL2P_FILE}${CUSTOM_SCRIPT_SUFFIX}")

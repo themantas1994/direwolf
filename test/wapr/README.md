@@ -1,4 +1,4 @@
-# WAPR research simulator (stage 1)
+# WAPR research simulator and reference implementation
 
 WAPR (Weak-signal Adaptive Packet Radio) is an **experimental** research project.  This
 directory holds a stand-alone simulator used to compare candidate waveforms and codes
@@ -15,7 +15,12 @@ also need this repository's `gen_packets` and `atest`.
 | `wapr_channel.py` | AWGN, frequency offset, Watterson HF fading; **SNR definition** |
 | `wapr_bench.py` | Delivery vs SNR for WAPR and legacy systems through the same channel, with confidence intervals |
 | `wapr_selftest.py` | Acceptance checks: codes, channel calibration, SER vs theory, loopback, determinism |
+| `wapr_compare.py` | Applies the stage 1 decision rule to two systems' thresholds |
+| `run_stage1_eval.sh` | The pre-registered stage 1 evaluation |
 | `configs/stage1.json` | Candidate systems.  Each result row records this file's SHA-256 prefix |
+| `wapr_frame.py` | Logical frame format v0 (header packing and checks), reference for the C code |
+| `wapr_export.py` | Writes `src/wapr_tables.h` and `golden/wapr_vectors.txt` from the reference |
+| `wapr_crosscheck.py` | Decodes identical audio with this simulator and the C receiver (`waprtest -r`) |
 
 ## Definitions
 
