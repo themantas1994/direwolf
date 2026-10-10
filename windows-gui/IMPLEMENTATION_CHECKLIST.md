@@ -23,10 +23,16 @@ Core (src/DireWolfGui.Core):
 - [x] check-config runner/parser, services/transmit analysis, backups, profiles, diff, templates
 - [x] WAPR support, settings store, external app profiles
 
-GUI (src/DireWolfGui): shell/themes/navigation, dashboard, logs, monitor, APRS+map,
-messages, terminal, config editor, wizard, gateway/digi, WAPR, integrations, about.
+GUI (src/DireWolfGui):
+- [x] shell, themes, navigation, MainViewModel (IShell), smoke-test mode
+- [x] Dashboard, Log, Packet monitor, APRS map & stations, Messages, Terminal
+- [x] Configuration, Setup wizard (receive-only test), Gateway & digipeater, WAPR,
+      External programs, Settings/About
 
-Release: Windows CI workflow, publish/ZIP script, USER_GUIDE, known limitations.
+Release:
+- [x] Windows CI: MinGW direwolf + ctest, Core tests vs direwolf.exe, package ZIP, smoke test
+- [x] scripts/package.ps1, README, docs/USER_GUIDE.md (incl. known limitations)
+- [ ] Interactive Windows validation with real audio/radio (operator)
 
 Core API docs: docs/CORE_RUNTIME_API.md, docs/CORE_CONFIG_API.md.  Inside DireWolfGui.Core.* use
 `System.Diagnostics.Process` fully qualified (the Process folder namespace shadows it).
