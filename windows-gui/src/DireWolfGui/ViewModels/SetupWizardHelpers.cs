@@ -51,6 +51,12 @@ public static class ReceiveTestConfig
         doc.SetDirective("AGWPORT", "0");
         if (doc.FindDirective("KISSPORT") == null) doc.SetDirective("KISSPORT", "0");
         doc.SetDirective("TCPBIND", "LOCAL");
+        // The test copy needs no APRS-IS passcode: mask it in every (now commented) IGLOGIN line.
+        foreach (var l in doc.Lines.ToList())
+        {
+            string masked = PasscodeMask.MaskLine(l.Text);
+            if (masked != l.Text) doc.ReplaceLine(l.Index, masked);
+        }
         return doc;
     }
 

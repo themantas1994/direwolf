@@ -88,9 +88,9 @@ public sealed class SetupWizardViewModel : PageViewModel
             OnPropertyChanged(nameof(StepTitle));
             OnPropertyChanged(nameof(IsLastStep));
             if (value != 2) StopMeter();
-            if (value == 2 && InputDevices.Count == 0 && OutputDevices.Count == 0) _ = RefreshDevicesAsync();
-            if (value == 4 && _buildSummary == null && _buildCheckMessage == null && File.Exists(ExePath.Trim())) _ = CheckBuildAsync();
-            if (value == 8) _ = ValidateAsync();
+            if (value == 2 && InputDevices.Count == 0 && OutputDevices.Count == 0) RefreshDevicesAsync().Forget(_shell, "Audio devices");
+            if (value == 4 && _buildSummary == null && _buildCheckMessage == null && File.Exists(ExePath.Trim())) CheckBuildAsync().Forget(_shell, "Checking the Dire Wolf build");
+            if (value == 8) ValidateAsync().Forget(_shell, "Checking the configuration");
         }
     }
 
@@ -651,6 +651,18 @@ public sealed class SetupWizardViewModel : PageViewModel
 
         string path = TestConfigPath;
         await Task.Run(() => { Directory.CreateDirectory(AppPaths.Local); AtomicFile.WriteAllBytes(path, doc.ToBytes()); });
+
+        // Second opinion from Dire Wolf's own parser when this build has --check-config.
+        TestStatus = "Checking the test configuration with Dire Wolf's parser…";
+        var check = await ConfigChecker.CheckFileAsync(exe, path);
+        if (check.Summary is { } s &&
+            (s.AgwPort != null || s.KissPorts.Count > 0 || s.SerialKiss != null || s.Beacons.Count > 0 || s.Digipeat.Count > 0 ||
+             s.Regen.Count > 0 || s.CDigipeat.Count > 0 || s.IGate != null || s.WaprGates.Count > 0 || s.Channels.Any(c => c.Ptt is { } p && !p.Equals("NONE", StringComparison.OrdinalIgnoreCase))))
+        {
+            TestStatus = "Not started.";
+            Dialogs.Error("Dire Wolf's parser reports that the test configuration could still transmit or accept clients, so the test was not started.", check.RawOutput);
+            return;
+        }
 
         if (_shell.IsDireWolfRunning)
         {

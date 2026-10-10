@@ -29,7 +29,7 @@ public sealed class ConfigurationSession : ObservableObject
         _shell = shell;
         _shell.StationStateChanged += (_, _) =>
         {
-            if (!IsDirty && !SamePath(Path, _shell.ConfigPath)) _ = EnsureCurrentAsync();
+            if (!IsDirty && !SamePath(Path, _shell.ConfigPath)) EnsureCurrentAsync().Forget(_shell, "Loading the configuration");
             OnPropertyChanged(nameof(IsStale));
             OnPropertyChanged(nameof(StaleMessage));
         };
@@ -164,6 +164,7 @@ public sealed class ConfigurationSession : ObservableObject
         OnPropertyChanged(nameof(StaleMessage));
         OnPropertyChanged(nameof(Version));
         DocumentChanged?.Invoke(this, EventArgs.Empty);
+        System.Windows.Input.CommandManager.InvalidateRequerySuggested();
     }
 
     /// <summary>Apply a targeted edit (SetDirective, DisableDirective, InsertLine, ...).</summary>
@@ -345,6 +346,16 @@ public static partial class PasscodeMask
 
     /// <summary>One line for display: the IGLOGIN passcode masked.</summary>
     public static string MaskLine(string line) => IgLogin().Replace(line, m => m.Groups[1].Value + Mask);
+}
+
+/// <summary>Fire-and-forget for UI work started from property setters: failures go to the status bar.</summary>
+public static class TaskExtensions
+{
+    public static async void Forget(this Task task, IShell shell, string what)
+    {
+        try { await task; }
+        catch (Exception e) { shell.SetStatus($"{what}: {e.Message}"); }
+    }
 }
 
 /// <summary>Texts used by every page that can enable transmitting or forwarding.</summary>

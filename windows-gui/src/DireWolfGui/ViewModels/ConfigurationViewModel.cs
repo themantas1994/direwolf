@@ -82,8 +82,8 @@ public sealed class ConfigurationViewModel : PageViewModel
         set
         {
             if (!Set(ref _selectedTab, value)) return;
-            if (value == BackupsTab) _ = RefreshBackupsAsync();
-            if (value == ProfilesTab) _ = RefreshProfilesAsync();
+            if (value == BackupsTab) RefreshBackupsAsync().Forget(_shell, "Backups");
+            if (value == ProfilesTab) RefreshProfilesAsync().Forget(_shell, "Profiles");
         }
     }
 
