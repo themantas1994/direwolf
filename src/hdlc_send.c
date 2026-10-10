@@ -30,6 +30,7 @@
 #include "ax25_pad.h"
 #include "fx25.h"
 #include "il2p.h"
+#include "wapr_tx.h"
 
 static void send_byte_msb_first (int chan, int x, int polarity);
 
@@ -84,6 +85,14 @@ static int ax25_only_hdlc_send_frame (int chan, unsigned char *fbuf, int flen, i
 
 int layer2_send_frame (int chan, packet_t pp, int bad_fcs, struct audio_s *audio_config_p)
 {
+	if (audio_config_p->achan[chan].modem_type == MODEM_WAPR) {
+
+	  // Experimental WAPR channel (doc/wapr).  Never falls back to AX.25:
+	  // a packet WAPR can't carry is not sent at all.
+	  int n = wapr_send_frame (chan, pp, audio_config_p);
+	  return (n > 0 ? n : 0);
+	}
+
 	if (audio_config_p->achan[chan].layer2_xmit == LAYER2_IL2P) {
 
 	  int n = il2p_send_frame (chan, pp, audio_config_p->achan[chan].il2p_max_fec,
@@ -187,6 +196,15 @@ int layer2_preamble_postamble (int chan, int nbytes, int finish, struct audio_s 
 	int j;
 	
 	number_of_bits_sent[chan] = 0;
+
+	if (audio_config_p->achan[chan].modem_type == MODEM_WAPR) {
+	  // Silence instead of HDLC flags: one "bit" is one WAPR symbol time.
+	  int n = wapr_send_silence (chan, nbytes * 8, audio_config_p);
+	  if (finish) {
+	    audio_flush(ACHAN2ADEV(chan));
+	  }
+	  return (n);
+	}
 
 #if DEBUG
 	text_color_set(DW_COLOR_DEBUG);

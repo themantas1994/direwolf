@@ -19,3 +19,5 @@ int tone_gen_last_bit (int chan);
 void gen_tone_put_sample (int chan, int a, int sam);
 
 void gen_tone_put_quiet_ms (int chan, int time_ms);
+
+int gen_tone_amplitude (void);		/* Peak sample value for full transmit level (TXLEVEL / -a). */

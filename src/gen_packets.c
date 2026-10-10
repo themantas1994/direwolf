@@ -86,6 +86,7 @@
 #include "dtmf.h"
 #include "fx25.h"
 #include "il2p.h"
+#include "wapr.h"
 
 
 /* Own random number generator so we can get */
@@ -226,6 +227,7 @@ int main(int argc, char **argv)
 	int J_opt = 0;
 	int X_opt = 0;		// send FX.25
 	int I_opt = -1;		// send IL2P rather than AX.25, normal polarity
+	char W_opt[16] = "";	// experimental WAPR profile (doc/wapr)
 	int i_opt = -1;		// send IL2P rather than AX.25, inverted polarity
 	double variable_speed_max_error  = 0;	// both in percent
 	double variable_speed_increment = 0.1;
@@ -281,7 +283,7 @@ int main(int argc, char **argv)
 
 	  /* ':' following option character means arg is required. */
 
-          c = getopt_long(argc, argv, "gjJm:s:a:b:B:r:n:N:o:z:82M:X:I:i:v:",
+          c = getopt_long(argc, argv, "gjJm:s:a:b:B:r:n:N:o:z:82M:X:I:i:v:W:",
                         long_options, &option_index);
           if (c == -1)
             break;
@@ -523,6 +525,11 @@ int main(int argc, char **argv)
 	      X_opt = atoi(optarg);
               break;
 
+            case 'W':			// Experimental WAPR modem
+
+	      strlcpy (W_opt, optarg, sizeof(W_opt));
+              break;
+
             case 'I':			// IL2P, normal polarity
 
 	      I_opt = atoi(optarg);
@@ -630,6 +637,25 @@ int main(int argc, char **argv)
 	    }
 	}
 
+
+	if (strlen(W_opt) > 0) {
+	  const wapr_profile_t *wp = wapr_profile_find (W_opt);
+	  if (wp == NULL) {
+	    text_color_set(DW_COLOR_ERROR);
+	    dw_printf ("Unknown WAPR profile \"%s\".  Use F600, H150 or R25.\n", W_opt);
+	    exit (EXIT_FAILURE);
+	  }
+	  if (X_opt > 0 || I_opt != -1 || i_opt != -1) {
+	    text_color_set(DW_COLOR_ERROR);
+	    dw_printf ("Can't mix -W with -X, -I or -i.\n");
+	    exit (EXIT_FAILURE);
+	  }
+	  text_color_set(DW_COLOR_INFO);
+	  dw_printf ("Using the EXPERIMENTAL WAPR modem, profile %s.\n", wp->name);
+	  modem.achan[0].modem_type = MODEM_WAPR;
+	  modem.achan[0].baud = (int)wp->baud;
+	  strlcpy (modem.achan[0].wapr_profile, wp->name, sizeof(modem.achan[0].wapr_profile));
+	}
 
 /*
  * Open the output file.
@@ -831,6 +857,7 @@ static void usage (char **argv)
 	dw_printf ("  -J            2400 bps QPSK compatible with MFJ-2400.\n");
 	dw_printf ("  -X n           1 to enable FX.25 transmit.  16, 32, 64 for specific number of check bytes.\n");
 	dw_printf ("  -I n           Enable IL2P transmit.  n=1 is recommended.  0 uses weaker FEC.\n");
+	dw_printf ("  -W p           EXPERIMENTAL WAPR modem, profile F600, H150 or R25.\n");
 	dw_printf ("  -i n           Enable IL2P transmit, inverted polarity.  n=1 is recommended.  0 uses weaker FEC.\n");
 	dw_printf ("  -m <number>   Mark frequency.  Default is %d.\n", DEFAULT_MARK_FREQ);
 	dw_printf ("  -s <number>   Space frequency.  Default is %d.\n", DEFAULT_SPACE_FREQ);

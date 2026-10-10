@@ -56,6 +56,8 @@
 #include "digipeater.h"
 #include "cdigipeater.h"
 #include "config.h"
+#include "wapr.h"
+#include "wapr_gate.h"
 #include "aprs_tt.h"
 #include "igate.h"
 #include "latlong.h"
@@ -1441,6 +1443,9 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  * New style, version 1.2:
  *	MODEM  speed [ option ] ...
  *
+ * Experimental (doc/wapr):
+ *	MODEM  WAPR  profile [AIRTIME=percent]	- F600, H150 or R25.  Whole channel is WAPR.
+ *
  * Options:
  *	mark:space	- AFSK tones.  Defaults based on speed.
  *	num@offset	- Multiple decoders on different frequencies.
@@ -1463,6 +1468,38 @@ void config_init (char *fname, struct audio_s *p_audio_config,
 	    if (t == NULL) {
 	      text_color_set(DW_COLOR_ERROR);
 	      dw_printf ("Line %d: Missing data transmission speed for MODEM command.\n", line);
+	      continue;
+	    }
+	    if (strcasecmp(t,"WAPR") == 0) {
+
+	      /* Experimental WAPR modem (doc/wapr).  The whole channel becomes WAPR: */
+	      /* nothing is sent as AX.25 on this channel and nothing AX.25 is heard. */
+
+	      char *pname = split(NULL,0);
+	      const wapr_profile_t *wp = pname != NULL ? wapr_profile_find(pname) : NULL;
+	      if (wp == NULL) {
+	        text_color_set(DW_COLOR_ERROR);
+	        dw_printf ("Line %d: MODEM WAPR needs a profile name: F600, H150 or R25.\n", line);
+	        continue;
+	      }
+	      p_audio_config->achan[channel].modem_type = MODEM_WAPR;
+	      p_audio_config->achan[channel].baud = (int)wp->baud;	/* symbols / s: transmit timing counts symbols */
+	      p_audio_config->achan[channel].mark_freq = 0;
+	      p_audio_config->achan[channel].space_freq = 0;
+	      strlcpy (p_audio_config->achan[channel].wapr_profile, wp->name, sizeof(p_audio_config->achan[channel].wapr_profile));
+	      p_audio_config->achan[channel].wapr_duty = 0;
+	      while ((t = split(NULL,0)) != NULL) {
+	        if (strncasecmp(t, "AIRTIME=", 8) == 0 && atof(t + 8) > 0 && atof(t + 8) <= 100) {
+	          p_audio_config->achan[channel].wapr_duty = atof(t + 8) / 100.0;	/* percent of time */
+	        }
+	        else {
+	          text_color_set(DW_COLOR_ERROR);
+	          dw_printf ("Line %d: Option \"%s\" after MODEM WAPR %s ignored.  Only AIRTIME=percent.\n", line, t, wp->name);
+	        }
+	      }
+	      text_color_set(DW_COLOR_INFO);
+	      dw_printf ("Channel %d: EXPERIMENTAL WAPR modem, profile %s.  Not compatible with AX.25 / APRS radios.\n",
+				channel, wp->name);
 	      continue;
 	    }
 	    if (strcasecmp(t,"AIS") == 0) {
@@ -2757,6 +2794,37 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  * ATGP is an ugly hack for the specific need of ATGP which needs more that 8 digipeaters.
  * DO NOT put this in the User Guide.  On a need to know basis.
  */
+
+	  else if (strcasecmp(t, "WAPRGATE") == 0) {
+
+	    /* Experimental WAPR gateway (doc/wapr):  WAPRGATE from to|IS [types] */
+	    /* Checked in wapr_gate_init once all MODEM lines are known. */
+
+	    char tf[20] = "", tt[20] = "", ty[100] = "";	/* split() reuses one buffer: copy */
+	    if ((t = split(NULL,0)) != NULL) strlcpy (tf, t, sizeof(tf));
+	    if ((t = split(NULL,0)) != NULL) strlcpy (tt, t, sizeof(tt));
+	    if ((t = split(NULL,0)) != NULL) strlcpy (ty, t, sizeof(ty));
+	    if (tf[0] == '\0' || tt[0] == '\0' || ! alldigits(tf) || (! alldigits(tt) && strcasecmp(tt, "IS") != 0)) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: WAPRGATE needs a from channel and a to channel (or IS).\n", line);
+	      continue;
+	    }
+	    if (p_misc_config->num_wapr_gates >= MAX_WAPR_GATES) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: At most %d WAPRGATE rules.\n", line, MAX_WAPR_GATES);
+	      continue;
+	    }
+	    unsigned int types = ty[0] == '\0' ? WAPR_GT_ALL : wapr_gate_types (ty);
+	    if (types == 0) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: WAPRGATE types must be from POS, STATUS, MSG, OBJ, ITEM, WX, TLM, OTHER, ALL.\n", line);
+	      continue;
+	    }
+	    struct wapr_gate_s *g = &p_misc_config->wapr_gate[p_misc_config->num_wapr_gates++];
+	    g->from = atoi(tf);
+	    g->to = alldigits(tt) ? atoi(tt) : -1;
+	    g->types = types;
+	  }
 
 	  else if (strcasecmp(t, "DIGIPEAT") == 0 || strcasecmp(t, "DIGIPEATER") == 0) {
 	    int from_chan, to_chan;

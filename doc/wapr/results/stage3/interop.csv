@@ -1,0 +1,298 @@
+test,mode,rate,tx,rx,ok,expected,status,note
+tx-identical,300 AFSK,11025,all,-,2,2,PASS,md5 9a97f8cb
+cross-decode,300 AFSK,11025,any,stage3,103,103,PASS,
+cross-decode,300 AFSK,11025,any,ref,103,103,PASS,
+cross-decode,300 AFSK,11025,any,stage3 -S1,103,103,PASS,
+tx-identical,300 AFSK,22050,all,-,2,2,PASS,md5 57d8f0a7
+cross-decode,300 AFSK,22050,any,stage3,103,103,PASS,
+cross-decode,300 AFSK,22050,any,ref,103,103,PASS,
+cross-decode,300 AFSK,22050,any,stage3 -S1,103,103,PASS,
+tx-identical,300 AFSK,44100,all,-,2,2,PASS,md5 08075301
+cross-decode,300 AFSK,44100,any,stage3,103,103,PASS,
+cross-decode,300 AFSK,44100,any,ref,103,103,PASS,
+cross-decode,300 AFSK,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,300 AFSK,48000,all,-,2,2,PASS,md5 96ec514c
+cross-decode,300 AFSK,48000,any,stage3,103,103,PASS,
+cross-decode,300 AFSK,48000,any,ref,103,103,PASS,
+cross-decode,300 AFSK,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,300 AFSK,96000,all,-,2,2,PASS,md5 e3f5dde2
+cross-decode,300 AFSK,96000,any,stage3,103,103,PASS,
+cross-decode,300 AFSK,96000,any,ref,103,103,PASS,
+cross-decode,300 AFSK,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,8000,all,-,2,2,PASS,md5 5567cb4f
+cross-decode,1200 AFSK,8000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,8000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,8000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,11025,all,-,2,2,PASS,md5 22ac3d08
+cross-decode,1200 AFSK,11025,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,11025,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,11025,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,22050,all,-,2,2,PASS,md5 c3e82db3
+cross-decode,1200 AFSK,22050,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,22050,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,22050,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,44100,all,-,2,2,PASS,md5 18a77ba7
+cross-decode,1200 AFSK,44100,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,44100,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,48000,all,-,2,2,PASS,md5 799038e8
+cross-decode,1200 AFSK,48000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,48000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,96000,all,-,2,2,PASS,md5 a18f43b0
+cross-decode,1200 AFSK,96000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,96000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK,192000,all,-,2,2,PASS,md5 a19c594a
+cross-decode,1200 AFSK,192000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK,192000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK,192000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK A+,22050,all,-,2,2,PASS,md5 c3e82db3
+cross-decode,1200 AFSK A+,22050,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK A+,22050,any,ref,103,103,PASS,
+cross-decode,1200 AFSK A+,22050,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK A+,44100,all,-,2,2,PASS,md5 18a77ba7
+cross-decode,1200 AFSK A+,44100,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK A+,44100,any,ref,103,103,PASS,
+cross-decode,1200 AFSK A+,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK A+,48000,all,-,2,2,PASS,md5 799038e8
+cross-decode,1200 AFSK A+,48000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK A+,48000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK A+,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK A+,96000,all,-,2,2,PASS,md5 a18f43b0
+cross-decode,1200 AFSK A+,96000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK A+,96000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK A+,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK B,22050,all,-,2,2,PASS,md5 c3e82db3
+cross-decode,1200 AFSK B,22050,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK B,22050,any,ref,103,103,PASS,
+cross-decode,1200 AFSK B,22050,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK B,44100,all,-,2,2,PASS,md5 18a77ba7
+cross-decode,1200 AFSK B,44100,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK B,44100,any,ref,103,103,PASS,
+cross-decode,1200 AFSK B,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK B,48000,all,-,2,2,PASS,md5 799038e8
+cross-decode,1200 AFSK B,48000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK B,48000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK B,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK B,96000,all,-,2,2,PASS,md5 a18f43b0
+cross-decode,1200 AFSK B,96000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK B,96000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK B,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK AB,44100,all,-,2,2,PASS,md5 18a77ba7
+cross-decode,1200 AFSK AB,44100,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK AB,44100,any,ref,103,103,PASS,
+cross-decode,1200 AFSK AB,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 AFSK AB,48000,all,-,2,2,PASS,md5 799038e8
+cross-decode,1200 AFSK AB,48000,any,stage3,103,103,PASS,
+cross-decode,1200 AFSK AB,48000,any,ref,103,103,PASS,
+cross-decode,1200 AFSK AB,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26A,44100,all,-,2,2,PASS,md5 a8a30b41
+cross-decode,2400 QPSK V.26A,44100,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26A,44100,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26A,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26A,48000,all,-,2,2,PASS,md5 0640e279
+cross-decode,2400 QPSK V.26A,48000,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26A,48000,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26A,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26A,96000,all,-,2,2,PASS,md5 8057009d
+cross-decode,2400 QPSK V.26A,96000,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26A,96000,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26A,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26B,44100,all,-,2,2,PASS,md5 8f2b5a9c
+cross-decode,2400 QPSK V.26B,44100,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26B,44100,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26B,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26B,48000,all,-,2,2,PASS,md5 8897ef5f
+cross-decode,2400 QPSK V.26B,48000,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26B,48000,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26B,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 QPSK V.26B,96000,all,-,2,2,PASS,md5 f1026a45
+cross-decode,2400 QPSK V.26B,96000,any,stage3,103,103,PASS,
+cross-decode,2400 QPSK V.26B,96000,any,ref,103,103,PASS,
+cross-decode,2400 QPSK V.26B,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 G3RUH,44100,all,-,2,2,PASS,md5 8b52b48a
+cross-decode,2400 G3RUH,44100,any,stage3,103,103,PASS,
+cross-decode,2400 G3RUH,44100,any,ref,103,103,PASS,
+cross-decode,2400 G3RUH,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,2400 G3RUH,48000,all,-,2,2,PASS,md5 110e6763
+cross-decode,2400 G3RUH,48000,any,stage3,103,103,PASS,
+cross-decode,2400 G3RUH,48000,any,ref,103,103,PASS,
+cross-decode,2400 G3RUH,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,4800 8PSK,44100,all,-,2,2,PASS,md5 b4ca9346
+cross-decode,4800 8PSK,44100,any,stage3,103,103,PASS,
+cross-decode,4800 8PSK,44100,any,ref,103,103,PASS,
+cross-decode,4800 8PSK,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,4800 8PSK,48000,all,-,2,2,PASS,md5 f70f2392
+cross-decode,4800 8PSK,48000,any,stage3,103,103,PASS,
+cross-decode,4800 8PSK,48000,any,ref,103,103,PASS,
+cross-decode,4800 8PSK,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,4800 8PSK,96000,all,-,2,2,PASS,md5 460f487e
+cross-decode,4800 8PSK,96000,any,stage3,103,103,PASS,
+cross-decode,4800 8PSK,96000,any,ref,103,103,PASS,
+cross-decode,4800 8PSK,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 G3RUH,44100,all,-,2,2,PASS,md5 4822834d
+cross-decode,9600 G3RUH,44100,any,stage3,103,103,PASS,
+cross-decode,9600 G3RUH,44100,any,ref,103,103,PASS,
+cross-decode,9600 G3RUH,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 G3RUH,48000,all,-,2,2,PASS,md5 efb12ab2
+cross-decode,9600 G3RUH,48000,any,stage3,103,103,PASS,
+cross-decode,9600 G3RUH,48000,any,ref,103,103,PASS,
+cross-decode,9600 G3RUH,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 G3RUH,96000,all,-,2,2,PASS,md5 5a7fcec0
+cross-decode,9600 G3RUH,96000,any,stage3,103,103,PASS,
+cross-decode,9600 G3RUH,96000,any,ref,103,103,PASS,
+cross-decode,9600 G3RUH,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 G3RUH,192000,all,-,2,2,PASS,md5 591a1902
+cross-decode,9600 G3RUH,192000,any,stage3,103,103,PASS,
+cross-decode,9600 G3RUH,192000,any,ref,103,103,PASS,
+cross-decode,9600 G3RUH,192000,any,stage3 -S1,103,103,PASS,
+tx-identical,19200 G3RUH,96000,all,-,2,2,PASS,md5 dbb6c270
+cross-decode,19200 G3RUH,96000,any,stage3,103,103,PASS,
+cross-decode,19200 G3RUH,96000,any,ref,103,103,PASS,
+cross-decode,19200 G3RUH,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,19200 G3RUH,192000,all,-,2,2,PASS,md5 5a86a65a
+cross-decode,19200 G3RUH,192000,any,stage3,103,103,PASS,
+cross-decode,19200 G3RUH,192000,any,ref,103,103,PASS,
+cross-decode,19200 G3RUH,192000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 FX.25 16,44100,all,-,2,2,PASS,md5 45917ba3
+cross-decode,1200 FX.25 16,44100,any,stage3,103,103,PASS,
+cross-decode,1200 FX.25 16,44100,any,ref,103,103,PASS,
+cross-decode,1200 FX.25 16,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 FX.25 16,48000,all,-,2,2,PASS,md5 6b380099
+cross-decode,1200 FX.25 16,48000,any,stage3,103,103,PASS,
+cross-decode,1200 FX.25 16,48000,any,ref,103,103,PASS,
+cross-decode,1200 FX.25 16,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 FX.25 64,44100,all,-,2,2,PASS,md5 ba17d42b
+cross-decode,1200 FX.25 64,44100,any,stage3,103,103,PASS,
+cross-decode,1200 FX.25 64,44100,any,ref,103,103,PASS,
+cross-decode,1200 FX.25 64,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 FX.25 32,48000,all,-,2,2,PASS,md5 f44ff7c8
+cross-decode,9600 FX.25 32,48000,any,stage3,103,103,PASS,
+cross-decode,9600 FX.25 32,48000,any,ref,103,103,PASS,
+cross-decode,9600 FX.25 32,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 FX.25 32,96000,all,-,2,2,PASS,md5 2b2fc990
+cross-decode,9600 FX.25 32,96000,any,stage3,103,103,PASS,
+cross-decode,9600 FX.25 32,96000,any,ref,103,103,PASS,
+cross-decode,9600 FX.25 32,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 IL2P,44100,all,-,2,2,PASS,md5 108fdefa
+cross-decode,1200 IL2P,44100,any,stage3,103,103,PASS,
+cross-decode,1200 IL2P,44100,any,ref,103,103,PASS,
+cross-decode,1200 IL2P,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 IL2P,48000,all,-,2,2,PASS,md5 e14b485e
+cross-decode,1200 IL2P,48000,any,stage3,103,103,PASS,
+cross-decode,1200 IL2P,48000,any,ref,103,103,PASS,
+cross-decode,1200 IL2P,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 IL2P weak FEC,44100,all,-,2,2,PASS,md5 c1e9c617
+cross-decode,1200 IL2P weak FEC,44100,any,stage3,103,103,PASS,
+cross-decode,1200 IL2P weak FEC,44100,any,ref,103,103,PASS,
+cross-decode,1200 IL2P weak FEC,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,1200 IL2P inverted,44100,all,-,2,2,PASS,md5 1d41112e
+cross-decode,1200 IL2P inverted,44100,any,stage3,103,103,PASS,
+cross-decode,1200 IL2P inverted,44100,any,ref,103,103,PASS,
+cross-decode,1200 IL2P inverted,44100,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 IL2P,48000,all,-,2,2,PASS,md5 51ed315f
+cross-decode,9600 IL2P,48000,any,stage3,103,103,PASS,
+cross-decode,9600 IL2P,48000,any,ref,103,103,PASS,
+cross-decode,9600 IL2P,48000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 IL2P,96000,all,-,2,2,PASS,md5 def7d917
+cross-decode,9600 IL2P,96000,any,stage3,103,103,PASS,
+cross-decode,9600 IL2P,96000,any,ref,103,103,PASS,
+cross-decode,9600 IL2P,96000,any,stage3 -S1,103,103,PASS,
+tx-identical,9600 IL2P inverted,48000,all,-,2,2,PASS,md5 78532df1
+cross-decode,9600 IL2P inverted,48000,any,stage3,103,103,PASS,
+cross-decode,9600 IL2P inverted,48000,any,ref,103,103,PASS,
+cross-decode,9600 IL2P inverted,48000,any,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 ,22050,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 ,22050,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 ,22050,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 ,44100,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 ,44100,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 ,44100,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 ,48000,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 ,48000,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 ,48000,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 ,96000,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 ,96000,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 ,96000,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 -P A+,44100,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 -P A+,44100,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 -P A+,44100,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk1200 -P B,44100,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk1200 -P B,44100,ax25ref,ref,103,103,PASS,
+indep-mod,afsk1200 -P B,44100,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk300 ,44100,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk300 ,44100,ax25ref,ref,103,103,PASS,
+indep-mod,afsk300 ,44100,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,afsk300 ,48000,ax25ref,stage3,103,103,PASS,
+indep-mod,afsk300 ,48000,ax25ref,ref,103,103,PASS,
+indep-mod,afsk300 ,48000,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,g3ruh9600 ,48000,ax25ref,stage3,103,103,PASS,
+indep-mod,g3ruh9600 ,48000,ax25ref,ref,103,103,PASS,
+indep-mod,g3ruh9600 ,48000,ax25ref,stage3 -S1,103,103,PASS,
+indep-mod,g3ruh9600 ,96000,ax25ref,stage3,103,103,PASS,
+indep-mod,g3ruh9600 ,96000,ax25ref,ref,103,103,PASS,
+indep-mod,g3ruh9600 ,96000,ax25ref,stage3 -S1,103,103,PASS,
+noise,300 AFSK,-,ref,stage3 -B 300 -P A,70,70,PASS,decoded=70 identical to ref
+noise,300 AFSK,-,ref,ref -B 300 -P A,70,70,PASS,decoded=70
+noise,300 AFSK,-,ref,stage3 -S1 -B 300 -P A,73,73,PASS,decoded=73 missing_vs_ref=0
+noise,300 AFSK,-,ref,stage3 -B 300 -P B,69,69,PASS,decoded=69 identical to ref
+noise,300 AFSK,-,ref,ref -B 300 -P B,69,69,PASS,decoded=69
+noise,300 AFSK,-,ref,stage3 -S1 -B 300 -P B,74,74,PASS,decoded=74 missing_vs_ref=0
+noise,1200 AFSK,-,ref,stage3 -P A,72,72,PASS,decoded=72 identical to ref
+noise,1200 AFSK,-,ref,ref -P A,72,72,PASS,decoded=72
+noise,1200 AFSK,-,ref,stage3 -S1 -P A,77,77,PASS,decoded=77 missing_vs_ref=0
+noise,1200 AFSK,-,ref,stage3 -P A+,75,75,PASS,decoded=75 identical to ref
+noise,1200 AFSK,-,ref,ref -P A+,75,75,PASS,decoded=75
+noise,1200 AFSK,-,ref,stage3 -S1 -P A+,79,79,PASS,decoded=79 missing_vs_ref=0
+noise,1200 AFSK,-,ref,stage3 -P B,71,71,PASS,decoded=71 identical to ref
+noise,1200 AFSK,-,ref,ref -P B,71,71,PASS,decoded=71
+noise,1200 AFSK,-,ref,stage3 -S1 -P B,73,73,PASS,decoded=73 missing_vs_ref=0
+noise,1200 AFSK,-,ref,stage3 -P AB,72,72,PASS,decoded=72 identical to ref
+noise,1200 AFSK,-,ref,ref -P AB,72,72,PASS,decoded=72
+noise,1200 AFSK,-,ref,stage3 -S1 -P AB,73,73,PASS,decoded=73 missing_vs_ref=0
+noise,1200 AFSK,-,ref,stage3 -P A -F 1,77,77,PASS,decoded=77 identical to ref
+noise,1200 AFSK,-,ref,ref -P A -F 1,77,77,PASS,decoded=77
+noise,1200 AFSK,-,ref,stage3 -S1 -P A -F 1,77,77,PASS,decoded=77 missing_vs_ref=0
+noise,1200 AFSK 96k,-,ref,stage3 -P A+,99,99,EXPECTED-DIFF,"decoded=99 vs ref: gained 0, lost 0 (auto decimation)"
+noise,1200 AFSK 96k,-,ref,ref -P A+,99,99,PASS,decoded=99
+noise,1200 AFSK 96k,-,ref,stage3 -S1 -P A+,100,100,PASS,decoded=100 missing_vs_stage3=0
+noise,1200 AFSK 96k,-,ref,stage3 -P A,96,96,EXPECTED-DIFF,"decoded=96 vs ref: gained 0, lost 0 (auto decimation)"
+noise,1200 AFSK 96k,-,ref,ref -P A,96,96,PASS,decoded=96
+noise,1200 AFSK 96k,-,ref,stage3 -S1 -P A,99,99,PASS,decoded=99 missing_vs_stage3=0
+noise,1200 AFSK 22k,-,ref,stage3 -P A+,51,51,PASS,decoded=51 identical to ref
+noise,1200 AFSK 22k,-,ref,ref -P A+,51,51,PASS,decoded=51
+noise,1200 AFSK 22k,-,ref,stage3 -S1 -P A+,55,55,PASS,decoded=55 missing_vs_ref=0
+noise,1200 AFSK 22k,-,ref,stage3 -P A,50,50,PASS,decoded=50 identical to ref
+noise,1200 AFSK 22k,-,ref,ref -P A,50,50,PASS,decoded=50
+noise,1200 AFSK 22k,-,ref,stage3 -S1 -P A,56,56,PASS,decoded=56 missing_vs_ref=0
+noise,2400 QPSK V.26A,-,ref,stage3 -B 2400 -j,81,81,PASS,decoded=81 identical to ref
+noise,2400 QPSK V.26A,-,ref,ref -B 2400 -j,81,81,PASS,decoded=81
+noise,2400 QPSK V.26A,-,ref,stage3 -S1 -B 2400 -j,84,84,PASS,decoded=84 missing_vs_ref=0
+noise,2400 QPSK V.26B,-,ref,stage3 -B 2400 -J,81,81,PASS,decoded=81 identical to ref
+noise,2400 QPSK V.26B,-,ref,ref -B 2400 -J,81,81,PASS,decoded=81
+noise,2400 QPSK V.26B,-,ref,stage3 -S1 -B 2400 -J,85,85,PASS,decoded=85 missing_vs_ref=0
+noise,4800 8PSK,-,ref,stage3 -B 4800,69,69,PASS,decoded=69 identical to ref
+noise,4800 8PSK,-,ref,ref -B 4800,69,69,PASS,decoded=69
+noise,4800 8PSK,-,ref,stage3 -S1 -B 4800,70,70,PASS,decoded=70 missing_vs_ref=0
+noise,9600 G3RUH,-,ref,stage3 -B 9600,62,62,PASS,decoded=62 identical to ref
+noise,9600 G3RUH,-,ref,ref -B 9600,62,62,PASS,decoded=62
+noise,9600 G3RUH,-,ref,stage3 -S1 -B 9600,63,63,PASS,decoded=63 missing_vs_ref=0
+noise,9600 G3RUH,-,ref,stage3 -B 9600 -P +,62,62,PASS,decoded=62 identical to ref
+noise,9600 G3RUH,-,ref,ref -B 9600 -P +,62,62,PASS,decoded=62
+noise,9600 G3RUH,-,ref,stage3 -S1 -B 9600 -P +,63,63,PASS,decoded=63 missing_vs_ref=0
+noise,19200 G3RUH,-,ref,stage3 -B 19200,66,66,PASS,decoded=66 identical to ref
+noise,19200 G3RUH,-,ref,ref -B 19200,66,66,PASS,decoded=66
+noise,19200 G3RUH,-,ref,stage3 -S1 -B 19200,66,66,PASS,decoded=66 missing_vs_ref=0
+noise,1200 FX.25,-,ref,stage3 ,77,77,PASS,decoded=77 identical to ref
+noise,1200 FX.25,-,ref,ref ,77,77,PASS,decoded=77
+noise,1200 FX.25,-,ref,stage3 -S1 ,79,79,PASS,decoded=79 missing_vs_ref=0
+noise,9600 FX.25,-,ref,stage3 -B 9600,66,66,PASS,decoded=66 identical to ref
+noise,9600 FX.25,-,ref,ref -B 9600,66,66,PASS,decoded=66
+noise,9600 FX.25,-,ref,stage3 -S1 -B 9600,66,66,PASS,decoded=66 missing_vs_ref=0
+noise,1200 IL2P,-,ref,stage3 ,88,88,PASS,decoded=88 identical to ref
+noise,1200 IL2P,-,ref,ref ,88,88,PASS,decoded=88
+noise,1200 IL2P,-,ref,stage3 -S1 ,88,88,PASS,decoded=88 missing_vs_ref=0
+noise,9600 IL2P,-,ref,stage3 -B 9600,74,74,PASS,decoded=74 identical to ref
+noise,9600 IL2P,-,ref,ref -B 9600,74,74,PASS,decoded=74
+noise,9600 IL2P,-,ref,stage3 -S1 -B 9600,74,74,PASS,decoded=74 missing_vs_ref=0

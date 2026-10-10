@@ -1,0 +1,4 @@
+@CUSTOM_SHELL_SHABANG@
+
+@GEN_PACKETS_BIN@ -W H150 -r 48000 -o test-wapr-h150.wav @WAPR_CHECK_MSGS@
+@ATEST_BIN@ -W H150 -L8 -G8 test-wapr-h150.wav

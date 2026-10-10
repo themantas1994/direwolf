@@ -1,0 +1,4 @@
+@CUSTOM_SHELL_SHABANG@
+
+@GEN_PACKETS_BIN@ -W F600 -r 44100 -o test-wapr-f600.wav @WAPR_CHECK_MSGS@
+@ATEST_BIN@ -W F600 -L8 -G8 test-wapr-f600.wav

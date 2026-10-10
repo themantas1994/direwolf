@@ -679,6 +679,11 @@ void gen_tone_put_sample (int chan, int a, int sam) {
 	}
 }
 
+int gen_tone_amplitude (void)
+{
+	return (amp16bit);
+}
+
 void gen_tone_put_quiet_ms (int chan, int time_ms) {
 
 	int a = ACHAN2ADEV(chan);	/* device for channel. */

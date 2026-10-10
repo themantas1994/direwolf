@@ -1,0 +1,8 @@
+H150_ldpc awgn SNR -6.75 dB, 200 frames: Python 77, C 151 (C wrong 0); only Python 1, only C 75
+H150_ldpc awgn SNR -6.25 dB, 200 frames: Python 173, C 198 (C wrong 0); only Python 0, only C 25
+H150_ldpc itu_mod SNR -2.00 dB, 200 frames: Python 149, C 154 (C wrong 0); only Python 0, only C 5
+H150_ldpc itu_mod SNR 0.00 dB, 200 frames: Python 184, C 188 (C wrong 0); only Python 0, only C 4
+F600_ldpc awgn SNR -0.50 dB, 200 frames: Python 117, C 163 (C wrong 0); only Python 4, only C 50
+F600_ldpc awgn SNR -0.16 dB, 200 frames: Python 177, C 189 (C wrong 0); only Python 2, only C 14
+R25_ldpc awgn SNR -13.60 dB, 100 frames: Python 76, C 87 (C wrong 0); only Python 1, only C 12
+R25_ldpc awgn SNR -13.35 dB, 100 frames: Python 93, C 95 (C wrong 0); only Python 1, only C 3

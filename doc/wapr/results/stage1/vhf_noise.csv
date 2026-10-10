@@ -1,0 +1,4 @@
+system,noise_seconds,sync_candidates,false_decodes,seed,config_sha
+F600_ldpc,600.0,1197,0,20261010,e65cc3659983
+F600_ldpc_r23,600.0,1199,0,20261010,e65cc3659983
+F600_conv,600.9,1183,0,20261010,e65cc3659983

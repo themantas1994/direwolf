@@ -49,6 +49,7 @@
 #include "hdlc_send.h"
 #include "fx25.h"
 #include "il2p.h"
+#include "wapr_tx.h"
 #include "fcs_calc.h"
 #include "gen_tone.h"
 
@@ -89,6 +90,20 @@ int il2p_send_frame (int chan, packet_t pp, int max_fec, int polarity)
 {
 	(void)chan; (void)pp; (void)max_fec; (void)polarity;
 	return (-1);
+}
+
+/* Not used here either: no WAPR channel in this test. */
+
+int wapr_send_frame (int chan, packet_t pp, struct audio_s *pa)
+{
+	(void)chan; (void)pp; (void)pa;
+	return (-1);
+}
+
+int wapr_send_silence (int chan, int nsym, struct audio_s *pa)
+{
+	(void)chan; (void)pa;
+	return (nsym);
 }
 
 

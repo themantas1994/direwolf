@@ -1,0 +1,15 @@
+EXPERIMENTAL WAPR gateway: channel 1 (WAPR) to channel 0 (AX.25), types 0xff.
+EXPERIMENTAL WAPR gateway: channel 0 (AX.25) to channel 1 (WAPR), types 0x87.
+EXPERIMENTAL WAPR gateway: channel 1 (WAPR) to APRS-IS (IGate), types 0xff.
+[WAPR gate 0>channel 1] not gated, came from WAPR: K1CCC
+[WAPR gate 0>channel 1] not gated, our call is in the path: K1DDD
+[WAPR gate 0>channel 1] not gated, from APRS-IS (third party format or TCPIP): K1EEE
+[WAPR gate 0>channel 1] not gated, information part longer than 32 bytes: K1FFF
+[WAPR gate 0>channel 1] not gated, duplicate: K1AAA
+[WAPR gate 0>channel 1] not gated, our own transmission: GW0
+[WAPR gate 1>channel 0] not gated, relayed by a gateway already: W1BBB
+[WAPR gate 1>APRS-IS] not gated, relayed by a gateway already: W1BBB
+[WAPR gate 0>channel 1] not gated, came from WAPR: W1AAA
+[WAPR gate 0>channel 1] not gated, came from WAPR: W1CCC
+[WAPR gate 1>channel 0] not gated, relayed by a gateway already: K1AAA
+[WAPR gate 1>APRS-IS] not gated, relayed by a gateway already: K1AAA

@@ -230,6 +230,16 @@ struct misc_config_s {
 
 	} beacon[MAX_BEACONS];
 
+/* Experimental WAPR gateway rules (WAPRGATE, see doc/wapr).  None by default. */
+
+#define MAX_WAPR_GATES 16
+	int num_wapr_gates;
+	struct wapr_gate_s {
+	  int from;		/* radio channel */
+	  int to;		/* radio channel, or -1 for APRS-IS */
+	  unsigned int types;	/* WAPR_GT_* bits, wapr_gate.h */
+	} wapr_gate[MAX_WAPR_GATES];
+
 };
 
 

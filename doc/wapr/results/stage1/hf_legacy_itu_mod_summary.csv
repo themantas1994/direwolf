@@ -1,0 +1,5 @@
+system,condition,target,snr_db,snr_interp,note,snr_lo,snr_hi,ebn0_db,airtime_s,false_accepts,frames,seed,config_sha
+afsk300,itu_mod,0.5,14.14,9.64,,13.44,14.82,25.81,1.5048,0,4800,20261010,e65cc3659983
+afsk300,itu_mod,0.9,nan,,not reached by 30 dB,nan,nan,,1.5048,0,4800,20261010,e65cc3659983
+afsk300_il2p,itu_mod,0.5,9.12,7.15,,8.32,9.84,21.79,1.8966,1,4800,20261010,e65cc3659983
+afsk300_il2p,itu_mod,0.9,nan,,not reached by 30 dB,nan,nan,,1.8966,1,4800,20261010,e65cc3659983

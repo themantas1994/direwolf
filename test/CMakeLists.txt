@@ -7,6 +7,7 @@ set(ATEST_BIN "${CMAKE_BINARY_DIR}/src/atest${CMAKE_EXECUTABLE_SUFFIX}")
 set(FXSEND_BIN "${CMAKE_BINARY_DIR}/test/fxsend${CMAKE_EXECUTABLE_SUFFIX}")
 set(FXREC_BIN "${CMAKE_BINARY_DIR}/test/fxrec${CMAKE_EXECUTABLE_SUFFIX}")
 set(IL2P_TEST_BIN "${CMAKE_BINARY_DIR}/test/il2p_test${CMAKE_EXECUTABLE_SUFFIX}")
+set(WAPR_CHECK_MSGS "${CUSTOM_SRC_DIR}/../test/wapr/golden/wapr_check_msgs.txt")
 
 if(WIN32)
   set(CUSTOM_SCRIPT_SUFFIX ".bat")
@@ -27,6 +28,8 @@ set(TEST_CHECK-MODEM2400-b_FILE "check-modem2400-b")
 set(TEST_CHECK-MODEM2400-g_FILE "check-modem2400-g")
 set(TEST_CHECK-MODEM4800_FILE "check-modem4800")
 set(TEST_CHECK-MODEMEAS_FILE "check-modemeas")
+set(TEST_CHECK-WAPR-H150_FILE "check-wapr-h150")
+set(TEST_CHECK-WAPR-F600_FILE "check-wapr-f600")
 
 # generate the scripts that run the tests
 
@@ -45,6 +48,18 @@ configure_file(
 configure_file(
   "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-MODEM1200_FILE}"
   "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM1200_FILE}${CUSTOM_SCRIPT_SUFFIX}"
+  @ONLY
+  )
+
+configure_file(
+  "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-WAPR-H150_FILE}"
+  "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-H150_FILE}${CUSTOM_SCRIPT_SUFFIX}"
+  @ONLY
+  )
+
+configure_file(
+  "${CUSTOM_TEST_SCRIPTS_DIR}/${TEST_CHECK-WAPR-F600_FILE}"
+  "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-F600_FILE}${CUSTOM_SCRIPT_SUFFIX}"
   @ONLY
   )
 
@@ -476,6 +491,26 @@ target_link_libraries(ax25goldentest
   )
 
 
+# Experimental WAPR codec and modem (doc/wapr/), against the Python reference.
+list(APPEND waprtest_SOURCES
+  ${CUSTOM_SRC_DIR}/wapr_test.c
+  ${CUSTOM_SRC_DIR}/wapr_codec.c
+  ${CUSTOM_SRC_DIR}/wapr_link.c
+  ${CUSTOM_SRC_DIR}/wapr_modem.c
+  ${CUSTOM_SRC_DIR}/ax25_pad.c
+  ${CUSTOM_SRC_DIR}/fcs_calc.c
+  ${CUSTOM_SRC_DIR}/textcolor.c
+  )
+
+add_executable(waprtest
+  ${waprtest_SOURCES}
+  )
+
+target_link_libraries(waprtest
+  ${MISC_LIBRARIES}
+  )
+
+
 # Unit Test for DTMF encode/decode.
 list(APPEND dtmftest_SOURCES
   ${CUSTOM_SRC_DIR}/dtmf.c
@@ -575,6 +610,7 @@ add_test(aistest aistest)
 add_test(l2sendtest l2sendtest)
 add_test(NAME ax25goldentest COMMAND ax25goldentest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../test/compat/golden)
 add_test(NAME deviceidtest COMMAND deviceidtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../data)
+add_test(NAME waprtest COMMAND waprtest WORKING_DIRECTORY ${CUSTOM_SRC_DIR}/../test/wapr/golden)
 
 add_test(check-fx25 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-FX25_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-il2p "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-IL2P_FILE}${CUSTOM_SCRIPT_SUFFIX}")
@@ -589,6 +625,8 @@ add_test(check-modem2400-b "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM2400-b_F
 add_test(check-modem2400-g "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM2400-g_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-modem4800 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEM4800_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 add_test(check-modemeas "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-MODEMEAS_FILE}${CUSTOM_SCRIPT_SUFFIX}")
+add_test(check-wapr-h150 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-H150_FILE}${CUSTOM_SCRIPT_SUFFIX}")
+add_test(check-wapr-f600 "${CUSTOM_TEST_BINARY_DIR}/${TEST_CHECK-WAPR-F600_FILE}${CUSTOM_SCRIPT_SUFFIX}")
 
 
 
@@ -669,6 +707,10 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/tt_text.c
     ${CUSTOM_SRC_DIR}/symbols.c
     ${CUSTOM_SRC_DIR}/textcolor.c
+    ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_link.c
+    ${CUSTOM_SRC_DIR}/wapr_modem.c
+    ${CUSTOM_SRC_DIR}/wapr_rx.c
     )
 
   if(WIN32 OR CYGWIN)
@@ -727,6 +769,11 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/audio_stats.c
     ${CUSTOM_SRC_DIR}/dtime_now.c
     ${CUSTOM_SRC_DIR}/dlq.c
+    ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_link.c
+    ${CUSTOM_SRC_DIR}/wapr_modem.c
+    ${CUSTOM_SRC_DIR}/wapr_rx.c
+    ${CUSTOM_SRC_DIR}/wapr_tx.c
     )
 
   if(LINUX)

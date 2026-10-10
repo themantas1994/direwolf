@@ -46,6 +46,7 @@
 
 #include "audio.h"
 #include "demod.h"
+#include "wapr_rx.h"
 #include "tune.h"
 #include "fsk_demod_state.h"
 #include "fsk_gen_filter.h"
@@ -128,6 +129,15 @@ int demod_init (struct audio_s *pa)
 	  switch (save_audio_config_p->achan[chan].modem_type) {
 
 	    case MODEM_OFF:
+	      break;
+
+	    case MODEM_WAPR:		/* Experimental.  Samples go to wapr_rx.c; only the level meter is used here. */
+	      {
+	        struct demodulator_state_s *D = &demodulator_state[chan][0];
+	        memset (D, 0, sizeof(struct demodulator_state_s));
+	        D->quick_attack = 0.080 * 0.2;
+	        D->sluggish_decay = 0.00012 * 0.2;
+	      }
 	      break;
 
 	    case MODEM_AFSK:
@@ -1048,6 +1058,13 @@ void demod_process_sample (int chan, int subchan, int sam)
 	    // Don't waste CPU time running a demodulator here.
 	    break;
 
+	  case MODEM_WAPR:
+
+	    // Experimental.  Only buffered here; decoding happens in another
+	    // thread (wapr_rx.c), never in the audio thread.
+	    wapr_rx_sample (chan, sam);
+	    break;
+
 	  case MODEM_AFSK:
 	  case MODEM_EAS:
 
@@ -1135,7 +1152,8 @@ alevel_t demod_get_audio_level (int chan, int subchan)
 	  alevel.space = (int) ((D->alevel_space_peak ) * 100.0f + 0.5f);
 	}
 	else if (save_audio_config_p->achan[chan].modem_type == MODEM_QPSK ||
-	         save_audio_config_p->achan[chan].modem_type == MODEM_8PSK) {
+	         save_audio_config_p->achan[chan].modem_type == MODEM_8PSK ||
+	         save_audio_config_p->achan[chan].modem_type == MODEM_WAPR) {
 	  alevel.mark = -1;
 	  alevel.space = -1;
 	}

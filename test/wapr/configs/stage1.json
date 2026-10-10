@@ -1,0 +1,31 @@
+{
+  "comment": "WAPR stage 1 candidate systems.  Frozen per benchmark run: results record this file's SHA-256 prefix.",
+  "payload_bytes": 32,
+  "wapr_base": {
+    "fs": 12000,
+    "h": 1.0,
+    "header_bytes": 12,
+    "payload_bytes": 32,
+    "crc_bits": 24,
+    "interleave_seed": 7,
+    "ramp_symbols": 0.25,
+    "sync": {"blocks": 6},
+    "fec": {"type": "ldpc", "rate": 0.5, "dv": 3, "seed": 1, "max_iter": 50},
+    "rx": {"time_steps": 4, "freq_oversample": 2, "fine_steps": 8, "freq_search_hz": 50,
+           "candidates": 4, "sync_min": 1.5, "amp_window": 8, "refine_data": true, "stop_on_first": true}
+  },
+  "systems": {
+    "F600_ldpc": {"kind": "wapr", "profile": {"M": 4, "baud": 600, "bt": 1.0, "f_center": 1800}},
+    "F600_ldpc_r23": {"kind": "wapr", "profile": {"M": 4, "baud": 600, "bt": 1.0, "f_center": 1800, "fec": {"rate": 0.6667}}},
+    "F600_conv": {"kind": "wapr", "profile": {"M": 4, "baud": 600, "bt": 1.0, "f_center": 1800, "fec": {"type": "conv"}}},
+    "H150_ldpc": {"kind": "wapr", "profile": {"M": 4, "baud": 150, "bt": 1.0, "f_center": 1500}},
+    "H150_conv": {"kind": "wapr", "profile": {"M": 4, "baud": 150, "bt": 1.0, "f_center": 1500, "fec": {"type": "conv"}}},
+    "R25_ldpc":  {"kind": "wapr", "profile": {"M": 8, "baud": 25, "bt": 2.0, "f_center": 1500}},
+    "R25_conv":  {"kind": "wapr", "profile": {"M": 8, "baud": 25, "bt": 2.0, "f_center": 1500, "fec": {"type": "conv"}}},
+    "afsk1200":      {"kind": "legacy", "gen": ["-B", "1200"], "rx": ["-B", "1200", "-F0"], "rate": 44100, "rb": 1200},
+    "afsk1200_fx25": {"kind": "legacy", "gen": ["-B", "1200", "-X", "1"], "rx": ["-B", "1200", "-F0"], "rate": 44100, "rb": 1200},
+    "afsk1200_il2p": {"kind": "legacy", "gen": ["-B", "1200", "-I", "1"], "rx": ["-B", "1200", "-F0"], "rate": 44100, "rb": 1200},
+    "afsk300":       {"kind": "legacy", "gen": ["-B", "300"], "rx": ["-B", "300", "-F0"], "rate": 44100, "rb": 300},
+    "afsk300_il2p":  {"kind": "legacy", "gen": ["-B", "300", "-I", "1"], "rx": ["-B", "300", "-F0"], "rate": 44100, "rb": 300}
+  }
+}
