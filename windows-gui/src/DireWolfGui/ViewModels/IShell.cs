@@ -1,5 +1,6 @@
 using DireWolfGui.Core.Config;
 using DireWolfGui.Core.Settings;
+using DireWolfGui.Core.Station;
 
 namespace DireWolfGui.ViewModels;
 
@@ -14,6 +15,13 @@ public sealed record ConnectionCheck(bool Success, string Summary, string? Detai
 public interface IShell
 {
     AppSettings Settings { get; }
+
+    /// <summary>
+    /// The station: Dire Wolf process, log, packets, stations, APRS messages, AGW monitor.
+    /// One instance for the application's lifetime; started and stopped through this shell.
+    /// Its events fire on background threads: pages poll its buffers in Tick() instead.
+    /// </summary>
+    StationSession Session { get; }
     void SaveSettings();
 
     /// <summary>Configuration file currently selected for Dire Wolf (Settings.ConfigPath).</summary>
