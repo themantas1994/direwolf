@@ -16,10 +16,6 @@ namespace DireWolfGui.Core.Tests.Config;
 /// </summary>
 public class DirectiveCatalogTests
 {
-    /// <summary>Directives added to Dire Wolf after the config.c this branch is based on.
-    /// Tolerated only while absent from config.c (to be removed after merging).</summary>
-    private static readonly HashSet<string> AddedAfterThisSource = ["TCPBIND"];
-
     private static (HashSet<string> Exact, HashSet<string> Prefixes) ParserKeywords()
     {
         var lines = File.ReadAllLines(Path.Combine(TestEnv.RepoRoot, "src", "config.c"));
@@ -69,7 +65,6 @@ public class DirectiveCatalogTests
         var (exact, prefixes) = ParserKeywords();
         var extra = DirectiveCatalog.AllKeywords
             .Where(k => !exact.Contains(k) && !prefixes.Any(p => k.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
-            .Where(k => !(AddedAfterThisSource.Contains(k) && !exact.Contains(k)))
             .ToList();
         Assert.True(extra.Count == 0, "In DirectiveCatalog but not accepted by src/config.c: " + string.Join(", ", extra));
     }

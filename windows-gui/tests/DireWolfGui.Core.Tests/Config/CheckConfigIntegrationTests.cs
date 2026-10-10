@@ -37,7 +37,7 @@ public class CheckConfigIntegrationTests
         Assert.Equal(8000, s.AgwPort);
         Assert.Equal(new CheckIGate("noam.aprs2.net", 14580, "N0CALL", -1), s.IGate);
         Assert.Equal(new CheckWaprGate(1, 0, 0x5), s.WaprGates.Single());
-        Assert.Equal(16, s.Beacons.Single().Line);
+        Assert.Equal(18, s.Beacons.Single().Line);
         Assert.DoesNotContain("12345", r.RawOutput);
         Assert.Contains("EXPERIMENTAL WAPR", r.Notes.Single());
     }
@@ -131,8 +131,7 @@ public class CheckConfigIntegrationTests
         doc.SetDirective("KISSPORT", "8010");
         doc.DisableDirective("AGWPORT");
         var r = await Check(doc);
-        AssertClean(r); // TXDELAY 40 is counted by Dire Wolf 1.8.2 without a message
-        Assert.Contains(r.Diagnostics, d => d.Code == "direwolf-count");
+        AssertZero(r); // a valid TXDELAY is not a diagnostic (fixed in this fork's --check-config count)
         Assert.Equal("R25", r.Summary!.Channel(1)!.WaprProfile);
         Assert.Equal("K1ABC-9", r.Summary.Channel(1)!.MyCall);
         Assert.Equal(new CheckWaprGate(1, 0, 0x5), r.Summary.WaprGates.Single());
@@ -157,7 +156,7 @@ public class CheckConfigIntegrationTests
     {
         var r = await ConfigChecker.CheckFileAsync(TestEnv.DireWolfExe, Path.Combine(TestEnv.RepoRoot, "test", "check-config", "bad.conf"));
         Assert.Equal(CheckConfigStatus.Diagnostics, r.Status);
-        Assert.Equal([4, 5], r.Diagnostics.Select(d => d.Line!.Value));
+        Assert.Equal([4, 5, 6], r.Diagnostics.Select(d => d.Line!.Value));
     }
 }
 

@@ -25,9 +25,15 @@ public sealed partial class ConfigBackupManager(string backupDirectory, int keep
         if (!File.Exists(configPath)) return null;
         Directory.CreateDirectory(BackupDirectory);
         string name = Path.GetFileName(configPath);
-        string ts = DateTime.UtcNow.ToString(Stamp, CultureInfo.InvariantCulture);
-        string dest = Path.Combine(BackupDirectory, $"{name}.{ts}.bak");
-        for (int n = 1; File.Exists(dest); n++) dest = Path.Combine(BackupDirectory, $"{name}.{ts}-{n}.bak");
+        // Names must sort in creation order: when a backup with this millisecond exists
+        // (or a newer one, after a clock change), move past the newest existing stamp.
+        var now = DateTime.UtcNow;
+        var when = new DateTime(now.Ticks - now.Ticks % TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
+        var newest = List(name).FirstOrDefault()?.TimestampUtc;
+        if (newest is DateTime n && n >= when) when = n.AddMilliseconds(1);
+        string Dest() => Path.Combine(BackupDirectory, $"{name}.{when.ToString(Stamp, CultureInfo.InvariantCulture)}.bak");
+        while (File.Exists(Dest())) when = when.AddMilliseconds(1);
+        string dest = Dest();
         File.Copy(configPath, dest);
         Prune(name, Keep);
         return dest;
