@@ -31,8 +31,9 @@
 #define WAPR_BROADCAST_TOCALL	"APZWAP"	/* experimental tocall used as AX.25 destination */
 #define WAPR_RELAY_MARK		"WAPRGW"	/* path of a frame relayed by a gateway (type 2) */
 
-enum wapr_type_e { WAPR_TYPE_RAW = 0, WAPR_TYPE_APRS = 1, WAPR_TYPE_APRS_RELAYED = 2 };
+enum wapr_type_e { WAPR_TYPE_RAW = 0, WAPR_TYPE_APRS = 1, WAPR_TYPE_APRS_RELAYED = 2, WAPR_TYPE_LINK_ACK = 3 };
 				/* RELAYED: put on WAPR by a gateway; never gated again. */
+				/* LINK_ACK: "source received dest's frame seq"; no payload, never delivered. */
 
 typedef struct wapr_frame_s {
 	int type;			/* enum wapr_type_e */

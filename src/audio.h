@@ -196,6 +196,7 @@ struct audio_s {
 					/* an explicit "MODEM WAPR profile".  See doc/wapr. */
 
 	    char wapr_profile[8];	/* WAPR profile name (F600, H150, R25) when modem_type is MODEM_WAPR. */
+	    float wapr_duty;		/* WAPR airtime limit, fraction of time; 0 = none. */
 
 	    enum layer2_t { LAYER2_AX25 = 0, LAYER2_FX25, LAYER2_IL2P } layer2_xmit;	// Must keep in sync with layer2_tx, below.
 

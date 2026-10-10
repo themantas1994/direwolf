@@ -1444,7 +1444,7 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  *	MODEM  speed [ option ] ...
  *
  * Experimental (doc/wapr):
- *	MODEM  WAPR  profile		- F600, H150 or R25.  Whole channel is WAPR.
+ *	MODEM  WAPR  profile [AIRTIME=percent]	- F600, H150 or R25.  Whole channel is WAPR.
  *
  * Options:
  *	mark:space	- AFSK tones.  Defaults based on speed.
@@ -1487,9 +1487,15 @@ void config_init (char *fname, struct audio_s *p_audio_config,
 	      p_audio_config->achan[channel].mark_freq = 0;
 	      p_audio_config->achan[channel].space_freq = 0;
 	      strlcpy (p_audio_config->achan[channel].wapr_profile, wp->name, sizeof(p_audio_config->achan[channel].wapr_profile));
-	      if (split(NULL,0) != NULL) {
-	        text_color_set(DW_COLOR_ERROR);
-	        dw_printf ("Line %d: Options after MODEM WAPR %s are ignored.\n", line, wp->name);
+	      p_audio_config->achan[channel].wapr_duty = 0;
+	      while ((t = split(NULL,0)) != NULL) {
+	        if (strncasecmp(t, "AIRTIME=", 8) == 0 && atof(t + 8) > 0 && atof(t + 8) <= 100) {
+	          p_audio_config->achan[channel].wapr_duty = atof(t + 8) / 100.0;	/* percent of time */
+	        }
+	        else {
+	          text_color_set(DW_COLOR_ERROR);
+	          dw_printf ("Line %d: Option \"%s\" after MODEM WAPR %s ignored.  Only AIRTIME=percent.\n", line, t, wp->name);
+	        }
 	      }
 	      text_color_set(DW_COLOR_INFO);
 	      dw_printf ("Channel %d: EXPERIMENTAL WAPR modem, profile %s.  Not compatible with AX.25 / APRS radios.\n",

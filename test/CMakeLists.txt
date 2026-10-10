@@ -495,7 +495,10 @@ target_link_libraries(ax25goldentest
 list(APPEND waprtest_SOURCES
   ${CUSTOM_SRC_DIR}/wapr_test.c
   ${CUSTOM_SRC_DIR}/wapr_codec.c
+  ${CUSTOM_SRC_DIR}/wapr_link.c
   ${CUSTOM_SRC_DIR}/wapr_modem.c
+  ${CUSTOM_SRC_DIR}/ax25_pad.c
+  ${CUSTOM_SRC_DIR}/fcs_calc.c
   ${CUSTOM_SRC_DIR}/textcolor.c
   )
 
@@ -705,6 +708,7 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/symbols.c
     ${CUSTOM_SRC_DIR}/textcolor.c
     ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_link.c
     ${CUSTOM_SRC_DIR}/wapr_modem.c
     ${CUSTOM_SRC_DIR}/wapr_rx.c
     )
@@ -766,6 +770,7 @@ if(OPTIONAL_TEST)
     ${CUSTOM_SRC_DIR}/dtime_now.c
     ${CUSTOM_SRC_DIR}/dlq.c
     ${CUSTOM_SRC_DIR}/wapr_codec.c
+    ${CUSTOM_SRC_DIR}/wapr_link.c
     ${CUSTOM_SRC_DIR}/wapr_modem.c
     ${CUSTOM_SRC_DIR}/wapr_rx.c
     ${CUSTOM_SRC_DIR}/wapr_tx.c

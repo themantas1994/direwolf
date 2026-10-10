@@ -1,0 +1,117 @@
+PASS  rx-agw=kiss    1200 A+ default stage4b                      agw 75 kiss 75
+PASS  rx-kiss/agw    1200 A+ default: stage4b vs ref              kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    1200 E+ (A+ alias) stage4b                   agw 75 kiss 75
+PASS  rx-kiss/agw    1200 E+ (A+ alias): stage4b vs ref           kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    1200 B stage4b                               agw 71 kiss 71
+PASS  rx-kiss/agw    1200 B: stage4b vs ref                       kiss 71/71 agw 71/71 repaired 0
+PASS  rx-agw=kiss    1200 at 48k stage4b                          agw 75 kiss 75
+PASS  rx-kiss/agw    1200 at 48k: stage4b vs ref                  kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    300 stage4b                                  agw 72 kiss 72
+PASS  rx-kiss/agw    300: stage4b vs ref                          kiss 72/72 agw 72/72 repaired 0
+PASS  rx-agw=kiss    2400 V26B (default) stage4b                  agw 81 kiss 81
+PASS  rx-kiss/agw    2400 V26B (default): stage4b vs ref          kiss 81/81 agw 81/81 repaired 0
+PASS  rx-agw=kiss    2400 V26A stage4b                            agw 81 kiss 81
+PASS  rx-kiss/agw    2400 V26A: stage4b vs ref                    kiss 81/81 agw 81/81 repaired 0
+PASS  rx-agw=kiss    4800 stage4b                                 agw 69 kiss 69
+PASS  rx-kiss/agw    4800: stage4b vs ref                         kiss 69/69 agw 69/69 repaired 0
+PASS  rx-agw=kiss    9600 stage4b                                 agw 67 kiss 67
+PASS  rx-kiss/agw    9600: stage4b vs ref                         kiss 67/67 agw 67/67 repaired 0
+PASS  rx-agw=kiss    1200 FX.25 stage4b                           agw 86 kiss 86
+PASS  rx-kiss/agw    1200 FX.25: stage4b vs ref                   kiss 86/86 agw 86/86 repaired 0
+PASS  rx-agw=kiss    9600 IL2P stage4b                            agw 78 kiss 78
+PASS  rx-kiss/agw    9600 IL2P: stage4b vs ref                    kiss 78/78 agw 78/78 repaired 0
+PASS  rx-softfix     SOFT_FIX 1, stage4b vs ref                   kiss 79 vs 75, extra 4, marked repaired 4, missing 0
+PASS  rx-softfix     SOFT_FIX 2, stage4b vs ref                   kiss 83 vs 75, extra 8, marked repaired 8, missing 0
+PASS  tx-kiss        1200: stage4b tx -> stage4b rx               127/127 frames
+PASS  tx-kiss        1200: stage4b tx -> ref rx                   127/127 frames
+PASS  tx-kiss        1200: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-kiss        1200: ref tx -> ref rx                       127/127 frames
+PASS  tx-audio-md5   1200                                         identical transmit audio
+PASS  tx-kiss        300: stage4b tx -> stage4b rx                127/127 frames
+PASS  tx-kiss        300: stage4b tx -> ref rx                    127/127 frames
+PASS  tx-kiss        300: ref tx -> stage4b rx                    127/127 frames
+PASS  tx-kiss        300: ref tx -> ref rx                        127/127 frames
+PASS  tx-audio-md5   300                                          identical transmit audio
+PASS  tx-kiss        2400: stage4b tx -> stage4b rx               127/127 frames
+PASS  tx-kiss        2400: stage4b tx -> ref rx                   127/127 frames
+PASS  tx-kiss        2400: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-kiss        2400: ref tx -> ref rx                       127/127 frames
+PASS  tx-audio-md5   2400                                         identical transmit audio
+PASS  tx-kiss        2400 V26A: stage4b tx -> stage4b rx          127/127 frames
+PASS  tx-kiss        2400 V26A: stage4b tx -> ref rx              127/127 frames
+PASS  tx-kiss        2400 V26A: ref tx -> stage4b rx              127/127 frames
+PASS  tx-kiss        2400 V26A: ref tx -> ref rx                  127/127 frames
+PASS  tx-audio-md5   2400 V26A                                    identical transmit audio
+PASS  tx-kiss        4800: stage4b tx -> stage4b rx               127/127 frames
+PASS  tx-kiss        4800: stage4b tx -> ref rx                   127/127 frames
+PASS  tx-kiss        4800: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-kiss        4800: ref tx -> ref rx                       127/127 frames
+PASS  tx-audio-md5   4800                                         identical transmit audio
+PASS  tx-kiss        9600: stage4b tx -> stage4b rx               127/127 frames
+PASS  tx-kiss        9600: stage4b tx -> ref rx                   127/127 frames
+PASS  tx-kiss        9600: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-kiss        9600: ref tx -> ref rx                       127/127 frames
+PASS  tx-audio-md5   9600                                         identical transmit audio
+PASS  tx-kiss        1200 FX.25: stage4b tx -> stage4b rx         127/127 frames
+PASS  tx-kiss        1200 FX.25: stage4b tx -> ref rx             127/127 frames
+PASS  tx-kiss        1200 FX.25: ref tx -> stage4b rx             127/127 frames
+PASS  tx-kiss        1200 FX.25: ref tx -> ref rx                 127/127 frames
+INFO  tx-audio-md5   1200 FX.25                                   identicalstage4b:dc3862c9 ref:dc3862c9
+PASS  tx-kiss        9600 FX.25: stage4b tx -> stage4b rx         127/127 frames
+PASS  tx-kiss        9600 FX.25: stage4b tx -> ref rx             127/127 frames
+PASS  tx-kiss        9600 FX.25: ref tx -> stage4b rx             127/127 frames
+PASS  tx-kiss        9600 FX.25: ref tx -> ref rx                 127/127 frames
+INFO  tx-audio-md5   9600 FX.25                                   identicalstage4b:0e07d8d0 ref:0e07d8d0
+PASS  tx-kiss        1200 IL2P: stage4b tx -> stage4b rx          127/127 frames
+PASS  tx-kiss        1200 IL2P: stage4b tx -> ref rx              127/127 frames
+PASS  tx-kiss        1200 IL2P: ref tx -> stage4b rx              127/127 frames
+PASS  tx-kiss        1200 IL2P: ref tx -> ref rx                  127/127 frames
+PASS  tx-audio-md5   1200 IL2P                                    identical transmit audio
+PASS  tx-kiss        9600 IL2P: stage4b tx -> stage4b rx          127/127 frames
+PASS  tx-kiss        9600 IL2P: stage4b tx -> ref rx              127/127 frames
+PASS  tx-kiss        9600 IL2P: ref tx -> stage4b rx              127/127 frames
+PASS  tx-kiss        9600 IL2P: ref tx -> ref rx                  127/127 frames
+PASS  tx-audio-md5   9600 IL2P                                    identical transmit audio
+PASS  tx-agw         1200: stage4b tx -> upstream rx              127/127 frames
+PASS  tx-agw         1200: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-pty         1200: stage4b tx -> upstream rx              127/127 frames
+PASS  tx-pty         1200: ref tx -> stage4b rx                   127/127 frames
+PASS  tx-fallback    FX.25 1200, AX.25 fallback after FX.25: stage4b 2/2 frames decoded
+PASS  tx-fallback    FX.25 1200, AX.25 fallback after FX.25: ref  2/2 frames decoded
+PASS  tx-fallback    FX.25 9600, AX.25 fallback after FX.25: stage4b 4/4 frames decoded
+PASS  tx-fallback    FX.25 9600, AX.25 fallback after FX.25: ref  4/4 frames decoded
+PASS  tx-fallback    IL2P 1200, AX.25 fallback: stage4b           2/2 frames decoded
+PASS  tx-fallback    IL2P 1200, AX.25 fallback: ref               2/2 frames decoded
+PASS  digi           stage4b vs ref                               12 / 12 frames digipeated
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide1<0x0a>            
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide2<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide1 wide2<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide3 trapped<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide7 trapped<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>test alias<0x0a>       
+INFO  digi-frame     W1ABC>APRS,DIGI1,N0CALL-1*:>after another digi<0x0a> 
+INFO  digi-frame     W1XYZ>APRS,N0CALL-1*:!4237.14N/07120.83W-position<0x0a> 
+INFO  digi-frame     W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a> 
+INFO  digi-frame     W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a> 
+PASS  beacon         stage4b vs ref                               5 / 5 distinct beacons (tocall version ignored)
+INFO  beacon-frame   N0CALL-1>APDWxx,WIDE1-1:!4237.14NS07120.83W#PHG7140PBEACON test 
+INFO  beacon-frame   N0CALL-1>APDWxx:!/8wPp<K"D>  !/A=003281compressed 
+INFO  beacon-frame   N0CALL-1>APDWxx:>Custom beacon status        
+INFO  beacon-frame   N0CALL-1>APDWxx:!4237.14N/07120.83W#146.955MHz T074 -060 freq 
+INFO  beacon-frame   N0CALL-1>APDWxx:!4237.  N/07120.  W-         
+INFO  igate-login    stage4b                                      user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+INFO  igate-login    ref                                          user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+PASS  igate-rf>is    stage4b vs ref                               41 / 41 lines uploaded
+PASS  igate-is>rf    stage4b vs ref                               1 / 1 frames transmitted
+INFO  igate-line     KJ4SNT>APMI04,qAR,N0CALL-1::KJ4SNT   :PARM.Vin,Rx1h,Dg1h,Eff1h,Rx10m,O 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;LEADER   *092345z4903.50N/07201.75W>088/036 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;LEADER   _092345z4903.50N/07201.75W>088/036 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;MOBIL    *111111z/5L!!<*e7>7P[ 
+INFO  igate-line     HOME>APDW12,WIDE1-1,WIDE2-1,qAR,N0CALL-1:;AWAY     *111111z4237.14N/07 
+INFO  igate-line     W1XYZ>APRS,WIDE1-1,qAR,N0CALL-1:!4237.14N/07120.83W-heard on RF 
+INFO  igate-rf-frame N0CALL-1>APDW18,WIDE1-1:}K1ABC>APRS,TCPIP,N0CALL-1*::W1XYZ    :Message 
+PASS  config         generic.conf: stage4b vs ref                 376 lines
+PASS  config         sdr.conf: stage4b vs ref                     19 lines
+119 rows, 0 failed

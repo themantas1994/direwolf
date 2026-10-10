@@ -56,6 +56,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 
 #if __WIN32__
 #include <windows.h>
@@ -73,6 +74,8 @@
 #include "hdlc_rec.h"
 #include "wapr.h"
 #include "wapr_rx.h"
+#include "wapr_link.h"
+#include "tq.h"
 
 #define HISTORY 16
 #define MAX_RESULTS 8
@@ -98,6 +101,7 @@ struct wapr_chan_s {
 	int nhist;
 	long overruns;
 	wapr_dcd_t dcd;			/* audio thread only */
+	char mycall[AX25_MAX_ADDR_LEN];
 };
 
 static struct wapr_chan_s wc[MAX_RADIO_CHANS];
@@ -112,7 +116,8 @@ void wapr_rx_set_synchronous (int sync)
 packet_t wapr_packet_from_frame (const wapr_frame_t *f)
 {
 	char text[64];
-	snprintf (text, sizeof(text), "%s>%s%s:", f->source, f->dest[0] != '\0' ? f->dest : WAPR_BROADCAST_TOCALL,
+	/* The frame's destination is link level (who must acknowledge), not an APRS tocall. */
+	snprintf (text, sizeof(text), "%s>%s%s:", f->source, WAPR_BROADCAST_TOCALL,
 			f->type == WAPR_TYPE_APRS_RELAYED ? "," WAPR_RELAY_MARK "*" : "");
 	packet_t pp = ax25_from_text (text, 1);
 	if (pp != NULL) {
@@ -140,6 +145,38 @@ static void deliver (struct wapr_chan_s *c, const wapr_rx_result_t *r, long long
 	memcpy (c->hist[k].info, info, WAPR_INFO_BYTES);
 	c->hist[k].start = abs_start;
 	c->nhist++;
+
+	/* Link layer: acknowledgements, retransmitted copies. */
+	wapr_link_t *L = wapr_link_chan (c->chan);
+	if (L != NULL) {
+	  int send_ack = 0;
+	  wapr_frame_t ack;
+	  wapr_link_lock (c->chan);
+	  long acked0 = L->acked;
+	  int what = wapr_link_rx (L, &r->frame, c->mycall, wapr_link_time(), &send_ack, &ack);
+	  long acked = L->acked - acked0;
+	  wapr_link_unlock (c->chan);
+	  text_color_set(DW_COLOR_INFO);
+	  if (acked > 0) {
+	    dw_printf ("WAPR channel %d: %s acknowledged frame %d.\n", c->chan, r->frame.source, r->frame.seq);
+	  }
+	  else if (what == WAPR_LINK_DUPLICATE) {
+	    dw_printf ("WAPR channel %d: copy of frame %d from %s suppressed%s.\n", c->chan, r->frame.seq,
+			r->frame.source, send_ack ? ", acknowledged again" : "");
+	  }
+	  if (send_ack) {
+	    char text[80];
+	    snprintf (text, sizeof(text), "%s>%s,%s:%d %s", ack.source, WAPR_BROADCAST_TOCALL, WAPR_ACK_MARK, ack.seq, ack.dest);
+	    packet_t ap = ax25_from_text (text, 1);
+	    if (ap != NULL) wapr_link_send (c->chan, TQ_PRIO_0_HI, ap);
+	  }
+	  if (what != WAPR_LINK_DELIVER) {
+	    return;		/* acknowledgement, or a copy already delivered */
+	  }
+	}
+	else if (r->frame.type == WAPR_TYPE_LINK_ACK) {
+	  return;
+	}
 
 	packet_t pp = wapr_packet_from_frame (&r->frame);
 	if (pp == NULL) {
@@ -242,6 +279,29 @@ static void * wapr_rx_thread (void *arg)
 	  if (process_ready(c) == 0) {
 	    SLEEP_MS (50);
 	  }
+	  /* Frames whose acknowledgement did not come: queue them again. */
+	  wapr_link_t *L = wapr_link_chan (c->chan);
+	  if (L != NULL) {
+	    wapr_frame_t f;
+	    int more;
+	    do {
+	      wapr_link_lock (c->chan);
+	      long gave0 = L->gave_up;
+	      more = wapr_link_poll (L, wapr_link_time(), &f);
+	      long gave = L->gave_up - gave0;
+	      wapr_link_unlock (c->chan);
+	      if (gave > 0) {
+	        text_color_set(DW_COLOR_ERROR);
+	        dw_printf ("WAPR channel %d: no acknowledgement after all tries, gave up (%ld so far).\n", c->chan, L->gave_up);
+	      }
+	      if (more) {
+	        text_color_set(DW_COLOR_INFO);
+	        dw_printf ("WAPR channel %d: no acknowledgement from %s for frame %d, sending it again.\n", c->chan, f.dest, f.seq);
+	        packet_t pp = wapr_packet_from_frame (&f);
+	        if (pp != NULL) wapr_link_send (c->chan, TQ_PRIO_1_LO, pp);
+	      }
+	    } while (more);
+	  }
 	}
 #if __WIN32__
 	return (0);
@@ -292,6 +352,13 @@ void wapr_rx_init (struct audio_s *pa)
 	  }
 	  c->next_end = c->W;
 	  wapr_dcd_init (&c->dcd, c->p, c->fs);
+	  strlcpy (c->mycall, pa->mycall[chan], sizeof(c->mycall));
+	  {
+	    /* Backoff must differ between stations: seed from the call and the time. */
+	    unsigned int seed = (unsigned int)time(NULL) ^ (unsigned int)(chan * 7919);
+	    for (const char *q = c->mycall; *q; q++) seed = seed * 31 + (unsigned char)*q;
+	    wapr_link_setup (chan, c->p, pa->achan[chan].wapr_duty, seed);
+	  }
 	  c->active = 1;
 
 	  text_color_set(DW_COLOR_INFO);

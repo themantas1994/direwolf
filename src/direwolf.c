@@ -130,6 +130,7 @@
 #include "dns_sd_dw.h"
 #include "dlq.h"		// for fec_type_t definition.
 #include "wapr_gate.h"
+#include "wapr_link.h"
 #include "deviceid.h"
 #include "nettnc.h"
 
@@ -1130,6 +1131,7 @@ int main (int argc, char *argv[])
 	igate_init (&audio_config, &igate_config, &digi_config, d_i_opt);
 	cdigipeater_init (&audio_config, &cdigi_config);
 	wapr_gate_init (&audio_config, &misc_config);	/* experimental; no rules, no effect */
+	wapr_link_set_sender (tq_append);		/* WAPR acknowledgements and retransmissions */
 	pfilter_init (&igate_config, d_f_opt);
 	ax25_link_init (&misc_config, d_c_opt);
 

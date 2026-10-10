@@ -32,6 +32,8 @@
  *		wapr_test -m PROFILE SNR_DB FRAMES RATE [OFFSET_HZ]
  *			measure delivery in AWGN (SNR in 2500 Hz, as in
  *			test/wapr/README.md) and decode time.
+ *		wapr_test -c PROFILE SIR_DB FRAMES RATE [SNR_DB [OVERLAP]]
+ *			two overlapping frames, the second SIR_DB weaker.
  *		wapr_test -r PROFILE RATE FILE
  *			decode buffers written by test/wapr/wapr_crosscheck.py.
  *
@@ -49,6 +51,7 @@
 #include <time.h>
 
 #include "wapr.h"
+#include "wapr_link.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -411,6 +414,112 @@ static void test_noise (void)
 }
 
 
+/*
+ * Link layer: station A sends addressed messages to B over a channel that loses each
+ * frame (either direction) with probability p.  Event driven, deterministic.
+ */
+
+static void test_link (void)
+{
+	const wapr_profile_t *p = wapr_profile_find ("H150");
+	wapr_link_t A, B;
+	const double loss = 0.3;
+	const int M = 400;
+	int delivered_twice = 0, delivered = 0, max_tx = 0;
+	long a_gave_up0;
+
+	wapr_link_init (&A, p, 0, 11);
+	wapr_link_init (&B, p, 0, 22);
+	double t = 1000.0;
+	for (int m = 0; m < M; m++) {
+	  wapr_frame_t f;
+	  memset (&f, 0, sizeof(f));
+	  f.type = WAPR_TYPE_APRS;
+	  strlcpy (f.source, "N0AAA", sizeof(f.source));
+	  strlcpy (f.dest, "N0BBB", sizeof(f.dest));
+	  f.ack = 1;
+	  f.len = snprintf ((char *)f.payload, sizeof(f.payload), ":N0BBB    :msg %d", m);
+	  int got = 0, ntx = 0;
+	  a_gave_up0 = A.gave_up;
+	  wapr_frame_t out = f;
+	  int have = 1;				/* a frame waiting to be sent */
+	  double end = t + 120;
+	  while (t < end) {
+	    if (have) {
+	      have = 0;
+	      if (wapr_link_tx(&A, &out, t) == 0) {
+	        ntx++;
+	        if (uniform() > loss) {		/* B hears it */
+	          int send_ack;
+	          wapr_frame_t ack;
+	          int what = wapr_link_rx (&B, &out, "N0BBB", t + A.airtime, &send_ack, &ack);
+	          if (what == WAPR_LINK_DELIVER) got++;
+	          if (send_ack) {
+	            wapr_link_tx (&B, &ack, t + 1.5 * A.airtime);
+	            if (uniform() > loss) {	/* A hears the acknowledgement */
+	              int sa;
+	              wapr_frame_t dummy;
+	              wapr_link_rx (&A, &ack, "N0AAA", t + 2.5 * A.airtime, &sa, &dummy);
+	            }
+	          }
+	        }
+	      }
+	    }
+	    t += 0.1;
+	    wapr_frame_t again;
+	    if (wapr_link_poll(&A, t, &again)) {
+	      out = again;
+	      have = 1;
+	    }
+	  }
+	  delivered += got > 0;
+	  delivered_twice += got > 1;
+	  if (ntx > max_tx) max_tx = ntx;
+	  (void)a_gave_up0;
+	}
+	/* expected: delivered unless all 3 copies lost; sender gives up unless one round trip works */
+	double p_deliv = 1 - pow(loss, 3);
+	double p_ack = 1 - pow(1 - (1 - loss) * (1 - loss), 3);
+	double sd = sqrt(p_deliv * (1 - p_deliv) / M);
+	CHECK (delivered_twice == 0, "link: %d messages delivered more than once", delivered_twice);
+	CHECK (max_tx <= 3, "link: a message was sent %d times", max_tx);
+	CHECK (fabs((double)delivered / M - p_deliv) < 4 * sd + 0.01, "link: delivered %d / %d, expected %.3f", delivered, M, p_deliv);
+	CHECK (fabs((double)A.acked / M - p_ack) < 4 * sqrt(p_ack * (1 - p_ack) / M) + 0.01,
+		"link: acknowledged %ld / %d, expected %.3f", A.acked, M, p_ack);
+	printf ("link, 30 %% loss each way: delivered %d / %d (expected %.1f %%), acknowledged %ld, gave up %ld, retransmissions %ld, duplicates suppressed %ld\n",
+		delivered, M, 100 * p_deliv, A.acked, A.gave_up, A.retries, B.duplicates);
+
+	/* Broadcasts never wait for an acknowledgement. */
+	wapr_link_init (&A, p, 0, 5);
+	wapr_frame_t b;
+	memset (&b, 0, sizeof(b));
+	b.type = WAPR_TYPE_APRS;
+	strlcpy (b.source, "N0AAA", sizeof(b.source));
+	b.len = 3;
+	memcpy (b.payload, ">hi", 3);
+	wapr_link_tx (&A, &b, 0);
+	wapr_frame_t again;
+	CHECK (! wapr_link_poll(&A, 1e6, &again), "link: broadcast frame was retransmitted");
+
+	/* Airtime limit 10 %: a burst uses the bucket (60 s), then one frame per airtime / 0.1. */
+	wapr_link_init (&A, p, 0.10, 6);
+	int sent = 0, refused = 0;
+	for (int i = 0; i < 300; i++) {
+	  wapr_frame_t f2 = b;
+	  if (wapr_link_tx(&A, &f2, 2000.0 + i) == 0) sent++; else refused++;
+	}
+	double allowed = (0.10 * 600 + 0.10 * 300) / A.airtime;
+	CHECK (sent <= (int)allowed + 1 && sent >= (int)allowed - 2, "link: airtime limit let %d frames through in 300 s, expected about %.1f", sent, allowed);
+	wapr_frame_t ackf;
+	memset (&ackf, 0, sizeof(ackf));
+	ackf.type = WAPR_TYPE_LINK_ACK;
+	strlcpy (ackf.source, "N0AAA", sizeof(ackf.source));
+	strlcpy (ackf.dest, "N0BBB", sizeof(ackf.dest));
+	CHECK (wapr_link_tx(&A, &ackf, 2300.0) == 0, "link: acknowledgement refused by the airtime limit");
+	printf ("link, airtime limit 10 %%: %d frames sent and %d refused in 300 s (expected about %.0f sent)\n", sent, refused, allowed);
+}
+
+
 /* Channel busy detector: noise, a frame, noise. */
 
 static void test_dcd (void)
@@ -496,6 +605,81 @@ static int measure (int argc, char *argv[])
 
 
 /*
+ * Collisions: a wanted frame at SNR_2500 snr and an interfering frame sir_db weaker,
+ * starting at a random time from one frame before to one frame after the wanted one
+ * (so every amount of overlap occurs), both at random offsets within +-25 Hz.
+ * Prints how often the wanted, the interfering, and both frames were delivered.
+ */
+
+static int collide (int argc, char *argv[])
+{
+	const wapr_profile_t *p = argc > 5 ? wapr_profile_find (argv[2]) : NULL;
+	if (p == NULL) {
+	  printf ("usage: wapr_test -c PROFILE SIR_DB FRAMES RATE [SNR_DB [OVERLAP]]\n");
+	  return (EXIT_FAILURE);
+	}
+	double sir = atof(argv[3]);
+	int N = atoi(argv[4]);
+	int fs = atoi(argv[5]);
+	double snr = argc > 6 ? atof(argv[6]) : 10.0;
+	double overlap = argc > 7 ? atof(argv[7]) : -1;	/* fraction of the frame, -1 = random */
+	int nf = wapr_samples_needed (p, fs);
+	int gap = (int)(fs / p->baud) * 4;
+	int n = 3 * nf + 2 * gap;
+	float *x = malloc (sizeof(float) * n);
+	float *s = malloc (sizeof(float) * nf);
+	int got_a = 0, got_b = 0, both = 0, wrong = 0;
+
+	for (int k = 0; k < N; k++) {
+	  wapr_frame_t fa, fb;
+	  random_frame (&fa, 2 * k);
+	  random_frame (&fb, 2 * k + 1);
+	  fb.seq = (fa.seq + 1) & 1023;			/* always different frames */
+	  int a0 = nf + gap;
+	  int b0 = gap + (int)(uniform() * 2 * nf);	/* -nf .. +nf relative to a0 */
+	  if (overlap >= 0) {				/* before or after, at random */
+	    int shift = (int)((1 - overlap) * nf);
+	    b0 = a0 + (uniform() < 0.5 ? -shift : shift);
+	  }
+	  double ps = 0;
+	  memset (x, 0, sizeof(float) * n);
+	  for (int w = 0; w < 2; w++) {
+	    unsigned char info[WAPR_INFO_BYTES], syms[WAPR_MAX_SYMBOLS];
+	    wapr_frame_pack (w == 0 ? &fa : &fb, info);
+	    int ns = wapr_encode (p, info, syms);
+	    wapr_profile_t q = *p;
+	    q.f_center += (2 * uniform() - 1) * 25.0;
+	    int m = wapr_modulate (&q, syms, ns, fs, 1.0f, s, nf);
+	    double g = w == 0 ? 1.0 : pow(10, -sir / 20);
+	    if (w == 0) {
+	      for (int i = 0; i < m; i++) ps += s[i] * (double)s[i];
+	      ps /= m;
+	    }
+	    int off = w == 0 ? a0 : b0;
+	    for (int i = 0; i < m && off + i < n; i++) x[off + i] += (float)(g * s[i]);
+	  }
+	  double sigma = sqrt(ps / (2500.0 * pow(10, snr / 10)) * fs / 2);
+	  for (int i = 0; i < n; i++) x[i] += (float)(sigma * gauss());
+
+	  wapr_rx_result_t res[8];
+	  int nr = wapr_receive (p, x, n, fs, res, 8, NULL);
+	  int ra = 0, rb = 0;
+	  for (int i = 0; i < nr; i++) {
+	    if (memcmp(&res[i].frame, &fa, sizeof(fa)) == 0) ra = 1;
+	    else if (memcmp(&res[i].frame, &fb, sizeof(fb)) == 0) rb = 1;
+	    else wrong++;
+	  }
+	  got_a += ra; got_b += rb; both += ra && rb;
+	}
+	printf ("%s fs=%d SIR=%.1f dB SNR_2500=%.1f dB overlap=%.2f: wanted %d / %d, interferer %d, both %d, wrong %d\n",
+		p->name, fs, sir, snr, overlap, got_a, N, got_b, both, wrong);
+	free (x);
+	free (s);
+	return (EXIT_SUCCESS);
+}
+
+
+/*
  * Decode buffers made elsewhere (test/wapr/wapr_crosscheck.py), so the
  * C and Python receivers can be compared on identical audio.
  * Record: int32 sample count, float32 samples, 44 bytes expected information block.
@@ -541,6 +725,9 @@ int main (int argc, char *argv[])
 	if (argc > 1 && strcmp(argv[1], "-r") == 0) {
 	  return (replay(argc, argv));
 	}
+	if (argc > 1 && strcmp(argv[1], "-c") == 0) {
+	  return (collide(argc, argv));
+	}
 	test_golden (argc > 1 ? argv[1] : "wapr_vectors.txt");
 	test_pack_errors ();
 	test_unpack_random ();
@@ -548,6 +735,7 @@ int main (int argc, char *argv[])
 	test_loopback ();
 	test_noise ();
 	test_dcd ();
+	test_link ();
 
 	if (errors != 0) {
 	  printf ("\nwapr_test: %d errors.\n", errors);

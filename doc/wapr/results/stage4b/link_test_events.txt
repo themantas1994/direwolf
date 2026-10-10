@@ -1,0 +1,5 @@
+WAPR channel 0: no acknowledgement from N0BBB for frame 69, sending it again.
+WAPR channel 0: N0BBB acknowledged frame 69.
+WAPR channel 0: no acknowledgement from N0BBB for frame 71, sending it again.
+WAPR channel 0: N0BBB acknowledged frame 71.
+WAPR channel 0: copy of frame 69 from N0AAA suppressed, acknowledged again.

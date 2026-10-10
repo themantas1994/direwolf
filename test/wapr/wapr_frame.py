@@ -10,7 +10,8 @@ Header, 96 bits, most significant bit first:
     bits  field    meaning
     2     version  0 for this format.  Others: reject.
     4     type     0 raw bytes (tests), 1 APRS information part (text), 2 the same,
-                   relayed by a gateway (never gated again).  Others: reject.
+                   relayed by a gateway (never gated again), 3 link acknowledgement
+                   (source received dest's frame seq; no payload).  Others: reject.
     2     flags    bit 1: acknowledgement requested; bit 0: reserved, must be 0.
     6     length   payload length in bytes, 0 .. payload area size (32).  More: reject.
     10    seq      message identity, 0 .. 1023, chosen by the sender.
@@ -32,7 +33,8 @@ PAYLOAD_AREA = 32
 TYPE_RAW = 0
 TYPE_APRS = 1
 TYPE_APRS_RELAYED = 2
-TYPES = (TYPE_RAW, TYPE_APRS, TYPE_APRS_RELAYED)
+TYPE_LINK_ACK = 3
+TYPES = (TYPE_RAW, TYPE_APRS, TYPE_APRS_RELAYED, TYPE_LINK_ACK)
 FLAG_ACK = 2
 
 ALPHABET = ' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'

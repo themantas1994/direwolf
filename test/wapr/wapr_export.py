@@ -63,7 +63,8 @@ def main():
              (1, True, 1023, 'W1AW-15', 'N0CALL-1', b':N0CALL-1 :hello{001'),
              (0, False, 77, 'A', '', b''),
              (0, False, 5, 'ZZ9ZZZ-9', 'K1ABC', bytes(range(32))),
-             (2, False, 12, 'K1ABC-9', '', b'>relayed by a gateway')]
+             (2, False, 12, 'K1ABC-9', '', b'>relayed by a gateway'),
+             (3, False, 77, 'K1ABC', 'N0CALL-1', b'')]
     for i in range(4):
         L = int(rng.integers(0, 33))
         cases.append((int(rng.integers(0, 2)), bool(rng.integers(0, 2)), int(rng.integers(0, 1024)),

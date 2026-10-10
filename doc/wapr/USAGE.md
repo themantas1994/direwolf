@@ -9,6 +9,7 @@ channel is configured for it.  Measurements so far are simulations
 
     CHANNEL 1
     MODEM WAPR H150
+    MODEM WAPR H150 AIRTIME=10     # optional: transmit at most 10 % of the time
 
 | Profile | Use | Symbol rate | Tones | Airtime (32 byte payload) |
 |---|---|---|---|---|
@@ -67,10 +68,29 @@ A WAPR channel reports "busy" to the transmitter while the audio in its tone ban
 clear channel as on AX.25 channels.  Signals weaker than the noise in the band, which
 WAPR can still decode, are not detected.
 
+## Acknowledgement and retransmission
+
+An APRS message to one station (`:ADDRESSEE:text`) is sent with the WAPR destination
+set to the addressee and an acknowledgement requested.  The addressee's Dire Wolf answers
+with a short link acknowledgement (WAPR type 3) automatically; if none arrives within
+three frame times plus 3 s (plus a random 0-1 frame), the message is sent again with the
+same sequence number, at most 3 transmissions in all.  The receiver delivers it once and
+acknowledges every copy.  Positions, status, objects, bulletins (`BLN...`, `NWS...`, ...)
+and message acks / rejects are broadcasts: never acknowledged or repeated by the link.
+APRS message acknowledgements (`{nn` / `ackNN`) between applications are untouched.
+
+Log lines: `N0BBB acknowledged frame 77`, `no acknowledgement from N0BBB for frame 77,
+sending it again`, `copy of frame 77 from N0AAA suppressed, acknowledged again`, `gave up`.
+
+## Airtime limit
+
+`AIRTIME=percent` on the `MODEM WAPR` line limits the channel to that share of the
+time, averaged over 10 minutes (a burst can use the whole 10 minute allowance).  A frame
+that does not fit is not sent and is logged; acknowledgements are always sent.
+
 ## What does not happen (yet)
 
-* No acknowledgements, retries or airtime limit; one size class (32 bytes), no
-  fragmentation.
+* One size class (32 bytes), no fragmentation; no automatic choice of profile.
 * `mheard` records stations heard on WAPR like any other channel.
 
 ## Resources

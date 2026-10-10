@@ -47,6 +47,7 @@
 #include "gen_tone.h"
 #include "wapr.h"
 #include "wapr_tx.h"
+#include "wapr_link.h"
 
 
 int wapr_frame_from_packet (packet_t pp, wapr_frame_t *f, char *why, int whylen)
@@ -62,16 +63,40 @@ int wapr_frame_from_packet (packet_t pp, wapr_frame_t *f, char *why, int whylen)
 	  snprintf (why, whylen, "only UI frames with PID F0 can be sent");
 	  return (WAPR_ERR_TYPE);
 	}
-	int relayed = 0;
+	int relayed = 0, link_ack = 0;
 	if (ax25_get_num_repeaters(pp) == 1) {
 	  ax25_get_addr_with_ssid (pp, AX25_REPEATER_1, addr);
 	  relayed = strcmp(addr, WAPR_RELAY_MARK) == 0;	/* from a gateway (wapr_gate.c) */
+	  link_ack = strcmp(addr, WAPR_ACK_MARK) == 0;	/* acknowledgement (wapr_rx.c) */
 	}
-	if (ax25_get_num_repeaters(pp) != 0 && ! relayed) {
+	if (ax25_get_num_repeaters(pp) != 0 && ! relayed && ! link_ack) {
 	  snprintf (why, whylen, "WAPR has no digipeater path");
 	  return (WAPR_ERR_ADDRESS);
 	}
 	int len = ax25_get_info (pp, &info);
+
+	if (link_ack) {
+	  /* SOURCE>APZWAP,WAPRAK:<seq> <dest>  ->  type 3 frame */
+	  char text[40];
+	  int n = len < (int)sizeof(text) - 1 ? len : (int)sizeof(text) - 1;
+	  memcpy (text, info, n);
+	  text[n] = '\0';
+	  char d[WAPR_ADDR_LEN + 1];
+	  int seq;
+	  if (sscanf(text, "%d %10s", &seq, d) != 2 || seq < 0 || seq > 1023) {
+	    snprintf (why, whylen, "malformed acknowledgement");
+	    return (WAPR_ERR_SEQ);
+	  }
+	  f->type = WAPR_TYPE_LINK_ACK;
+	  f->seq = seq;
+	  ax25_get_addr_with_ssid (pp, AX25_SOURCE, addr);
+	  strlcpy (f->source, addr, sizeof(f->source));
+	  strlcpy (f->dest, d, sizeof(f->dest));
+	  unsigned char tmp[WAPR_INFO_BYTES];
+	  int e = wapr_frame_pack (f, tmp);
+	  if (e != WAPR_OK) snprintf (why, whylen, "%s (acknowledgement)", wapr_strerror(e));
+	  return (e);
+	}
 	if (len > WAPR_PAYLOAD_AREA) {
 	  snprintf (why, whylen, "information part is %d bytes, at most %d fit", len, WAPR_PAYLOAD_AREA);
 	  return (WAPR_ERR_LENGTH);
@@ -84,6 +109,29 @@ int wapr_frame_from_packet (packet_t pp, wapr_frame_t *f, char *why, int whylen)
 	strlcpy (f->source, addr, sizeof(f->source));
 	f->dest[0] = '\0';		/* APRS: the destination is a tocall, not an address */
 	f->type = relayed ? WAPR_TYPE_APRS_RELAYED : WAPR_TYPE_APRS;
+
+	/*
+	 * An APRS message to one station (":ADDRESSEE:text") asks for a link level
+	 * acknowledgement and is retransmitted if none comes (wapr_link.c).  Not for
+	 * bulletins and announcements (BLN..., NWS..., etc., to everyone) or for
+	 * message acks / rejects (the application resends the message if they are lost).
+	 */
+	if (len >= 11 && info[0] == ':' && info[10] == ':') {
+	  char to[10];
+	  memcpy (to, info + 1, 9);
+	  to[9] = '\0';
+	  for (int i = 8; i >= 0 && to[i] == ' '; i--) to[i] = '\0';
+	  int bulletin = strncmp(to, "BLN", 3) == 0 || strncmp(to, "NWS", 3) == 0 || strncmp(to, "SKY", 3) == 0 ||
+			 strncmp(to, "CWA", 3) == 0 || strncmp(to, "BOM", 3) == 0;
+	  int reply = len >= 14 && (strncmp((char *)info + 11, "ack", 3) == 0 || strncmp((char *)info + 11, "rej", 3) == 0);
+	  wapr_frame_t probe = *f;
+	  unsigned char tmp[WAPR_INFO_BYTES];
+	  strlcpy (probe.dest, to, sizeof(probe.dest));
+	  if (! bulletin && ! reply && to[0] != '\0' && wapr_frame_pack(&probe, tmp) == WAPR_OK) {
+	    strlcpy (f->dest, to, sizeof(f->dest));
+	    f->ack = 1;
+	  }
+	}
 	f->seq = 0;
 	f->len = len;
 	memcpy (f->payload, info, len);
@@ -112,7 +160,7 @@ int wapr_send_silence (int chan, int nsym, struct audio_s *pa)
 
 int wapr_send_frame (int chan, packet_t pp, struct audio_s *pa)
 {
-	static int seq = 0;		/* message identity: not used by the receiver yet (stage 4) */
+	static int seq = 0;		/* used only without a link layer (gen_packets) */
 	int a = ACHAN2ADEV(chan);
 	const wapr_profile_t *p = wapr_profile_find (pa->achan[chan].wapr_profile);
 	wapr_frame_t f;
@@ -128,8 +176,23 @@ int wapr_send_frame (int chan, packet_t pp, struct audio_s *pa)
 	  dw_printf ("WAPR channel %d: not sent, %s: %s\n", chan, why, text);
 	  return (-1);
 	}
-	f.seq = seq;
-	seq = (seq + 1) & 1023;
+	wapr_link_t *L = wapr_link_chan (chan);
+	if (L != NULL) {
+	  wapr_link_lock (chan);
+	  int ok = wapr_link_tx (L, &f, wapr_link_time());
+	  wapr_link_unlock (chan);
+	  if (ok != 0) {
+	    char text[AX25_MAX_ADDRS*AX25_MAX_ADDR_LEN];
+	    ax25_format_addrs (pp, text);
+	    text_color_set(DW_COLOR_ERROR);
+	    dw_printf ("WAPR channel %d: not sent, airtime limit reached: %s\n", chan, text);
+	    return (-1);
+	  }
+	}
+	else if (f.type != WAPR_TYPE_LINK_ACK) {
+	  f.seq = seq;
+	  seq = (seq + 1) & 1023;
+	}
 	wapr_frame_pack (&f, info);
 	int nsym = wapr_encode (p, info, syms);
 

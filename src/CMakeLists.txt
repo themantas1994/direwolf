@@ -87,6 +87,7 @@ list(APPEND direwolf_SOURCES
   wapr_codec.c
   wapr_modem.c
   wapr_gate.c
+  wapr_link.c
   wapr_rx.c
   wapr_tx.c
   waypoint.c
@@ -333,6 +334,7 @@ list(APPEND gen_packets_SOURCES
   textcolor.c
   dsp.c
   wapr_codec.c
+  wapr_link.c
   wapr_modem.c
   wapr_tx.c
   )
@@ -386,6 +388,7 @@ list(APPEND atest_SOURCES
   tt_text.c
   textcolor.c
   wapr_codec.c
+  wapr_link.c
   wapr_modem.c
   wapr_rx.c
   )

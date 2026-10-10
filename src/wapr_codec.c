@@ -221,7 +221,7 @@ int wapr_frame_pack (const wapr_frame_t *f, unsigned char info[WAPR_INFO_BYTES])
 {
 	unsigned long long src, dst;
 
-	if (f->type != WAPR_TYPE_RAW && f->type != WAPR_TYPE_APRS && f->type != WAPR_TYPE_APRS_RELAYED) return (WAPR_ERR_TYPE);
+	if ((f->type < WAPR_TYPE_RAW || f->type > WAPR_TYPE_LINK_ACK)) return (WAPR_ERR_TYPE);
 	if (f->len < 0 || f->len > WAPR_PAYLOAD_AREA) return (WAPR_ERR_LENGTH);
 	if (f->seq < 0 || f->seq > 1023) return (WAPR_ERR_SEQ);
 	if (addr_pack(f->source, &src) != 0 || src == 0) return (WAPR_ERR_ADDRESS);
@@ -248,7 +248,7 @@ int wapr_frame_unpack (const unsigned char info[WAPR_INFO_BYTES], wapr_frame_t *
 	memset (f, 0, sizeof(*f));
 	if (get_bits(info, &pos, 2) != WAPR_VERSION) return (WAPR_ERR_VERSION);
 	f->type = get_bits(info, &pos, 4);
-	if (f->type != WAPR_TYPE_RAW && f->type != WAPR_TYPE_APRS && f->type != WAPR_TYPE_APRS_RELAYED) return (WAPR_ERR_TYPE);
+	if ((f->type < WAPR_TYPE_RAW || f->type > WAPR_TYPE_LINK_ACK)) return (WAPR_ERR_TYPE);
 	int flags = get_bits(info, &pos, 2);
 	if (flags & 1) return (WAPR_ERR_FLAGS);
 	f->ack = (flags & 2) != 0;
