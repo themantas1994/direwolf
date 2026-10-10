@@ -185,26 +185,48 @@ def wilson(k, n, z=1.96):
     return c - h, c + h
 
 
+def _loglik(beta, xs, ks, ns):
+    z = np.clip(beta[0] + beta[1] * xs, -50, 50)
+    return float(np.sum(ks * z - ns * np.logaddexp(0, z)))
+
+
 def fit_logistic(xs, ks, ns):
-    """Binomial MLE of p = 1 / (1 + exp(-(a + b x))).  Returns (a, b) or None."""
+    """Binomial MLE of p = 1 / (1 + exp(-(a + b x))).  Returns (a, b) or None.
+
+    Newton steps are halved until the likelihood does not decrease.  Data that are
+    perfectly separated (every point 0 % below some x, 100 % above) have no finite
+    MLE; the slope is then fixed at 50 / dB through the midpoint of the gap.
+    """
     if len(xs) < 2 or ks.sum() == 0 or ks.sum() == ns.sum():
         return None
+    order = np.argsort(xs)
+    p = (ks / ns)[order]
+    mid = np.flatnonzero((p > 0) & (p < 1))
+    if len(mid) == 0:
+        j = int(np.argmax(p == 1))
+        if np.all(p[:j] == 0) and np.all(p[j:] == 1):
+            x0 = 0.5 * (xs[order][j - 1] + xs[order][j])
+            return (-50.0 * x0, 50.0)
     X = np.column_stack([np.ones_like(xs), xs])
-    beta = np.array([-xs.mean(), 1.0])
+    beta = np.array([-np.average(xs, weights=ns), 1.0])
+    ll = _loglik(beta, xs, ks, ns)
     for _ in range(200):
-        p = np.clip(1 / (1 + np.exp(-np.clip(X @ beta, -50, 50))), 1e-12, 1 - 1e-12)
-        W = ns * p * (1 - p) + 1e-9
+        pr = np.clip(1 / (1 + np.exp(-np.clip(X @ beta, -50, 50))), 1e-12, 1 - 1e-12)
+        W = ns * pr * (1 - pr) + 1e-9
         H = X.T @ (X * W[:, None])
         try:
-            step = np.linalg.solve(H, X.T @ (ks - ns * p))
+            step = np.linalg.solve(H, X.T @ (ks - ns * pr))
         except np.linalg.LinAlgError:
             return None
-        # a separable data set has no finite MLE; cap the slope at 50 / dB
-        beta += step
-        if beta[1] > 50:
-            beta = np.array([-50 * xs[np.argmax(ks / ns >= 0.5)], 50.0])
-            break
-        if np.max(np.abs(step)) < 1e-10:
+        t = 1.0
+        while t > 1e-6:
+            nb = beta + t * step
+            nl = _loglik(nb, xs, ks, ns)
+            if nl >= ll - 1e-12:
+                break
+            t /= 2
+        beta, ll = nb, nl
+        if np.max(np.abs(t * step)) < 1e-10:
             break
     return (float(beta[0]), float(beta[1])) if beta[1] > 0 else None
 
@@ -237,6 +259,51 @@ def boot_thresholds(xs, ks, ns, target, B, seed, label=''):
     return est, reps
 
 
+def summarize(rows, names, conds, out, bootstrap, seed, payload_bytes, cfg_sha):
+    """Thresholds with bootstrap intervals from per point rows; writes _summary.csv and _bootstrap.npz."""
+    a = argparse.Namespace(out=out, bootstrap=bootstrap, seed=seed)
+    summ = []
+    reps_store = {}
+    for s in names:
+        for c in conds:
+            pts = [r for r in rows if r['system'] == s and r['condition'] == c]
+            if not pts:
+                continue
+            xs = [r['snr_db'] for r in pts]
+            ks = [r['ok'] for r in pts]
+            ns = [r['frames'] for r in pts]
+            for target in (0.5, 0.9):
+                est, reps = boot_thresholds(xs, ks, ns, target, a.bootstrap, a.seed, '%s|%s|%g' % (s, c, target))
+                reps_store[(s, c, target)] = reps
+                good = reps[np.isfinite(reps)]
+                lo, hi = (np.percentile(good, [2.5, 97.5]) if len(good) > 0.9 * len(reps) else (float('nan'),) * 2)
+                air = pts[0]['airtime_s']
+                it = rxs.interp_threshold(xs, [k / n for k, n in zip(ks, ns)], target)
+                nmid = sum(0.05 < k / n < 0.95 for k, n in zip(ks, ns))
+                note = ('not reached by %g dB' % max(xs) if math.isnan(it) else
+                        'reached at lowest point' if it == float('-inf') else
+                        'grid too coarse (%d points between 5 and 95 %%)' % nmid if nmid < 2 else '')
+                summ.append(dict(system=s, condition=c, target=target, snr_db=round(est, 2),
+                                 snr_interp=round(it, 2) if math.isfinite(it) else '', note=note,
+                                 snr_lo=round(float(lo), 2), snr_hi=round(float(hi), 2),
+                                 ebn0_db=round(ch.ebn0_from_snr(est, air, 8 * payload_bytes), 2) if math.isfinite(est) else '',
+                                 airtime_s=air, false_accepts=sum(r['bad'] for r in pts),
+                                 frames=sum(ns), seed=a.seed, config_sha=cfg_sha))
+    sfile = a.out.replace('.csv', '') + '_summary.csv'
+    with open(sfile, 'w', newline='') as f:
+        w = csv.DictWriter(f, fieldnames=list(summ[0].keys()), lineterminator='\n')
+        w.writeheader()
+        w.writerows(summ)
+    np.savez(a.out.replace('.csv', '') + '_bootstrap.npz',
+             **{'%s|%s|%g' % k: v for k, v in reps_store.items()})
+
+    for r in summ:
+        print('%-16s %-12s p=%.2f  SNR_2500 %6.2f dB [%6.2f, %6.2f]  Eb/N0 %s  airtime %.3f s  false %d  %s' % (
+            r['system'], r['condition'], r['target'], r['snr_db'], r['snr_lo'], r['snr_hi'],
+            r['ebn0_db'], r['airtime_s'], r['false_accepts'], r['note']))
+
+
+
 # ----------------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------------
@@ -264,7 +331,7 @@ def load_config(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--config', default=os.path.join(HERE, 'configs', 'stage1.json'))
-    ap.add_argument('--systems', required=True, help='comma separated system names from the config')
+    ap.add_argument('--systems', default='', help='comma separated system names from the config')
     ap.add_argument('--conditions', default='awgn', help='comma separated: ' + ','.join(ch.CONDITIONS))
     ap.add_argument('--snr', default='-10:10:1', help='SNR_2500 points in dB, "start:stop:step" or list')
     ap.add_argument('--snr-shift', default='', help='per system SNR offsets "name=dB,..." to centre the sweep')
@@ -277,10 +344,29 @@ def main():
     ap.add_argument('--noise-seconds', type=float, default=0.0, help='also decode this much pure noise per WAPR system')
     ap.add_argument('--bootstrap', type=int, default=1000)
     ap.add_argument('--out', default='wapr_bench.csv')
+    ap.add_argument('--summarize', action='store_true',
+                    help='only recompute the summary and bootstrap files from an existing --out CSV')
     a = ap.parse_args()
+
+    if a.summarize:
+        with open(a.out) as f:
+            rows = list(csv.DictReader(f))
+        for r in rows:
+            for k in ('snr_db', 'airtime_s'):
+                r[k] = float(r[k])
+            for k in ('ok', 'bad', 'frames'):
+                r[k] = int(r[k])
+        names = list(dict.fromkeys(r['system'] for r in rows))
+        conds = list(dict.fromkeys(r['condition'] for r in rows))
+        cfg, _ = load_config(a.config)
+        summarize(rows, names, conds, a.out, a.bootstrap, int(rows[0]['seed']), cfg.get('payload_bytes', 32),
+                  rows[0]['config_sha'])
+        return
 
     cfg, systems = load_config(a.config)
     names = [s for s in a.systems.split(',') if s]
+    if not names:
+        sys.exit('--systems is required')
     for s in names:
         if s not in systems:
             sys.exit('unknown system %s' % s)
@@ -355,44 +441,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    # thresholds
-    summ = []
-    reps_store = {}
-    for s in names:
-        for c in conds:
-            pts = [r for r in rows if r['system'] == s and r['condition'] == c]
-            xs = [r['snr_db'] for r in pts]
-            ks = [r['ok'] for r in pts]
-            ns = [r['frames'] for r in pts]
-            for target in (0.5, 0.9):
-                est, reps = boot_thresholds(xs, ks, ns, target, a.bootstrap, a.seed, '%s|%s|%g' % (s, c, target))
-                reps_store[(s, c, target)] = reps
-                good = reps[np.isfinite(reps)]
-                lo, hi = (np.percentile(good, [2.5, 97.5]) if len(good) > 0.9 * len(reps) else (float('nan'),) * 2)
-                air = pts[0]['airtime_s']
-                it = rxs.interp_threshold(xs, [k / n for k, n in zip(ks, ns)], target)
-                nmid = sum(0.05 < k / n < 0.95 for k, n in zip(ks, ns))
-                note = ('not reached by %g dB' % max(xs) if math.isnan(it) else
-                        'reached at lowest point' if it == float('-inf') else
-                        'grid too coarse (%d points between 5 and 95 %%)' % nmid if nmid < 2 else '')
-                summ.append(dict(system=s, condition=c, target=target, snr_db=round(est, 2),
-                                 snr_interp=round(it, 2) if math.isfinite(it) else '', note=note,
-                                 snr_lo=round(float(lo), 2), snr_hi=round(float(hi), 2),
-                                 ebn0_db=round(ch.ebn0_from_snr(est, air, 8 * payload_bytes), 2) if math.isfinite(est) else '',
-                                 airtime_s=air, false_accepts=sum(r['bad'] for r in pts),
-                                 frames=sum(ns), seed=a.seed, config_sha=cfg_sha))
-    sfile = a.out.replace('.csv', '') + '_summary.csv'
-    with open(sfile, 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=list(summ[0].keys()), lineterminator='\n')
-        w.writeheader()
-        w.writerows(summ)
-    np.savez(a.out.replace('.csv', '') + '_bootstrap.npz',
-             **{'%s|%s|%g' % k: v for k, v in reps_store.items()})
-
-    for r in summ:
-        print('%-16s %-12s p=%.2f  SNR_2500 %6.2f dB [%6.2f, %6.2f]  Eb/N0 %s  airtime %.3f s  false %d  %s' % (
-            r['system'], r['condition'], r['target'], r['snr_db'], r['snr_lo'], r['snr_hi'],
-            r['ebn0_db'], r['airtime_s'], r['false_accepts'], r['note']))
+    summarize(rows, names, conds, a.out, a.bootstrap, a.seed, payload_bytes, cfg_sha)
 
     # pure noise
     if a.noise_seconds > 0:

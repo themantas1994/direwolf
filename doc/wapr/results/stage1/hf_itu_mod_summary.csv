@@ -1,0 +1,5 @@
+system,condition,target,snr_db,snr_interp,note,snr_lo,snr_hi,ebn0_db,airtime_s,false_accepts,frames,seed,config_sha
+H150_conv,itu_mod,0.5,-3.88,-3.93,,-4.05,-3.72,10.34,2.7067,0,5100,20261010,e65cc3659983
+H150_conv,itu_mod,0.9,-0.35,-0.43,,-0.58,-0.11,13.87,2.7067,0,5100,20261010,e65cc3659983
+H150_ldpc,itu_mod,0.5,-4.18,-4.25,,-4.36,-4.0,9.98,2.6667,0,5100,20261010,e65cc3659983
+H150_ldpc,itu_mod,0.9,-0.56,-0.35,,-0.81,-0.32,13.59,2.6667,0,5100,20261010,e65cc3659983
