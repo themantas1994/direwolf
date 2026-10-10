@@ -4,4 +4,5 @@
                     xmlns:v="clr-namespace:DireWolfGui.Views">
     <!-- Maps each page view model to its view. -->
     <DataTemplate DataType="{x:Type vm:ConfigurationViewModel}"><v:ConfigurationView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SetupWizardViewModel}"><v:SetupWizardView /></DataTemplate>
 </ResourceDictionary>
