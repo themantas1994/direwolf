@@ -10,12 +10,21 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        CrashReporter.Install(this);
+        var smokeReport = SmokeTest.ReportPath(e.Args);
+        if (smokeReport is not null)
+        {
+            SmokeTest.InstallListeners();
+            DispatcherUnhandledException += (_, x) => { SmokeTest.RecordError("Unhandled: " + x.Exception); x.Handled = true; };
+        }
+        else
+        {
+            CrashReporter.Install(this);
+        }
         base.OnStartup(e);
 
         // One instance per Windows user: two copies would fight over the same Dire Wolf.
         _single = new Mutex(true, @"Local\DireWolfStation-single-instance", out var first);
-        if (!first)
+        if (!first && smokeReport is null)
         {
             MessageBox.Show("Dire Wolf Station is already running.", "Dire Wolf Station", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
@@ -39,6 +48,11 @@ public partial class App : Application
         var window = new MainWindow(vm);
         MainWindow = window;
         window.Show();
+        if (smokeReport is not null)
+        {
+            _ = SmokeTest.RunAsync(window, vm, smokeReport);
+            return;
+        }
         if (!vm.Settings.FirstRunCompleted)
             vm.NavigateCommand.Execute(vm.Pages.IndexOf(vm.Pages.FirstOrDefault(p => p.GetType().Name == "SetupWizardViewModel") ?? vm.Pages[0]).ToString());
     }

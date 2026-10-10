@@ -50,6 +50,16 @@ jobs:
         shell: pwsh
         run: windows-gui/scripts/package.ps1 -DireWolfDir build/src -Configuration Release
 
+      - name: GUI smoke test (opens every page in both themes, fails on binding/XAML errors)
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem windows-gui/out -Recurse -Filter DireWolfStation.exe | Select-Object -First 1
+          $report = Join-Path $env:RUNNER_TEMP "smoke-test.txt"
+          $p = Start-Process -FilePath $exe.FullName -ArgumentList "--smoke-test", "`"$report`"" -PassThru
+          if (-not $p.WaitForExit(180000)) { $p.Kill(); throw "smoke test did not finish in 3 minutes" }
+          if (Test-Path $report) { Get-Content $report } else { Write-Host "no report written" }
+          if ($p.ExitCode -ne 0) { throw "smoke test failed with exit code $($p.ExitCode)" }
+
       - uses: actions/upload-artifact@v4
         with:
           name: DireWolfStation-win-x64-${{ github.sha }}
