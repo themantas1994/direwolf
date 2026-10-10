@@ -172,6 +172,14 @@ static const char clear_eos[]	= "\e[0J";
 
 static int g_enable_color = 1;
 
+static int g_error_count = 0;		/* Number of times the error color was selected, */
+					/* i.e. error or warning messages, for --check-config. */
+
+int text_color_error_count (void)
+{
+	return (g_error_count);
+}
+
 
 void text_color_init (int enable_color)
 {
@@ -250,6 +258,8 @@ void text_color_set ( enum dw_color_e c )
 	WORD attr;
 	HANDLE h;
 
+	if (c == DW_COLOR_ERROR) g_error_count++;
+
 	if (g_enable_color == 0) {
 	  return;
 	}
@@ -296,6 +306,8 @@ void text_color_set ( enum dw_color_e c )
 
 void text_color_set ( enum dw_color_e c )
 {
+
+	if (c == DW_COLOR_ERROR) g_error_count++;
 
 	if (g_enable_color == 0) {
 	  return;
