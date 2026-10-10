@@ -111,7 +111,9 @@ public sealed class MessagesViewModel : PageViewModel
             reason = "Path: " + pathErr;
         else reason = "";
         SendBlockedReason = reason;
+        bool was = CanSend;
         CanSend = reason.Length == 0;
+        if (was != CanSend) CommandManager.InvalidateRequerySuggested();
         MessagingDisabled = !_shell.Settings.MessagingEnabled;
     }
 

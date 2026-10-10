@@ -265,6 +265,7 @@ public sealed class MonitorViewModel : PageViewModel
             var keep = _selected;
             Packets.AddRange(add);
             KeepSelection(keep);
+            if (Packets.Count == add.Count) CommandManager.InvalidateRequerySuggested();
             if (AutoScroll) ScrollToEndRequested?.Invoke(this, EventArgs.Empty);
         }
     }

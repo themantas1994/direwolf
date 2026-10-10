@@ -263,7 +263,9 @@ public sealed class AprsViewModel : PageViewModel
                 IsStale = StationFilter.IsPositionStale(s, now), IsObject = s.IsObject, Symbol = s.Symbol,
             });
         }
+        bool hadMarkers = MapMarkers.Count > 0;
         MapMarkers = markers;
+        if (hadMarkers != markers.Count > 0) CommandManager.InvalidateRequerySuggested();
         if (!_fittedOnce && markers.Count > 0 && FitRequested != null)
         {
             _fittedOnce = true;

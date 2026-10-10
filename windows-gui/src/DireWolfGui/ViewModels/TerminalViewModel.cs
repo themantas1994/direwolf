@@ -76,7 +76,7 @@ public sealed class TerminalViewModel : PageViewModel, IDisposable
     public bool IsTncConnected
     {
         get => _isTncConnected;
-        private set { if (Set(ref _isTncConnected, value)) UpdateStateText(); }
+        private set { if (Set(ref _isTncConnected, value)) { UpdateStateText(); CommandManager.InvalidateRequerySuggested(); } }
     }
 
     private string _versionText = "";
