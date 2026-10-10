@@ -1,0 +1,7 @@
+condition,profile,binary,frames_tx,frames_ok,frames_bad,frames_fixed,gained_vs_ref,lost_vs_ref,cpu_s,ebn0_p50_interp,ebn0_p50_logit,ebn0_p50_logit_se,ebn0_p90_interp,ebn0_p90_logit,ebn0_p90_logit_se,ebn0_p99_interp,ebn0_p99_logit,ebn0_p99_logit_se
+flat,A+,upstream,10,10,0,0,0,0,0.01,-inf,nan,nan,-inf,nan,nan,-inf,nan,nan
+flat,A+,fork,10,10,0,0,0,0,0.01,-inf,nan,nan,-inf,nan,nan,-inf,nan,nan
+flat,A+,fork-S1,10,10,0,0,0,0,0.01,-inf,nan,nan,-inf,nan,nan,-inf,nan,nan
+noise_only,A+,upstream,,,0,,,,50.455,,,,,,,,,
+noise_only,A+,fork,,,0,,,,50.446,,,,,,,,,
+noise_only,A+,fork-S1,,,0,,,,50.803,,,,,,,,,

@@ -1,0 +1,32 @@
+      Start 15: deviceidtest
+15/28 Test #15: deviceidtest .....................   Passed    0.00 sec
+      Start 16: check-fx25
+16/28 Test #16: check-fx25 .......................   Passed    0.35 sec
+      Start 17: check-il2p
+17/28 Test #17: check-il2p .......................   Passed    0.11 sec
+      Start 18: check-modem1200
+18/28 Test #18: check-modem1200 ..................   Passed    8.99 sec
+      Start 19: check-modem1200-i
+19/28 Test #19: check-modem1200-i ................   Passed    1.03 sec
+      Start 20: check-modem300
+20/28 Test #20: check-modem300 ...................   Passed    4.63 sec
+      Start 21: check-modem9600
+21/28 Test #21: check-modem9600 ..................   Passed    0.14 sec
+      Start 22: check-modem9600-i
+22/28 Test #22: check-modem9600-i ................   Passed    0.41 sec
+      Start 23: check-modem19200
+23/28 Test #23: check-modem19200 .................   Passed    0.16 sec
+      Start 24: check-modem2400-a
+24/28 Test #24: check-modem2400-a ................   Passed    4.93 sec
+      Start 25: check-modem2400-b
+25/28 Test #25: check-modem2400-b ................   Passed    3.85 sec
+      Start 26: check-modem2400-g
+26/28 Test #26: check-modem2400-g ................   Passed    0.33 sec
+      Start 27: check-modem4800
+27/28 Test #27: check-modem4800 ..................   Passed    1.96 sec
+      Start 28: check-modemeas
+28/28 Test #28: check-modemeas ...................   Passed    0.08 sec
+
+100% tests passed, 0 tests failed out of 28
+
+Total Test time (real) =  38.05 sec

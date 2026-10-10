@@ -280,17 +280,21 @@ static void send_data_nrzi (int chan, int x)
  * NRZI encoding.
  * data 1 bit -> no change.
  * data 0 bit -> invert signal.
+ *
+ * Continue from the level last sent on the channel, which might have come
+ * from fx25_send or il2p_send.  (This used to keep its own copy, which was
+ * wrong after an FX.25 or IL2P frame.  See tone_gen_last_bit.)
  */
 
 static void send_bit_nrzi (int chan, int b)
 {
-	static int output[MAX_RADIO_CHANS];
+	int output = tone_gen_last_bit (chan);
 
 	if (b == 0) {
-	  output[chan] = ! output[chan];
+	  output = ! output;
 	}
 
-	tone_gen_put_bit (chan, output[chan]);
+	tone_gen_put_bit (chan, output);
 
 	number_of_bits_sent[chan]++;
 }

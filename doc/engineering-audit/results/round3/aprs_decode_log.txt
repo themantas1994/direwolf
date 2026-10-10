@@ -1,0 +1,19 @@
+12000 packets
+fork           decoded 12000, crashed on 0
+upstream       decoded 12000, crashed on 0
+upstream-dev   decoded 12000, crashed on 0
+
+fork vs upstream: 11923 of 12000 packets decoded identically
+  '100%' is not a CTCSS tone (#657)                           1   e.g. 'N0CALL>APRS:!4903.50N/07201.75W-Battery 100%'
+  invalid PHG/DFS height code: shown without height, not a garbage value    47   e.g. 'N0CALL>APRS:!4903.50N/07201.75W#PHG5~32'
+  sscanf EOF: uninitialized course/speed/range no longer shown     8   e.g. 'N0CALL>APRS:@092345z4903.50N/07201.75W_<0x00>90/000g000t066r000p000'
+  upstream debug output removed (#656)                       21   e.g. 'N0CALL>APRS:?APRS? 34.02,-117.15,0200'
+
+fork vs upstream-dev: 10636 of 12000 packets decoded identically
+  invalid PHG/DFS height code: shown without height, not a garbage value    47   e.g. 'N0CALL>APRS:!4903.50N/07201.75W#PHG5~32'
+  sscanf EOF: uninitialized course/speed/range no longer shown     2   e.g. 'N0CALL>APRS:!4903.50N/07201.75W>088/   '
+  upstream dev change (not in 1.8.2)                       1315   e.g. 'N0CALL>APRS:@092345z4903.50N/07201.75W_<0x00>90/000g000t066r000p000'
+
+aprslib vs fork positions: {'agree': 3225, 'ambiguity convention': 496, 'differ, corpus packet': 0, 'differ, mutated packet': 21}
+
+valgrind, fork decode_aprs on all 12000 packets: 0 errors

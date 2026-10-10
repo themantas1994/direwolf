@@ -1,0 +1,9 @@
+condition,profile,binary,binary_sha,ebn0_db,snr3k_db,frames_tx,frames_ok,frames_bad,frames_dup,frames_fixed,bad_fixed,frames_missed,p_decode,gained_vs_ref,lost_vs_ref,cpu_s,audio_s,clipped_samples,wav_sha,mode,seed,frames,rate,extra,generator,gen_packets_sha
+flat,A+,upstream,49d7dab6b879,10.0,6.02,10,5,0,0,0,0,5,0.5,0,0,0.168,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A+,fork,281ceda36013,10.0,6.02,10,5,0,0,0,0,5,0.5,0,0,0.1,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A+,fork-S1,2770344a787f,10.0,6.02,10,6,0,0,1,0,4,0.6,1,0,0.128,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A+,fork-S2,81dc42d783f8,10.0,6.02,10,8,0,0,3,0,2,0.8,3,0,0.104,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A,upstream,49d7dab6b879,10.0,6.02,10,3,0,0,0,0,7,0.3,0,0,0.137,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A,fork,281ceda36013,10.0,6.02,10,3,0,0,0,0,7,0.3,0,0,0.093,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A,fork-S1,2770344a787f,10.0,6.02,10,6,0,0,3,0,4,0.6,3,0,0.094,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a
+flat,A,fork-S2,81dc42d783f8,10.0,6.02,10,7,0,0,4,0,3,0.7,4,0,0.086,10.43,177,8aa6ce0dbc71,1200,306,10,44100,,gen_packets,61f43f4d933a

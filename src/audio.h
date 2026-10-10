@@ -277,8 +277,8 @@ struct audio_s {
 	    int soft_fix;		/* Soft decision repair of frames with bad FCS. */
 					/* Uses the demodulator's confidence for each bit */
 					/* and tries inverting only the least reliable ones. */
-					/* 0 = off */
-					/* 1 = try single bits (default) */
+					/* 0 = off (default) */
+					/* 1 = try single bits */
 					/* 2 = more single bits and pairs of bits */
 
 
@@ -463,11 +463,14 @@ struct audio_s {
 #define DEFAULT_FIX_BITS RETRY_NONE	// Interesting research project but even a single bit fix up
 					// will occasionally let corrupted packets through.
 
-#define DEFAULT_SOFT_FIX 1		// Soft decision repair tries inverting only the few least
+#define DEFAULT_SOFT_FIX 0		// Soft decision repair tries inverting only the few least
 					// reliable bits rather than every bit position in the frame.
-					// Frames recovered this way are, like FIX_BITS, never
-					// digipeated or sent to the IGate.  Level 2 recovers more
-					// but lets more corrupted frames through.
+					// Off by default, like FIX_BITS, so Dire Wolf behaves exactly
+					// like upstream unless the user asks for it:  frames recovered
+					// this way are never digipeated, regenerated or sent to the IGate,
+					// but they are sent to KISS and AGW client applications, which
+					// can't tell them apart from frames received without errors.
+					// Level 2 recovers more but lets more corrupted frames through.
 
 /* 
  * Standard for AFSK on VHF FM. 

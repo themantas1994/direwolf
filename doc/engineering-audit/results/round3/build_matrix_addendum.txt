@@ -1,0 +1,4 @@
+mingw (rerun of the IL2P row with atest -B 9600; atest has no -I option): gen_packets -B 9600 -I 1: windows atest on linux audio: 103 packets decoded; upstream linux atest on windows audio: 103 packets decoded
+check-modem300 under wine (rerun): 7 run, 0 failed
+(in the matrix run the gen_packets line of check-modem300 failed, so its 6 atest lines had no input. The disk was nearly full at the time (1.5 GB free while benchmark WAV files were being written); not proven to be the cause. The rerun above, after freeing space, passes all 7 lines.)
+(buildmatrix.sh as committed strips -I as well as -X from the atest arguments; the run above passed -I 1 to atest, which has no such option, hence the empty IL2P decode columns in build_matrix.txt)

@@ -1,0 +1,210 @@
+PASS  rx-agw=kiss    1200 A+ default fork                         agw 75 kiss 75
+PASS  rx-kiss/agw    1200 A+ default: fork vs upstream            kiss 75/75 agw 75/75 repaired 0
+PASS  rx-kiss/agw    1200 A+ default: fork vs upstream-dev        kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    1200 E+ (A+ alias) fork                      agw 75 kiss 75
+PASS  rx-kiss/agw    1200 E+ (A+ alias): fork vs upstream         kiss 75/75 agw 75/75 repaired 0
+PASS  rx-kiss/agw    1200 E+ (A+ alias): fork vs upstream-dev     kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    1200 B fork                                  agw 71 kiss 71
+PASS  rx-kiss/agw    1200 B: fork vs upstream                     kiss 71/71 agw 71/71 repaired 0
+PASS  rx-kiss/agw    1200 B: fork vs upstream-dev                 kiss 71/71 agw 71/71 repaired 0
+PASS  rx-agw=kiss    1200 at 48k fork                             agw 75 kiss 75
+PASS  rx-kiss/agw    1200 at 48k: fork vs upstream                kiss 75/75 agw 75/75 repaired 0
+PASS  rx-kiss/agw    1200 at 48k: fork vs upstream-dev            kiss 75/75 agw 75/75 repaired 0
+PASS  rx-agw=kiss    300 fork                                     agw 72 kiss 72
+PASS  rx-kiss/agw    300: fork vs upstream                        kiss 72/72 agw 72/72 repaired 0
+PASS  rx-kiss/agw    300: fork vs upstream-dev                    kiss 72/72 agw 72/72 repaired 0
+PASS  rx-agw=kiss    2400 V26B (default) fork                     agw 81 kiss 81
+PASS  rx-kiss/agw    2400 V26B (default): fork vs upstream        kiss 81/81 agw 81/81 repaired 0
+PASS  rx-kiss/agw    2400 V26B (default): fork vs upstream-dev    kiss 81/81 agw 81/81 repaired 0
+PASS  rx-agw=kiss    2400 V26A fork                               agw 81 kiss 81
+PASS  rx-kiss/agw    2400 V26A: fork vs upstream                  kiss 81/81 agw 81/81 repaired 0
+PASS  rx-kiss/agw    2400 V26A: fork vs upstream-dev              kiss 81/81 agw 81/81 repaired 0
+PASS  rx-agw=kiss    4800 fork                                    agw 69 kiss 69
+PASS  rx-kiss/agw    4800: fork vs upstream                       kiss 69/69 agw 69/69 repaired 0
+PASS  rx-kiss/agw    4800: fork vs upstream-dev                   kiss 69/69 agw 69/69 repaired 0
+PASS  rx-agw=kiss    9600 fork                                    agw 67 kiss 67
+PASS  rx-kiss/agw    9600: fork vs upstream                       kiss 67/67 agw 67/67 repaired 0
+PASS  rx-kiss/agw    9600: fork vs upstream-dev                   kiss 67/67 agw 67/67 repaired 0
+PASS  rx-agw=kiss    1200 FX.25 fork                              agw 88 kiss 88
+PASS  rx-kiss/agw    1200 FX.25: fork vs upstream                 kiss 88/88 agw 88/88 repaired 0
+PASS  rx-kiss/agw    1200 FX.25: fork vs upstream-dev             kiss 88/88 agw 88/88 repaired 0
+PASS  rx-agw=kiss    9600 IL2P fork                               agw 78 kiss 78
+PASS  rx-kiss/agw    9600 IL2P: fork vs upstream                  kiss 78/78 agw 78/78 repaired 0
+PASS  rx-kiss/agw    9600 IL2P: fork vs upstream-dev              kiss 78/78 agw 78/78 repaired 0
+PASS  rx-softfix     SOFT_FIX 1, fork vs upstream                 kiss 79 vs 75, extra 4, marked repaired 4, missing 0
+PASS  rx-softfix     SOFT_FIX 2, fork vs upstream                 kiss 83 vs 75, extra 8, marked repaired 8, missing 0
+PASS  tx-kiss        1200: fork tx -> fork rx                     127/127 frames
+PASS  tx-kiss        1200: fork tx -> upstream rx                 127/127 frames
+PASS  tx-kiss        1200: fork tx -> upstream-dev rx             127/127 frames
+PASS  tx-kiss        1200: upstream tx -> fork rx                 127/127 frames
+PASS  tx-kiss        1200: upstream tx -> upstream rx             127/127 frames
+PASS  tx-kiss        1200: upstream tx -> upstream-dev rx         127/127 frames
+PASS  tx-kiss        1200: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-kiss        1200: upstream-dev tx -> upstream rx         127/127 frames
+PASS  tx-kiss        1200: upstream-dev tx -> upstream-dev rx     127/127 frames
+PASS  tx-audio-md5   1200                                         identical transmit audio
+PASS  tx-kiss        300: fork tx -> fork rx                      127/127 frames
+PASS  tx-kiss        300: fork tx -> upstream rx                  127/127 frames
+PASS  tx-kiss        300: fork tx -> upstream-dev rx              127/127 frames
+PASS  tx-kiss        300: upstream tx -> fork rx                  127/127 frames
+PASS  tx-kiss        300: upstream tx -> upstream rx              127/127 frames
+PASS  tx-kiss        300: upstream tx -> upstream-dev rx          127/127 frames
+PASS  tx-kiss        300: upstream-dev tx -> fork rx              127/127 frames
+PASS  tx-kiss        300: upstream-dev tx -> upstream rx          127/127 frames
+PASS  tx-kiss        300: upstream-dev tx -> upstream-dev rx      127/127 frames
+PASS  tx-audio-md5   300                                          identical transmit audio
+PASS  tx-kiss        2400: fork tx -> fork rx                     127/127 frames
+PASS  tx-kiss        2400: fork tx -> upstream rx                 127/127 frames
+PASS  tx-kiss        2400: fork tx -> upstream-dev rx             127/127 frames
+PASS  tx-kiss        2400: upstream tx -> fork rx                 127/127 frames
+PASS  tx-kiss        2400: upstream tx -> upstream rx             127/127 frames
+PASS  tx-kiss        2400: upstream tx -> upstream-dev rx         127/127 frames
+PASS  tx-kiss        2400: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-kiss        2400: upstream-dev tx -> upstream rx         127/127 frames
+PASS  tx-kiss        2400: upstream-dev tx -> upstream-dev rx     127/127 frames
+PASS  tx-audio-md5   2400                                         identical transmit audio
+PASS  tx-kiss        2400 V26A: fork tx -> fork rx                127/127 frames
+PASS  tx-kiss        2400 V26A: fork tx -> upstream rx            127/127 frames
+PASS  tx-kiss        2400 V26A: fork tx -> upstream-dev rx        127/127 frames
+PASS  tx-kiss        2400 V26A: upstream tx -> fork rx            127/127 frames
+PASS  tx-kiss        2400 V26A: upstream tx -> upstream rx        127/127 frames
+PASS  tx-kiss        2400 V26A: upstream tx -> upstream-dev rx    127/127 frames
+PASS  tx-kiss        2400 V26A: upstream-dev tx -> fork rx        127/127 frames
+PASS  tx-kiss        2400 V26A: upstream-dev tx -> upstream rx    127/127 frames
+PASS  tx-kiss        2400 V26A: upstream-dev tx -> upstream-dev rx 127/127 frames
+PASS  tx-audio-md5   2400 V26A                                    identical transmit audio
+PASS  tx-kiss        4800: fork tx -> fork rx                     127/127 frames
+PASS  tx-kiss        4800: fork tx -> upstream rx                 127/127 frames
+PASS  tx-kiss        4800: fork tx -> upstream-dev rx             127/127 frames
+PASS  tx-kiss        4800: upstream tx -> fork rx                 127/127 frames
+PASS  tx-kiss        4800: upstream tx -> upstream rx             127/127 frames
+PASS  tx-kiss        4800: upstream tx -> upstream-dev rx         127/127 frames
+PASS  tx-kiss        4800: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-kiss        4800: upstream-dev tx -> upstream rx         127/127 frames
+PASS  tx-kiss        4800: upstream-dev tx -> upstream-dev rx     127/127 frames
+PASS  tx-audio-md5   4800                                         identical transmit audio
+PASS  tx-kiss        9600: fork tx -> fork rx                     127/127 frames
+PASS  tx-kiss        9600: fork tx -> upstream rx                 127/127 frames
+PASS  tx-kiss        9600: fork tx -> upstream-dev rx             127/127 frames
+PASS  tx-kiss        9600: upstream tx -> fork rx                 127/127 frames
+PASS  tx-kiss        9600: upstream tx -> upstream rx             127/127 frames
+PASS  tx-kiss        9600: upstream tx -> upstream-dev rx         127/127 frames
+PASS  tx-kiss        9600: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-kiss        9600: upstream-dev tx -> upstream rx         127/127 frames
+PASS  tx-kiss        9600: upstream-dev tx -> upstream-dev rx     127/127 frames
+PASS  tx-audio-md5   9600                                         identical transmit audio
+PASS  tx-kiss        1200 FX.25: fork tx -> fork rx               127/127 frames
+PASS  tx-kiss        1200 FX.25: fork tx -> upstream rx           127/127 frames
+PASS  tx-kiss        1200 FX.25: fork tx -> upstream-dev rx       127/127 frames
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream tx -> fork rx           126/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream tx -> upstream rx       126/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream tx -> upstream-dev rx   126/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream-dev tx -> fork rx       126/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream-dev tx -> upstream rx   126/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        1200 FX.25: upstream-dev tx -> upstream-dev rx 126/127 frames (NRZI after FX.25, fixed in the fork)
+INFO  tx-audio-md5   1200 FX.25                                   differs as expected (FX.25 NRZI fix) fork:dc3862c9 upstream:69bda6a7 upstream-dev:69bda6a7
+PASS  tx-kiss        9600 FX.25: fork tx -> fork rx               127/127 frames
+PASS  tx-kiss        9600 FX.25: fork tx -> upstream rx           127/127 frames
+PASS  tx-kiss        9600 FX.25: fork tx -> upstream-dev rx       127/127 frames
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream tx -> fork rx           125/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream tx -> upstream rx       125/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream tx -> upstream-dev rx   125/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream-dev tx -> fork rx       125/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream-dev tx -> upstream rx   125/127 frames (NRZI after FX.25, fixed in the fork)
+UPSTREAM-DEFECT tx-kiss        9600 FX.25: upstream-dev tx -> upstream-dev rx 125/127 frames (NRZI after FX.25, fixed in the fork)
+INFO  tx-audio-md5   9600 FX.25                                   differs as expected (FX.25 NRZI fix) fork:0e07d8d0 upstream:f003cf4c upstream-dev:f003cf4c
+PASS  tx-kiss        1200 IL2P: fork tx -> fork rx                127/127 frames
+PASS  tx-kiss        1200 IL2P: fork tx -> upstream rx            127/127 frames
+PASS  tx-kiss        1200 IL2P: fork tx -> upstream-dev rx        127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream tx -> fork rx            127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream tx -> upstream rx        127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream tx -> upstream-dev rx    127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream-dev tx -> fork rx        127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream-dev tx -> upstream rx    127/127 frames
+PASS  tx-kiss        1200 IL2P: upstream-dev tx -> upstream-dev rx 127/127 frames
+PASS  tx-audio-md5   1200 IL2P                                    identical transmit audio
+PASS  tx-kiss        9600 IL2P: fork tx -> fork rx                127/127 frames
+PASS  tx-kiss        9600 IL2P: fork tx -> upstream rx            127/127 frames
+PASS  tx-kiss        9600 IL2P: fork tx -> upstream-dev rx        127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream tx -> fork rx            127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream tx -> upstream rx        127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream tx -> upstream-dev rx    127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream-dev tx -> fork rx        127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream-dev tx -> upstream rx    127/127 frames
+PASS  tx-kiss        9600 IL2P: upstream-dev tx -> upstream-dev rx 127/127 frames
+PASS  tx-audio-md5   9600 IL2P                                    identical transmit audio
+PASS  tx-agw         1200: fork tx -> upstream rx                 127/127 frames
+PASS  tx-agw         1200: upstream tx -> fork rx                 127/127 frames
+PASS  tx-agw         1200: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-pty         1200: fork tx -> upstream rx                 127/127 frames
+PASS  tx-pty         1200: upstream tx -> fork rx                 127/127 frames
+PASS  tx-pty         1200: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-serial      1200: fork tx -> upstream rx                 127/127 frames
+PASS  tx-serial      1200: upstream tx -> fork rx                 127/127 frames
+PASS  tx-serial      1200: upstream-dev tx -> fork rx             127/127 frames
+PASS  tx-fallback    FX.25 1200, AX.25 fallback after FX.25: fork 2/2 frames decoded
+UPSTREAM-DEFECT tx-fallback    FX.25 1200, AX.25 fallback after FX.25: upstream 1/2 frames decoded
+UPSTREAM-DEFECT tx-fallback    FX.25 1200, AX.25 fallback after FX.25: upstream-dev 1/2 frames decoded
+PASS  tx-fallback    FX.25 9600, AX.25 fallback after FX.25: fork 4/4 frames decoded
+UPSTREAM-DEFECT tx-fallback    FX.25 9600, AX.25 fallback after FX.25: upstream 3/4 frames decoded
+UPSTREAM-DEFECT tx-fallback    FX.25 9600, AX.25 fallback after FX.25: upstream-dev 3/4 frames decoded
+PASS  tx-fallback    IL2P 1200, AX.25 fallback: fork              2/2 frames decoded
+PASS  tx-fallback    IL2P 1200, AX.25 fallback: upstream          2/2 frames decoded
+PASS  tx-fallback    IL2P 1200, AX.25 fallback: upstream-dev      2/2 frames decoded
+UPSTREAM-DEFECT tx-fallback    IL2P 9600, AX.25 fallback: fork              1/2 frames decoded
+UPSTREAM-DEFECT tx-fallback    IL2P 9600, AX.25 fallback: upstream          1/2 frames decoded
+UPSTREAM-DEFECT tx-fallback    IL2P 9600, AX.25 fallback: upstream-dev      1/2 frames decoded
+PASS  digi           fork vs upstream                             12 / 12 frames digipeated
+PASS  digi           fork vs upstream-dev                         12 / 12 frames digipeated
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide1<0x0a>            
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide2<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>wide1 wide2<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*,WIDE2-1:>explicit<0x0a> 
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide3 trapped<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>wide7 trapped<0x0a>    
+INFO  digi-frame     W1ABC>APRS,N0CALL-1*:>test alias<0x0a>       
+INFO  digi-frame     W1ABC>APRS,DIGI1,N0CALL-1*:>after another digi<0x0a> 
+INFO  digi-frame     W1XYZ>APRS,N0CALL-1*:!4237.14N/07120.83W-position<0x0a> 
+INFO  digi-frame     W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a> 
+INFO  digi-frame     W1ABC>N0CALL-2,N0CALL-1*:connected mode via us<0x0a> 
+PASS  beacon         fork vs upstream                             4 / 4 distinct beacons (tocall version ignored)
+PASS  beacon         fork vs upstream-dev                         4 / 4 distinct beacons (tocall version ignored)
+INFO  beacon-frame   N0CALL-1>APDWxx,WIDE1-1:!4237.14NS07120.83W#PHG7140PBEACON test 
+INFO  beacon-frame   N0CALL-1>APDWxx:>Custom beacon status        
+INFO  beacon-frame   N0CALL-1>APDWxx:!4237.14N/07120.83W#146.955MHz T074 -060 freq 
+INFO  beacon-frame   N0CALL-1>APDWxx:!4237.  N/07120.  W-         
+INFO  igate-login    fork                                         user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+INFO  igate-login    upstream                                     user N0CALL-1 pass 13023 vers Dire-Wolf 1.8
+INFO  igate-login    upstream-dev                                 user N0CALL-1 pass 13023 vers Dire-Wolf 1.9
+PASS  igate-rf>is    fork vs upstream                             41 / 41 lines uploaded
+PASS  igate-is>rf    fork vs upstream                             1 / 1 frames transmitted
+PASS  igate-rf>is    fork vs upstream-dev                         41 / 41 lines uploaded
+PASS  igate-is>rf    fork vs upstream-dev                         1 / 1 frames transmitted
+INFO  igate-line     KJ4SNT>APMI04,qAR,N0CALL-1::KJ4SNT   :PARM.Vin,Rx1h,Dg1h,Eff1h,Rx10m,O 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;LEADER   *092345z4903.50N/07201.75W>088/036 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;LEADER   _092345z4903.50N/07201.75W>088/036 
+INFO  igate-line     N0CALL>APRS,qAR,N0CALL-1:;MOBIL    *111111z/5L!!<*e7>7P[ 
+INFO  igate-line     HOME>APDW12,WIDE1-1,WIDE2-1,qAR,N0CALL-1:;AWAY     *111111z4237.14N/07 
+INFO  igate-line     W1XYZ>APRS,WIDE1-1,qAR,N0CALL-1:!4237.14N/07120.83W-heard on RF 
+INFO  igate-rf-frame N0CALL-1>APDW18,WIDE1-1:}K1ABC>APRS,TCPIP,N0CALL-1*::W1XYZ    :Message 
+PASS  config         direwolf.conf: fork vs upstream              19 lines
+PASS  config         direwolf.conf: fork vs upstream-dev          19 lines
+PASS  config         kitchen_sink.conf: fork vs upstream          56 lines
+PASS  config         kitchen_sink.conf: fork vs upstream-dev      56 lines
+PASS  config         sdr.conf: fork vs upstream                   19 lines
+PASS  config         sdr.conf: fork vs upstream-dev               19 lines
+PASS  connected      fork calls upstream                          connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+INFO  connected-frames fork calls upstream A>B                      20 frames on air
+INFO  connected-frames fork calls upstream B>A                      13 frames on air
+PASS  connected      upstream calls fork                          connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+INFO  connected-frames upstream calls fork A>B                      20 frames on air
+INFO  connected-frames upstream calls fork B>A                      13 frames on air
+PASS  connected      fork calls upstream-dev                      connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+INFO  connected-frames fork calls upstream-dev A>B                  20 frames on air
+INFO  connected-frames fork calls upstream-dev B>A                  13 frames on air
+PASS  connected      upstream-dev calls fork                      connected A=True B=True; disconnected=True; A got 968/968 B got 1395/1395 bytes
+INFO  connected-frames upstream-dev calls fork A>B                  20 frames on air
+INFO  connected-frames upstream-dev calls fork B>A                  13 frames on air
+
+208 rows, 0 failed

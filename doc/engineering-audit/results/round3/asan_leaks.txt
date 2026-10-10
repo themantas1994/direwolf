@@ -1,0 +1,4 @@
+bm2/gcc-asan-ubsan dtest: SUMMARY: AddressSanitizer: 114904 byte(s) leaked in 53 allocation(s).
+bm2/gcc-asan-ubsan deviceidtest: SUMMARY: AddressSanitizer: 665 byte(s) leaked in 62 allocation(s).
+bm/up-asan dtest: SUMMARY: AddressSanitizer: 114904 byte(s) leaked in 53 allocation(s).
+bm/up-asan deviceidtest: 

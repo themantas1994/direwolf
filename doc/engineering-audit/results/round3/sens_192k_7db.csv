@@ -1,0 +1,3 @@
+condition,profile,binary,binary_sha,ebn0_db,snr3k_db,frames_tx,frames_ok,frames_bad,frames_dup,frames_fixed,bad_fixed,frames_missed,p_decode,gained_vs_ref,lost_vs_ref,cpu_s,audio_s,clipped_samples,wav_sha,mode,seed,frames,rate,extra,generator,gen_packets_sha
+flat,A+,upstream,49d7dab6b879,7.0,3.02,300,0,0,0,0,0,300,0.0,0,0,30.0,273.85,8891379,f1d06c0991c3,1200,302,300,192000,,gen_packets,61f43f4d933a
+flat,A+,fork,281ceda36013,7.0,3.02,300,0,1,0,0,0,300,0.0,0,0,4.256,273.85,8891379,f1d06c0991c3,1200,302,300,192000,,gen_packets,61f43f4d933a

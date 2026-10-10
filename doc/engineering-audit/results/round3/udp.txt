@@ -1,0 +1,7 @@
+fork: KISS frames, audio via UDP at 1.0x real time: 75; via stdin: 75; identical: True
+upstream: KISS frames, audio via UDP at 1.0x real time: 75; via stdin: 75; identical: True
+UDP, all builds identical: True
+latency 1200 bd fork: 20/20 decoded, KISS frame received -12.3 ms (median; min -12.7, max -11.9) after the last audio sample of the transmission (negative: during the trailing flags)
+latency 1200 bd upstream: 20/20 decoded, KISS frame received -12.4 ms (median; min -12.7, max -11.7) after the last audio sample of the transmission (negative: during the trailing flags)
+latency 9600 bd fork: 20/20 decoded, KISS frame received -4.9 ms (median; min -5.3, max -4.5) after the last audio sample of the transmission (negative: during the trailing flags)
+latency 9600 bd upstream: 20/20 decoded, KISS frame received -5.1 ms (median; min -5.3, max -4.7) after the last audio sample of the transmission (negative: during the trailing flags)

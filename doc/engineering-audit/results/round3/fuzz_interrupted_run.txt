@@ -1,0 +1,5 @@
+interrupted fuzz_kiss_fec worker 0, last progress line: #3930836	REDUCE cov: 546 ft: 3175 corp: 909/289Kb lim: 3000 exec/s: 2472 rss: 476Mb L: 934/2994 MS: 2 EraseBytes-ChangeBinInt-
+interrupted fuzz_kiss_fec worker 1, last progress line: #3626460	REDUCE cov: 544 ft: 3161 corp: 901/303Kb lim: 3000 exec/s: 2387 rss: 478Mb L: 81/2993 MS: 2 ChangeByte-EraseBytes-
+interrupted fuzz_kiss_fec worker 2, last progress line: #3819212	REDUCE cov: 546 ft: 3142 corp: 899/295Kb lim: 3000 exec/s: 2424 rss: 484Mb L: 2004/2963 MS: 2 ChangeBit-EraseBytes-
+ASan/UBSan/libFuzzer error lines in the 3 worker logs and the fuzz_rx log: 0
+fuzz_rx interrupted: #3465502	REDUCE cov: 1177 ft: 2590 corp: 1011/52Kb lim: 700 exec/s: 18834 rss: 454Mb L: 17/665 MS: 2 ChangeBit-EraseBytes-

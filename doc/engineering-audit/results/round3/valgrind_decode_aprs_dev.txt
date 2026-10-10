@@ -1,0 +1,63 @@
+==4184== Command: /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs vg_in.txt
+==4184== ERROR SUMMARY: 776 errors from 116 contexts (suppressed: 0 from 0)
+--- first 60 lines of the report:
+==4184== Memcheck, a memory error detector
+==4184== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==4184== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==4184== Command: /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs vg_in.txt
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x11557E: ais_parse (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x1132AF: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x1155A0: ais_parse (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x1132AF: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x10E40F: weather_data.isra.0 (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x111A8A: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x49D7181: __printf_fp_buffer_1.isra.0 (printf_fp.c:230)
+==4184==    by 0x49D935B: __printf_fp_l_buffer (printf_fp.c:1122)
+==4184==    by 0x49E06C4: __printf_fp_spec (vfprintf-internal.c:266)
+==4184==    by 0x49E06C4: __printf_buffer (vfprintf-internal.c:999)
+==4184==    by 0x4A05DA5: __vsnprintf_internal (vsnprintf.c:96)
+==4184==    by 0x4AAE02B: __snprintf_chk (snprintf_chk.c:38)
+==4184==    by 0x10EB1C: weather_data.isra.0 (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x111A8A: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x49D719B: __printf_fp_buffer_1.isra.0 (printf_fp.c:230)
+==4184==    by 0x49D935B: __printf_fp_l_buffer (printf_fp.c:1122)
+==4184==    by 0x49E06C4: __printf_fp_spec (vfprintf-internal.c:266)
+==4184==    by 0x49E06C4: __printf_buffer (vfprintf-internal.c:999)
+==4184==    by 0x4A05DA5: __vsnprintf_internal (vsnprintf.c:96)
+==4184==    by 0x4AAE02B: __snprintf_chk (snprintf_chk.c:38)
+==4184==    by 0x10EB1C: weather_data.isra.0 (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x111A8A: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x49D0D46: __mpn_extract_double (dbl2mpn.c:56)
+==4184==    by 0x49D7925: __printf_fp_buffer_1.isra.0 (printf_fp.c:230)
+==4184==    by 0x49D935B: __printf_fp_l_buffer (printf_fp.c:1122)
+==4184==    by 0x49E06C4: __printf_fp_spec (vfprintf-internal.c:266)
+==4184==    by 0x49E06C4: __printf_buffer (vfprintf-internal.c:999)
+==4184==    by 0x4A05DA5: __vsnprintf_internal (vsnprintf.c:96)
+==4184==    by 0x4AAE02B: __snprintf_chk (snprintf_chk.c:38)
+==4184==    by 0x10EB1C: weather_data.isra.0 (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x111A8A: decode_aprs (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184==    by 0x10CC66: main (in /tmp/claude-0/-home-user-direwolf/a48a3e59-4ccf-5798-9957-6d53537fbf24/scratchpad/build/updev/src/decode_aprs)
+==4184== 
+==4184== Conditional jump or move depends on uninitialised value(s)
+==4184==    at 0x49D726E: __printf_fp_buffer_1.isra.0 (printf_fp.c:271)
+==4184==    by 0x49D935B: __printf_fp_l_buffer (printf_fp.c:1122)
+==4184==    by 0x49E06C4: __printf_fp_spec (vfprintf-internal.c:266)
+==4184==    by 0x49E06C4: __printf_buffer (vfprintf-internal.c:999)
+==4184==    by 0x4A05DA5: __vsnprintf_internal (vsnprintf.c:96)

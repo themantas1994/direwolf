@@ -611,7 +611,12 @@ void decode_aprs_print (decode_aprs_t *A) {
 	  /* http://eng.usna.navy.mil/~bruninga/aprs/aprs11.html */
 	  /* "The Antenna Gain in the PHG format on page 28 is in dBi." */
 
-	  snprintf (phg, sizeof(phg), ", %d W height(HAAT)=%dft=%.0fm %ddBi %s", A->g_power, A->g_height, DW_FEET_TO_METERS(A->g_height), A->g_gain, A->g_directivity);
+	  if (A->g_height != G_UNKNOWN) {
+	    snprintf (phg, sizeof(phg), ", %d W height(HAAT)=%dft=%.0fm %ddBi %s", A->g_power, A->g_height, DW_FEET_TO_METERS(A->g_height), A->g_gain, A->g_directivity);
+	  }
+	  else {	/* Height code was not a digit. */
+	    snprintf (phg, sizeof(phg), ", %d W %ddBi %s", A->g_power, A->g_gain, A->g_directivity);
+	  }
 	  strlcat (stemp, phg, sizeof(stemp));
 	}
 
@@ -3064,7 +3069,9 @@ static void weather_data (decode_aprs_t *A, char *wdata, int wind_prefix)
 	
 	if (wp[3] == '/')
 	{
-	  if (sscanf (wp, "%3d", &n))
+	  // sscanf returns EOF, not 0, if the string ends first (e.g. a nul in a
+	  // received packet), so test for 1 or n would be used uninitialized.
+	  if (sscanf (wp, "%3d", &n) == 1)
 	  {
 	    // Data Extension format.
 	    // Fine point:  Officially, should be values of 001-360.
@@ -3072,7 +3079,7 @@ static void weather_data (decode_aprs_t *A, char *wdata, int wind_prefix)
 	    // In practice we see do see "000" here.
 	    A->g_course = n;
 	  }
-	  if (sscanf (wp+4, "%3d", &n))
+	  if (sscanf (wp+4, "%3d", &n) == 1)
 	  {
 	    A->g_speed_mph = DW_KNOTS_TO_MPH(n);  /* yes, in knots */
 	  }
@@ -4164,11 +4171,12 @@ static int data_extension_comment (decode_aprs_t *A, char *pdext)
 
 	if (pdext[3] == '/')
 	{
-	  if (sscanf (pdext, "%3d", &n))
+	  // Test for 1, not just non-zero: sscanf returns EOF if only spaces remain.
+	  if (sscanf (pdext, "%3d", &n) == 1)
 	  {
 	    A->g_course = n;
 	  }
-	  if (sscanf (pdext+4, "%3d", &n))
+	  if (sscanf (pdext+4, "%3d", &n) == 1)
 	  {
 	    A->g_speed_mph = DW_KNOTS_TO_MPH(n);
 	  }
@@ -4207,7 +4215,7 @@ static int data_extension_comment (decode_aprs_t *A, char *pdext)
 
 	if (strncmp(pdext, "RNG", 3) == 0)
 	{
-	  if (sscanf (pdext+3, "%4d", &n))
+	  if (sscanf (pdext+3, "%4d", &n) == 1)
 	  {
 	    A->g_range = n;
 	  }

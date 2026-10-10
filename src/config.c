@@ -1883,7 +1883,9 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  *	- Soft decision repair of frames with bad FCS.
  *	- The demodulator's confidence in each bit is used to try
  *	  inverting only the least reliable bits.
- *	- 0 = off, 1 = single bits (default), 2 = more single bits and pairs.
+ *	- 0 = off (default), 1 = single bits, 2 = more single bits and pairs.
+ *	- Repaired frames are displayed and sent to client applications but
+ *	  never digipeated or IGated, as with FIX_BITS.
  *	- Uses the same sanity test as FIX_BITS.
  */
 

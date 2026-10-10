@@ -1,0 +1,73 @@
+# Round 3: exact commands behind the results in this directory.
+#
+# Trees (each built with: cmake -DCMAKE_BUILD_TYPE=Release -DUNITTEST=ON <src> && make -j4)
+#   fork          this branch, HEAD 30bff2cdd6bbc3f60db534ae593c7f9f9c42c12a (source code identical to
+#                 the final PR head: later commits change only doc/ and test/)
+#   upstream      wb2osz/direwolf master eda1383f5fa9d8ba3cb27f99db1d2c79494404c9 (1.8.2)
+#   upstream-dev  wb2osz/direwolf dev    f1f9d0987a79ba1a58132ff29b2a094503f5b5f3
+# Below, F, U, D are those build directories; S a scratch directory.
+# Host: x86-64, 4 cores, Ubuntu 24.04.5, gcc 13.3, clang 18.1, cmake 3.28, Python 3.13, numpy 2.5, aprslib 0.7.2, multimon-ng 1.3.0,
+# socat 1.8, valgrind 3.22, cppcheck 2.13, mingw-w64 gcc 13 (win32), wine 9.0, aarch64-linux-gnu-gcc 13.3, qemu-user 8.2.2.
+
+## Reference versions
+git fetch https://github.com/wb2osz/direwolf.git 'refs/heads/*:refs/remotes/upstream/*' 'refs/tags/*:refs/tags/*'
+git ls-remote --symref https://github.com/wb2osz/direwolf.git HEAD
+git merge-base HEAD upstream/master; git merge-base HEAD upstream/dev
+git log --oneline HEAD..upstream/dev; git diff --stat upstream/master HEAD -- src/
+
+## Unit tests (ctest_fork_release.txt)
+cd $F && ctest
+
+## AX.25 golden vectors (ax25golden.txt).  ax25golden_up / _dev: src/ax25golden_test.c compiled
+## against the upstream trees' ax25_pad.c, fcs_calc.c, textcolor.c.
+cd test/compat/golden && $F/test/ax25goldentest ax25_vectors.txt
+
+## Modem interoperability (interop.csv, interop_log.txt)
+python3 test/compat/interop.py --build fork=$F --build upstream=$U --build upstream-dev=$D --out $S/interop_final --csv interop.csv
+
+## APRS decoding (aprs_decode.csv, aprs_decode_log.txt); valgrind for the upstream trees (valgrind_decode_aprs_*.txt)
+python3 test/compat/aprs_decode_compare.py --build fork=$F --build upstream=$U --build upstream-dev=$D --work $S/aprsdec --csv aprs_decode.csv --valgrind
+cd $S/aprsdec && valgrind $U/src/decode_aprs vg_in.txt > /dev/null      # and $D
+
+## Real direwolf processes (interfaces.csv, interfaces_log.txt, stall.csv, stall_log.txt); run as an ordinary user
+DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
+    --work /tmp/dwrun/final_if --conf-dir <dir with direwolf.conf, sdr.conf from the build's conf/ and test/compat/configs/kitchen_sink.conf> \
+    --only rx,tx,digi,beacon,igate,config,connected --csv interfaces.csv
+DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
+    --work /tmp/dwrun/final_stall --only stall --csv stall.csv               # as root: lowers net.ipv4.tcp_wmem, restores it
+# Beacons again after fixing the beacon line in interfaces.py (interfaces_beacon_rerun.csv)
+DW_RUN_AS=dwtest python3 test/compat/interfaces.py --dut fork=$F --ref upstream=$U --ref upstream-dev=$D \
+    --work /tmp/dwrun/final_bcn --only beacon --csv interfaces_beacon_rerun.csv
+
+## Audio over UDP and decode latency (udp.txt)
+DW_RUN_AS=dwtest python3 test/compat/udp_audio.py --build fork=$F --build upstream=$U --work /tmp/dwrun/udp \
+    /tmp/dwrun/final_if/rx_1200_A_default.wav      # receive audio written by interfaces.py (gen_packets -n 100, 44.1 kHz)
+
+## CPU time and memory (cpu_mem.csv), 3 runs of each
+python3 test/benchmark/cpu_mem.py --atest upstream=$U/src/atest --atest upstream-dev=$D/src/atest --atest fork=$F/src/atest \
+    --atest 'fork -S1=$F/src/atest:-S1' --atest 'fork -S2=$F/src/atest:-S2' --gen-packets $U/src/gen_packets --runs 3 --work $S/cpumem --out cpu_mem.csv
+
+## Sensitivity (sens_*.csv); atest_fork_s1 / _s2 are wrappers: exec $F/src/atest -S1 "$@" (-S2)
+B=test/benchmark/rx_sensitivity.py
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --gen-packets $U/src/gen_packets --rate 96000 --profiles A+,A,B --conditions flat,deemph6 --ebn0 6:16:1 --frames 300 --seed 301 --jobs 4 --out sens_96k.csv
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --gen-packets $U/src/gen_packets --rate 192000 --profiles A+,A --conditions flat --ebn0 6:16:1 --frames 300 --seed 302 --jobs 4 --out sens_192k.csv
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --gen-packets $U/src/gen_packets --rate 88200 --profiles A+ --conditions flat --ebn0 6:16:1 --frames 300 --seed 303 --jobs 4 --out sens_88k.csv
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --atest fork-S1=atest_fork_s1 --atest fork-S2=atest_fork_s2 --gen-packets $U/src/gen_packets --profiles A+,A --conditions flat,impulse --ebn0 6:14:1 --frames 500 --seed 304 --jobs 4 --out sens_44k.csv --dump-bad bad_44k.txt
+for m in 9600 300 2400 4800; do
+  python3 $B --mode $m --atest upstream=$U/src/atest --atest fork=$F/src/atest --atest fork-S1=atest_fork_s1 --gen-packets $U/src/gen_packets --conditions flat --ebn0 6:18:1 --frames 300 --seed 305 --jobs 4 --out sens_$m.csv --dump-bad bad_$m.txt
+done
+# The one corrupted frame at 192 kHz, reproduced alone (same seed, same noise): sens_192k_7db.csv, bad_192k_7db.txt
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --gen-packets $U/src/gen_packets --rate 192000 --profiles A+ --conditions flat --ebn0 7 --frames 300 --seed 302 --out sens_192k_7db.csv --dump-bad bad_192k_7db.txt
+
+## False decodes (noise_*.csv, noise_fa/)
+python3 $B --atest upstream=$U/src/atest --atest fork=$F/src/atest --atest fork-S1=atest_fork_s1 --atest fork-S2=atest_fork_s2 --gen-packets $U/src/gen_packets --profiles A+,A --conditions flat --ebn0 10 --frames 10 --noise-only 3600 --seed 306 --jobs 4 --out noise_1200.csv --dump-bad bad_noise.txt
+python3 $B --mode 9600 --atest upstream=$U/src/atest --atest fork=$F/src/atest --atest fork-S1=atest_fork_s1 --gen-packets $U/src/gen_packets --conditions flat --ebn0 10 --frames 10 --noise-only 3600 --seed 307 --jobs 4 --out noise_9600.csv
+# noise_fa/: noise_fa.sh in this directory (pure noise at 192 / 96 kHz; low Eb/N0 stress at 192 / 96 / 48 kHz)
+
+## Builds (build_matrix.txt): buildmatrix.sh and toolchain-*.cmake in this directory
+## Static analysis (cppcheck_*.txt): files the fork changes, in both trees
+cppcheck --enable=warning,portability --std=c99 --quiet -I src -DUSE_ALSA -D__linux__ --suppress=missingIncludeSystem $(cat cppcheck_files.txt)
+
+## Fuzzing (fuzz/): see test/fuzz/README.md for building; then
+ASAN_OPTIONS=detect_leaks=0 ./fuzz_kiss_fec -detect_leaks=0 -close_fd_mask=1 -max_len=3000 -max_total_time=1800 -jobs=3 -workers=3 corpus_fec
+cd data && ASAN_OPTIONS=detect_leaks=0 ./fuzz_rx -detect_leaks=0 -close_fd_mask=1 -max_len=700 -max_total_time=1800 corpus_rx
