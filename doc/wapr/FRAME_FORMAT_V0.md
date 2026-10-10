@@ -25,7 +25,7 @@ found the sync pattern.  Every profile carries the same 752 code bits.
 | Bits | Field | Values |
 |---|---|---|
 | 2 | version | 0.  Anything else is rejected. |
-| 4 | type | 0 raw bytes (tests), 1 APRS information part.  Others rejected. |
+| 4 | type | 0 raw bytes (tests), 1 APRS information part, 2 APRS information part relayed by a gateway (must never be gated again).  Others rejected. |
 | 2 | flags | bit 1: acknowledgement requested; bit 0 reserved, must be 0. |
 | 6 | length | payload bytes, 0 to 32.  More is rejected. |
 | 10 | seq | message identity 0 to 1023, chosen by the sender. |
@@ -81,4 +81,5 @@ plus one symbol rate.
 ## Changes that would need a new version
 
 Any change to the header layout, CRC, whitening, code, interleaver, mapping or sync
-pattern.  Adding profiles does not.
+pattern.  Adding profiles or payload types does not: receivers reject types they do not
+know.  Type 2 was added in stage 4 for loop prevention.

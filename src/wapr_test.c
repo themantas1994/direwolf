@@ -411,6 +411,62 @@ static void test_noise (void)
 }
 
 
+/* Channel busy detector: noise, a frame, noise. */
+
+static void test_dcd (void)
+{
+	const wapr_profile_t *p = wapr_profile_find ("H150");
+	int fs = 48000;
+	unsigned char info[WAPR_INFO_BYTES], syms[WAPR_MAX_SYMBOLS];
+	wapr_frame_t f;
+	random_frame (&f, 3);
+	wapr_frame_pack (&f, info);
+	int ns = wapr_encode (p, info, syms);
+	int nf = wapr_samples_needed (p, fs);
+	float *s = malloc (sizeof(float) * nf);
+	int m = wapr_modulate (p, syms, ns, fs, 1.0f, s, nf);
+	double ps = 0;
+	for (int i = 0; i < m; i++) ps += s[i] * (double)s[i];
+	ps /= m;
+
+	static const double snrs[] = { 10.0, -5.0 };
+	for (int t = 0; t < 2; t++) {
+	  double sigma = 1000.0;
+	  /* scale the frame so that SNR_2500 is snrs[t] for this noise */
+	  double n0 = 2 * sigma * sigma / fs;
+	  double amp = sqrt(n0 * 2500.0 * pow(10, snrs[t] / 10) / ps);
+	  int lead = 3 * fs, tail = 2 * fs;
+	  int n = lead + m + tail;
+	  wapr_dcd_t d;
+	  wapr_dcd_init (&d, p, fs);
+	  int false_busy = 0, on_at = -1, off_at = -1, flicker = 0;
+	  for (int i = 0; i < n; i++) {
+	    double x = sigma * gauss();
+	    if (i >= lead && i < lead + m) x += amp * s[i - lead];
+	    int c = wapr_dcd_sample (&d, (int)lrint(x));
+	    if (c > 0 && i < lead) false_busy++;
+	    if (c > 0 && i >= lead && on_at < 0) on_at = i - lead;
+	    if (c < 0 && i >= lead + m && off_at < 0) off_at = i - lead - m;
+	    if (c < 0 && i >= lead && i < lead + m) flicker++;
+	    if (c > 0 && off_at >= 0) false_busy++;
+	  }
+	  if (t == 0) {
+	    CHECK (false_busy == 0, "DCD: busy %d times on noise alone", false_busy);
+	    CHECK (flicker == 0, "DCD: clear %d times during the frame", flicker);
+	    CHECK (on_at >= 0 && on_at < fs / 10, "DCD: frame at +10 dB seen after %d samples", on_at);
+	    CHECK (off_at >= 0 && off_at < fs / 4, "DCD: clear %d samples after the frame", off_at);
+	    printf ("DCD, H150 at SNR_2500 +10 dB: busy after %.0f ms, clear %.0f ms after the end, %d false\n",
+		1000.0 * on_at / fs, 1000.0 * off_at / fs, false_busy);
+	  }
+	  else {
+	    printf ("DCD, H150 at SNR_2500 -5 dB (decodable, below the noise in band): %s\n",
+		on_at >= 0 ? "seen" : "not seen (expected limitation)");
+	  }
+	}
+	free (s);
+}
+
+
 static int measure (int argc, char *argv[])
 {
 	const wapr_profile_t *p = wapr_profile_find (argv[2]);
@@ -491,6 +547,7 @@ int main (int argc, char *argv[])
 	test_crc_ldpc ();
 	test_loopback ();
 	test_noise ();
+	test_dcd ();
 
 	if (errors != 0) {
 	  printf ("\nwapr_test: %d errors.\n", errors);

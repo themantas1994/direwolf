@@ -129,6 +129,7 @@
 #include "dwsock.h"
 #include "dns_sd_dw.h"
 #include "dlq.h"		// for fec_type_t definition.
+#include "wapr_gate.h"
 #include "deviceid.h"
 #include "nettnc.h"
 
@@ -1128,6 +1129,7 @@ int main (int argc, char *argv[])
 	digipeater_init (&audio_config, &digi_config);
 	igate_init (&audio_config, &igate_config, &digi_config, d_i_opt);
 	cdigipeater_init (&audio_config, &cdigi_config);
+	wapr_gate_init (&audio_config, &misc_config);	/* experimental; no rules, no effect */
 	pfilter_init (&igate_config, d_f_opt);
 	ax25_link_init (&misc_config, d_c_opt);
 
@@ -1601,10 +1603,13 @@ void app_process_rec_packet (int chan, int subchan, int slice, packet_t pp, alev
 	}
 
 /*
- * Experimental WAPR frames (doc/wapr) go to the display, log and client
- * applications above, but not to the IGate, digipeaters, REGEN or APRStt:
- * forwarding needs an explicit policy, which does not exist yet.
+ * Experimental WAPR (doc/wapr): explicit WAPRGATE rules only, none by default.
+ * WAPR frames go to the display, log and client applications above, and to
+ * the gateway rules, but never to the IGate, digipeaters, REGEN or APRStt
+ * by themselves.
  */
+
+	wapr_gate_rec (chan, subchan, pp, fec_type, retries);
 
 	if (fec_type == fec_type_wapr) {
 	  return;

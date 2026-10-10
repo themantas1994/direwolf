@@ -86,6 +86,7 @@ list(APPEND direwolf_SOURCES
   multi_modem.c
   wapr_codec.c
   wapr_modem.c
+  wapr_gate.c
   wapr_rx.c
   wapr_tx.c
   waypoint.c

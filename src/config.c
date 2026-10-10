@@ -57,6 +57,7 @@
 #include "cdigipeater.h"
 #include "config.h"
 #include "wapr.h"
+#include "wapr_gate.h"
 #include "aprs_tt.h"
 #include "igate.h"
 #include "latlong.h"
@@ -2787,6 +2788,37 @@ void config_init (char *fname, struct audio_s *p_audio_config,
  * ATGP is an ugly hack for the specific need of ATGP which needs more that 8 digipeaters.
  * DO NOT put this in the User Guide.  On a need to know basis.
  */
+
+	  else if (strcasecmp(t, "WAPRGATE") == 0) {
+
+	    /* Experimental WAPR gateway (doc/wapr):  WAPRGATE from to|IS [types] */
+	    /* Checked in wapr_gate_init once all MODEM lines are known. */
+
+	    char tf[20] = "", tt[20] = "", ty[100] = "";	/* split() reuses one buffer: copy */
+	    if ((t = split(NULL,0)) != NULL) strlcpy (tf, t, sizeof(tf));
+	    if ((t = split(NULL,0)) != NULL) strlcpy (tt, t, sizeof(tt));
+	    if ((t = split(NULL,0)) != NULL) strlcpy (ty, t, sizeof(ty));
+	    if (tf[0] == '\0' || tt[0] == '\0' || ! alldigits(tf) || (! alldigits(tt) && strcasecmp(tt, "IS") != 0)) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: WAPRGATE needs a from channel and a to channel (or IS).\n", line);
+	      continue;
+	    }
+	    if (p_misc_config->num_wapr_gates >= MAX_WAPR_GATES) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: At most %d WAPRGATE rules.\n", line, MAX_WAPR_GATES);
+	      continue;
+	    }
+	    unsigned int types = ty[0] == '\0' ? WAPR_GT_ALL : wapr_gate_types (ty);
+	    if (types == 0) {
+	      text_color_set(DW_COLOR_ERROR);
+	      dw_printf ("Line %d: WAPRGATE types must be from POS, STATUS, MSG, OBJ, ITEM, WX, TLM, OTHER, ALL.\n", line);
+	      continue;
+	    }
+	    struct wapr_gate_s *g = &p_misc_config->wapr_gate[p_misc_config->num_wapr_gates++];
+	    g->from = atoi(tf);
+	    g->to = alldigits(tt) ? atoi(tt) : -1;
+	    g->types = types;
+	  }
 
 	  else if (strcasecmp(t, "DIGIPEAT") == 0 || strcasecmp(t, "DIGIPEATER") == 0) {
 	    int from_chan, to_chan;

@@ -19,9 +19,9 @@ void wapr_rx_sample (int chan, int sam);
 /* End of input (atest): decode what is left in the buffer. */
 void wapr_rx_flush (int chan);
 
-/* Frame to packet, as delivered to applications: SOURCE>DEST:payload, no path. */
+/* Frame to packet, as delivered to applications: SOURCE>DEST:payload, no path */
+/* (type 2, relayed by a gateway: path WAPR_RELAY_MARK*). */
 packet_t wapr_packet_from_frame (const wapr_frame_t *f);
 
-#define WAPR_BROADCAST_TOCALL "APZWAP"	/* experimental tocall used as AX.25 destination for broadcasts */
 
 #endif

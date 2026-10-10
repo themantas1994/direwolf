@@ -26,7 +26,13 @@
 
 #define WAPR_ADDR_LEN		10	/* "ZZZZZZ-15" + nul */
 
-enum wapr_type_e { WAPR_TYPE_RAW = 0, WAPR_TYPE_APRS = 1 };
+/* How WAPR frames look to the rest of Dire Wolf (AX.25 packet form). */
+
+#define WAPR_BROADCAST_TOCALL	"APZWAP"	/* experimental tocall used as AX.25 destination */
+#define WAPR_RELAY_MARK		"WAPRGW"	/* path of a frame relayed by a gateway (type 2) */
+
+enum wapr_type_e { WAPR_TYPE_RAW = 0, WAPR_TYPE_APRS = 1, WAPR_TYPE_APRS_RELAYED = 2 };
+				/* RELAYED: put on WAPR by a gateway; never gated again. */
 
 typedef struct wapr_frame_s {
 	int type;			/* enum wapr_type_e */
@@ -131,5 +137,27 @@ typedef struct wapr_rx_result_s {
  */
 
 int wapr_receive (const wapr_profile_t *p, const float *x, int n, int fs, wapr_rx_result_t *res, int max_res, int *tried);
+
+
+/*
+ * Channel busy detection for a WAPR channel: in-band energy above a tracked noise
+ * floor.  Cheap enough for the audio thread.  Signals below the noise in the band
+ * (which WAPR can still decode) are not seen: this only avoids transmitting over
+ * clearly audible signals.
+ */
+
+typedef struct wapr_dcd_s {
+	double b0, b1, b2, a1, a2;	/* band pass biquad */
+	double x1, x2, y1, y2;
+	double fast, floor;		/* in-band power, noise floor */
+	double af, adown, aup;		/* smoothing constants */
+	long warmup, busy_for, max_busy;
+	int busy;
+} wapr_dcd_t;
+
+void wapr_dcd_init (wapr_dcd_t *d, const wapr_profile_t *p, int fs);
+
+/* One sample.  Returns +1 when the channel becomes busy, -1 when it becomes clear, else 0. */
+int wapr_dcd_sample (wapr_dcd_t *d, int sam);
 
 #endif

@@ -62,7 +62,12 @@ int wapr_frame_from_packet (packet_t pp, wapr_frame_t *f, char *why, int whylen)
 	  snprintf (why, whylen, "only UI frames with PID F0 can be sent");
 	  return (WAPR_ERR_TYPE);
 	}
-	if (ax25_get_num_repeaters(pp) != 0) {
+	int relayed = 0;
+	if (ax25_get_num_repeaters(pp) == 1) {
+	  ax25_get_addr_with_ssid (pp, AX25_REPEATER_1, addr);
+	  relayed = strcmp(addr, WAPR_RELAY_MARK) == 0;	/* from a gateway (wapr_gate.c) */
+	}
+	if (ax25_get_num_repeaters(pp) != 0 && ! relayed) {
 	  snprintf (why, whylen, "WAPR has no digipeater path");
 	  return (WAPR_ERR_ADDRESS);
 	}
@@ -78,7 +83,7 @@ int wapr_frame_from_packet (packet_t pp, wapr_frame_t *f, char *why, int whylen)
 	ax25_get_addr_with_ssid (pp, AX25_SOURCE, addr);
 	strlcpy (f->source, addr, sizeof(f->source));
 	f->dest[0] = '\0';		/* APRS: the destination is a tocall, not an address */
-	f->type = WAPR_TYPE_APRS;
+	f->type = relayed ? WAPR_TYPE_APRS_RELAYED : WAPR_TYPE_APRS;
 	f->seq = 0;
 	f->len = len;
 	memcpy (f->payload, info, len);

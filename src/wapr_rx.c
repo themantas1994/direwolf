@@ -38,6 +38,10 @@
  *		in the caller's thread as soon as they are complete, so the
  *		results do not depend on timing.
  *
+ *		The audio thread also runs a cheap in-band energy detector
+ *		(wapr_dcd_sample) and reports the channel busy through the
+ *		usual dcd_change, so transmissions wait for a clear channel.
+ *
  *		Frames are delivered to the usual received frame queue as
  *		SOURCE>DEST:payload with no digipeater path and fec_type_wapr.
  *		DEST is the frame's destination, or WAPR_BROADCAST_TOCALL
@@ -66,6 +70,7 @@
 #include "ax25_pad.h"
 #include "dlq.h"
 #include "demod.h"
+#include "hdlc_rec.h"
 #include "wapr.h"
 #include "wapr_rx.h"
 
@@ -92,6 +97,7 @@ struct wapr_chan_s {
 	struct { unsigned char info[WAPR_INFO_BYTES]; long long start; } hist[HISTORY];
 	int nhist;
 	long overruns;
+	wapr_dcd_t dcd;			/* audio thread only */
 };
 
 static struct wapr_chan_s wc[MAX_RADIO_CHANS];
@@ -106,7 +112,8 @@ void wapr_rx_set_synchronous (int sync)
 packet_t wapr_packet_from_frame (const wapr_frame_t *f)
 {
 	char text[64];
-	snprintf (text, sizeof(text), "%s>%s:", f->source, f->dest[0] != '\0' ? f->dest : WAPR_BROADCAST_TOCALL);
+	snprintf (text, sizeof(text), "%s>%s%s:", f->source, f->dest[0] != '\0' ? f->dest : WAPR_BROADCAST_TOCALL,
+			f->type == WAPR_TYPE_APRS_RELAYED ? "," WAPR_RELAY_MARK "*" : "");
 	packet_t pp = ax25_from_text (text, 1);
 	if (pp != NULL) {
 	  ax25_set_info (pp, (unsigned char *)f->payload, f->len);
@@ -284,6 +291,7 @@ void wapr_rx_init (struct audio_s *pa)
 	    exit (EXIT_FAILURE);
 	  }
 	  c->next_end = c->W;
+	  wapr_dcd_init (&c->dcd, c->p, c->fs);
 	  c->active = 1;
 
 	  text_color_set(DW_COLOR_INFO);
@@ -319,6 +327,12 @@ void wapr_rx_sample (int chan, int sam)
 	struct wapr_chan_s *c = &wc[chan];
 
 	if (! c->active) return;
+
+	/* Channel busy indication for the transmit side (clear channel before sending). */
+	int change = wapr_dcd_sample (&c->dcd, sam);
+	if (change != 0) {
+	  dcd_change (chan, 0, 0, change > 0);
+	}
 
 	unsigned int w = c->wcount;
 	c->ring[w & c->mask] = (short)(sam > 32767 ? 32767 : sam < -32768 ? -32768 : sam);

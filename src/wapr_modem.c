@@ -491,3 +491,69 @@ int wapr_receive (const wapr_profile_t *p, const float *x, int n, int fs, wapr_r
 	if (tried) *tried = ntried;
 	return (found);
 }
+
+
+/*------------------------------------------------------------------
+ * Channel busy detection (see wapr.h).
+ *---------------------------------------------------------------*/
+
+#define DCD_ON 4.0		/* +6 dB over the floor: busy */
+#define DCD_OFF 2.0		/* +3 dB: clear again */
+
+void wapr_dcd_init (wapr_dcd_t *d, const wapr_profile_t *p, int fs)
+{
+	memset (d, 0, sizeof(*d));
+	/* RBJ band pass, 0 dB peak, covering the tone set */
+	double bw = (p->tones + 1) * p->baud;
+	double w0 = 2 * M_PI * p->f_center / fs;
+	double q = p->f_center / bw;
+	double alpha = sin(w0) / (2 * q);
+	double a0 = 1 + alpha;
+	d->b0 = alpha / a0;
+	d->b1 = 0;
+	d->b2 = -alpha / a0;
+	d->a1 = -2 * cos(w0) / a0;
+	d->a2 = (1 - alpha) / a0;
+	double tf = fmax(2.0 / p->baud, 0.02);		/* about two symbols */
+	d->af = 1 - exp(-1.0 / (tf * fs));
+	d->adown = 1 - exp(-1.0 / (0.5 * fs));		/* floor follows a drop within 0.5 s */
+	d->aup = 1 - exp(-1.0 / (60.0 * fs));		/* and a rise only within a minute */
+	d->warmup = fs / 2;
+	d->max_busy = (long)(2.0 * wapr_samples_needed(p, fs));
+}
+
+int wapr_dcd_sample (wapr_dcd_t *d, int sam)
+{
+	if (sam == 0) {
+	  return (0);		/* muted while transmitting, or digital silence: learn nothing */
+	}
+	double x = sam;
+	double y = d->b0 * x + d->b1 * d->x1 + d->b2 * d->x2 - d->a1 * d->y1 - d->a2 * d->y2;
+	d->x2 = d->x1; d->x1 = x;
+	d->y2 = d->y1; d->y1 = y;
+	d->fast += d->af * (y * y - d->fast);
+
+	if (d->warmup > 0) {
+	  d->warmup--;
+	  d->floor = d->fast;
+	  return (0);
+	}
+	if (d->fast < d->floor) d->floor += d->adown * (d->fast - d->floor);
+	else d->floor += d->aup * (d->fast - d->floor);
+
+	if (! d->busy && d->fast > DCD_ON * d->floor) {
+	  d->busy = 1;
+	  d->busy_for = 0;
+	  return (1);
+	}
+	if (d->busy) {
+	  if (++d->busy_for > d->max_busy) {
+	    d->floor = d->fast;	/* longer than any frame: the noise must have risen */
+	  }
+	  if (d->fast < DCD_OFF * d->floor) {
+	    d->busy = 0;
+	    return (-1);
+	  }
+	}
+	return (0);
+}

@@ -22,6 +22,7 @@ also need this repository's `gen_packets` and `atest`.
 | `wapr_export.py` | Writes `src/wapr_tables.h` and `golden/wapr_vectors.txt` from the reference |
 | `wapr_crosscheck.py` | Decodes identical audio with this simulator and the C receiver (`waprtest -r`) |
 | `wapr_live.py` | A real `direwolf` with `MODEM WAPR`: UDP audio in, KISS out, fake APRS-IS (nothing may be gated), KISS transmit decoded back |
+| `wapr_gate_test.py` | A real `direwolf` with an AX.25 and a WAPR channel and `WAPRGATE` rules: what is gated, every refusal, and an echo of the gateway's own transmissions in the same process |
 | `golden/wapr_check_msgs.txt` | Packets for the `check-wapr-*` ctests and `wapr_live.py` (8 that fit, 2 that must be refused) |
 
 ## Definitions
