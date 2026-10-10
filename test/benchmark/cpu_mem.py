@@ -3,10 +3,11 @@
 CPU time and peak memory of atest builds on identical audio.
 
 Each case's WAV file is made once by --gen-packets; every atest decodes it
---runs times, each run a fresh process.  User + system CPU seconds and the
-maximum resident set size come from wait4().  Reported: median, min and max
-CPU, max RSS, the number of packets decoded and the audio length, so the real
-time factor is audio_s / cpu_s.  Run alone on the machine.
+--runs times, each run a fresh process.  User + system CPU seconds come from
+wait4(); peak resident memory (VmHWM) is sampled from /proc.  Reported: median,
+min and max CPU, the largest peak RSS, the number of packets decoded and the
+audio length, so the real time factor is audio_s / cpu_s.  Run alone on the
+machine (CPU times; the memory figures don't depend on load).
 
 Usage:
   cpu_mem.py --atest upstream=PATH --atest fork=PATH [--atest 'fork -S1=PATH:-S1'] \
@@ -18,6 +19,8 @@ import csv
 import os
 import statistics
 import subprocess
+import tempfile
+import time
 
 CASES = [  # name, gen_packets args, atest args, sample rate
     ("1200 A+ 44.1k", ["-n", "1000"], [], 44100),
@@ -31,11 +34,31 @@ CASES = [  # name, gen_packets args, atest args, sample rate
 
 
 def run(cmd):
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out = p.stdout.read().decode("latin-1")
-    _, status, ru = os.wait4(p.pid, 0)
-    dec = [l for l in out.splitlines() if "packets decoded in" in l]
-    return ru.ru_utime + ru.ru_stime, ru.ru_maxrss, (dec[-1].split()[0] if dec else "?"), status
+    """
+    CPU seconds from wait4().  Peak memory is VmHWM from /proc/PID/status, sampled every
+    5 ms: ru_maxrss can't be used, because Linux carries the parent's (Python's) peak RSS
+    over into the child at exec.
+    """
+    with tempfile.TemporaryFile() as out:
+        p = subprocess.Popen(cmd, stdout=out, stderr=subprocess.STDOUT)
+        hwm = 0
+        while True:
+            pid, status, ru = os.wait4(p.pid, os.WNOHANG)
+            if pid:
+                break
+            try:
+                with open("/proc/%d/status" % p.pid) as f:
+                    for line in f:
+                        if line.startswith("VmHWM:"):
+                            hwm = max(hwm, int(line.split()[1]))
+            except OSError:
+                pass
+            time.sleep(0.005)
+        p.returncode = os.waitstatus_to_exitcode(status)
+        out.seek(0)
+        text = out.read().decode("latin-1")
+    dec = [l for l in text.splitlines() if "packets decoded in" in l]
+    return ru.ru_utime + ru.ru_stime, hwm, (dec[-1].split()[0] if dec else "?"), p.returncode
 
 
 def main():
@@ -70,7 +93,7 @@ def main():
                 dec = d
             row = dict(case=name, build=label, audio_s=round((os.path.getsize(wav) - 44) / 2 / rate, 1), decoded=dec,
                        cpu_s_median=round(statistics.median(cpu), 3), cpu_s_min=round(min(cpu), 3),
-                       cpu_s_max=round(max(cpu), 3), maxrss_kb=max(rss))
+                       cpu_s_max=round(max(cpu), 3), peak_rss_kb=max(rss))
             rows.append(row)
             print(row, flush=True)
 
