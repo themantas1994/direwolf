@@ -334,6 +334,12 @@ public static partial class AprsParser
             rest = rest.Remove(am.Groups[1].Index, am.Groups[1].Length + 1);
         }
         rest = rest.TrimEnd('\r', '\n');
+        // Kenwood radios mark themselves with a leading '>' or ']' and a trailing '=' or '^'.
+        if (rest.Length > 0 && (rest[0] == '>' || rest[0] == ']'))
+        {
+            rest = rest[1..];
+            if (rest.Length > 0 && (rest[^1] == '=' || rest[^1] == '^')) rest = rest[..^1];
+        }
 
         string status = custom && standard ? "Unknown" : (custom ? MicECustom : MicEStandard)[msgBits];
         return new AprsInfo

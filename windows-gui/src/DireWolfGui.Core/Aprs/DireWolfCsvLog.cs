@@ -151,7 +151,11 @@ public sealed class DireWolfCsvLogTailer : IDisposable
             }
             if (_currentFile == null)
             {
-                if (!File.Exists(target)) return found;
+                if (!File.Exists(target))
+                {
+                    _firstFile = false;   // "start at end" only skips content that existed when tailing began
+                    return found;
+                }
                 _currentFile = target;
                 _offset = _firstFile && StartAtEnd ? new FileInfo(target).Length : 0;
                 _firstFile = false;

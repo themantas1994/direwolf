@@ -65,7 +65,7 @@ public sealed class StationSession : IAsyncDisposable
         Parser.AudioLevel += r => { if (r.Channel is int c) lock (_audioLevels) _audioLevels[c] = r; };
         Parser.AudioStatistics += s => LastAudioStatistics = s;
         Agw.FrameReceived += OnAgwFrame;
-        Agw.Disconnected += reason => AddGuiLog(LogSeverity.Info, "AGW monitor connection closed: " + reason, "agw");
+        Agw.Disconnected += reason => { AgwMonitorReady = false; AddGuiLog(LogSeverity.Info, "AGW monitor connection closed: " + reason, "agw"); };
     }
 
     public DireWolfProcessController Controller { get; }
@@ -83,6 +83,8 @@ public sealed class StationSession : IAsyncDisposable
     public string? DireWolfVersion => Parser.Version;
     public int? AgwPort { get; private set; }
     public bool AgwConnected => Agw.IsConnected;
+    /// <summary>True once the AGW connection is confirmed and monitor/raw frames were requested.</summary>
+    public bool AgwMonitorReady { get; private set; }
     public long AgwFramesReceived => Interlocked.Read(ref _agwFrames);
     public IReadOnlyList<int> KissPorts { get { lock (_kissPorts) return _kissPorts.ToArray(); } }
     public AudioStatisticsReading? LastAudioStatistics { get; private set; }
@@ -93,8 +95,11 @@ public sealed class StationSession : IAsyncDisposable
     public async Task StartAsync(StationSessionOptions options, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(options);
+        if (State is DireWolfState.Starting or DireWolfState.Running or DireWolfState.Stopping)
+            throw new InvalidOperationException("The station is already running.");
         _options = options;
         Interlocked.Exchange(ref _agwConnectStarted, 0);
+        AgwMonitorReady = false;
         AgwPort = options.AgwPort;
         lock (_kissPorts) _kissPorts.Clear();
         Messages.MyCall = options.MyCall ?? "";
@@ -197,9 +202,13 @@ public sealed class StationSession : IAsyncDisposable
                 try
                 {
                     await Agw.ConnectAsync(host, port).ConfigureAwait(false);
+                    // Dire Wolf's per-client reader thread polls once a second for a new socket, so commands
+                    // are only processed after a delay. A version round trip makes sure it is listening.
+                    var (major, minor) = await Agw.RequestVersionAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                     await Agw.EnableMonitoringAsync().ConfigureAwait(false);
                     await Agw.EnableRawFramesAsync().ConfigureAwait(false);
-                    AddGuiLog(LogSeverity.Info, $"Connected to Dire Wolf AGW port {host}:{port} (monitor + raw frames).", "agw");
+                    AgwMonitorReady = true;
+                    AddGuiLog(LogSeverity.Info, $"Connected to Dire Wolf AGW port {host}:{port} (AGW version {major}.{minor}, monitor + raw frames).", "agw");
                     return;
                 }
                 catch (Exception ex)
@@ -214,17 +223,19 @@ public sealed class StationSession : IAsyncDisposable
 
     private void OnPacket(PacketRecord p)
     {
-        if (p.Direction == PacketDirection.Received && p.RawFrame == null)
+        // Check for an already received raw frame and store the packet under one lock, so a raw frame
+        // arriving concurrently on the AGW thread either sees the stored packet or is seen here.
+        lock (_rawLock)
         {
-            string key = Key(p.Source, p.Destination, p.Info);
-            lock (_rawLock)
+            if (p.Direction == PacketDirection.Received && p.RawFrame == null)
             {
+                string key = Key(p.Source, p.Destination, p.Info);
                 Prune();
                 int i = _pendingRaw.FindIndex(r => r.Key == key);
                 if (i >= 0) { p.RawFrame = _pendingRaw[i].Bytes; _pendingRaw.RemoveAt(i); }
             }
+            Packets.Add(p);
         }
-        Packets.Add(p);
         Stations.Update(p);
         Messages.HandleIncoming(p);
     }

@@ -70,7 +70,7 @@ public sealed partial class ConsoleOutputParser
     [GeneratedRegex(@"^(?<src>[^>:\s]+)>(?<dst>[^,:\s]+)(?<path>(?:,[^,:\s]+)*):(?<info>.*)$")]
     private static partial Regex Monitor();
 
-    [GeneratedRegex(@"^\((?<desc>(?:I|RR|RNR|REJ|SREJ|SABME|SABM|DISC|DM|UA|FRMR|UI|XID|TEST) (?:cmd|res|cc=00|cc=11)[^)]*|U other\?\?\?)\)")]
+    [GeneratedRegex(@"^\((?<desc>(?:I|RR|RNR|REJ|SREJ|SABME|SABM|DISC|DM|UA|FRMR|UI|XID|TEST) (?:cmd|res|cc=00|cc=11)(?:, [a-z/()]+=(?:0x[0-9a-f]+|\d+))*|U other\?\?\?)\)")]
     private static partial Regex FrameDesc();
 
     [GeneratedRegex(@"<0x([0-9a-fA-F]{2})>")]
@@ -145,15 +145,15 @@ public sealed partial class ConsoleOutputParser
         var notice = RecognizeNotice(line, time);
         if (notice != null)
         {
-            if (notice.Kind != ConsoleNoticeKind.Info || _decoding == null)
+            // A recognised status line ends any packet decode block, except harmless info lines
+            // (e.g. "Opening log file") which Dire Wolf prints in the middle of a decode.
+            if (notice.Kind != ConsoleNoticeKind.Info)
             {
-                // A recognised status line ends any packet decode block, except harmless info lines
-                // (e.g. "Opening log file") which Dire Wolf prints in the middle of a decode.
-                if (notice.Kind != ConsoleNoticeKind.Info) _decoding = null;
+                _decoding = null;
                 _heard = null;
-                Notice?.Invoke(notice);
-                return ConsoleLineKind.Notice;
             }
+            Notice?.Invoke(notice);
+            return ConsoleLineKind.Notice;
         }
 
         if (_decoding != null)

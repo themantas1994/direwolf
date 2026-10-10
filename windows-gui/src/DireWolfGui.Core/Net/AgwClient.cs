@@ -8,6 +8,8 @@ namespace DireWolfGui.Core.Net;
 /// Client for the AGW PE TCP protocol as implemented by Dire Wolf (src/server.c).
 /// A background task reads frames and raises <see cref="FrameReceived"/> on that task's thread.
 /// Note: Dire Wolf treats 'm' and 'k' as toggles, so call <see cref="EnableMonitoringAsync"/> / <see cref="EnableRawFramesAsync"/> once per connection.
+/// Dire Wolf only starts reading a new client's commands up to ~1 s after accepting it; do a request with a reply
+/// (e.g. <see cref="RequestVersionAsync"/>) first when frames must not be missed right after connecting.
 /// </summary>
 public sealed class AgwClient : IAsyncDisposable
 {
