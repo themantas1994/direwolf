@@ -19,6 +19,19 @@ public sealed class DireWolfFactAttribute : FactAttribute
 }
 
 /// <summary>
+/// [Fact] for tests that run direwolf with its audio open.  Dire Wolf for Windows needs a real
+/// output device even when receive audio comes from stdin; machines without one (e.g. hosted
+/// CI runners) skip these tests with that reason.  On Linux the ALSA "null" device is used.
+/// </summary>
+public sealed class DireWolfAudioFactAttribute : FactAttribute
+{
+    public DireWolfAudioFactAttribute()
+    {
+        if ((DireWolfTestEnvironment.SkipReason ?? DireWolfTestEnvironment.AudioSkipReason) is string reason) Skip = reason;
+    }
+}
+
+/// <summary>
 /// Locates a real direwolf build (env DIREWOLF_EXE, else build/src/direwolf in the repository root or an
 /// ancestor), creates working directories with the data files, and makes audio with gen_packets.
 /// </summary>
@@ -32,6 +45,22 @@ public static class DireWolfTestEnvironment
         Exe == null ? "Real direwolf not found: set DIREWOLF_EXE or build it at <repo>/build/src/direwolf (cmake .. && make)." :
         GenPackets == null || !File.Exists(GenPackets) ? $"gen_packets not found next to {Exe}; it is needed to make test audio." :
         DataDir == null ? "Repository data directory (data/tocalls.yaml) not found." : null;
+
+    public static string? AudioSkipReason =>
+        OperatingSystem.IsWindows() && WaveOutDeviceCount() == 0
+            ? "No audio output device on this computer: Dire Wolf for Windows needs one to start, even with audio input from stdin."
+            : null;
+
+    /// <summary>Transmit audio device in test configurations: discarded on Linux, the first device on Windows.</summary>
+    public static string OutputDevice => OperatingSystem.IsWindows() ? "0" : "null";
+
+    [System.Runtime.InteropServices.DllImport("winmm.dll")]
+    private static extern uint waveOutGetNumDevs();
+
+    private static uint WaveOutDeviceCount()
+    {
+        try { return waveOutGetNumDevs(); } catch (Exception) { return 0; }
+    }
 
     private static string? FindExe()
     {
@@ -74,7 +103,7 @@ public static class DireWolfTestEnvironment
     {
         string path = Path.Combine(dir, "test.conf");
         File.WriteAllText(path, $"""
-            ADEVICE stdin null
+            ADEVICE stdin {OutputDevice}
             CHANNEL 0
             MYCALL {myCall}
             MODEM 1200

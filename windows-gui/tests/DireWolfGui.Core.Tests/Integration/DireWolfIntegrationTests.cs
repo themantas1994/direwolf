@@ -31,7 +31,7 @@ public class DireWolfIntegrationTests
         Assert.StartsWith("Dire Wolf ", v.Banner.First(l => l.StartsWith("Dire Wolf ")));
     }
 
-    [DireWolfFact]
+    [DireWolfAudioFact]
     public async Task ReceiveMonitorRawKissTransmitCsvAndGracefulStop()
     {
         string dir = CreateWorkDir();
@@ -155,7 +155,7 @@ public class DireWolfIntegrationTests
         }
     }
 
-    [DireWolfFact]
+    [DireWolfAudioFact]
     public async Task StationSessionEndToEnd()
     {
         string dir = CreateWorkDir();
@@ -238,7 +238,7 @@ public class DireWolfIntegrationTests
         finally { TryDelete(dir); }
     }
 
-    [DireWolfFact]
+    [DireWolfAudioFact]
     public async Task SessionReportsMissingExecutableAndStdinEof()
     {
         await using (var s = new StationSession())
