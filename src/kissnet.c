@@ -214,6 +214,8 @@ void hex_dump (unsigned char *p, int len);	// This should be in a .h file.
 #endif
 
 static THREAD_F connect_listen_thread (void *arg);
+
+static int s_bind_local = 0;	/* TCPBIND LOCAL: listen on 127.0.0.1 only. */
 static THREAD_F kissnet_listen_thread (void *arg);
 
 
@@ -259,6 +261,15 @@ static void kissnet_init_one (struct kissport_status_s *kps);
 void kissnet_init (struct misc_config_s *mc)
 {
 	s_misc_config_p = mc;
+	s_bind_local = mc->tcp_bind_local;
+	int any_kiss_port = 0;
+	for (int i = 0; i < MAX_KISS_TCP_PORTS; i++) {
+	  if (mc->kiss_port[i] != 0) any_kiss_port = 1;
+	}
+	if (s_bind_local && any_kiss_port) {
+	  text_color_set(DW_COLOR_INFO);
+	  dw_printf ("KISS TCP: accepting connections from this computer only (TCPBIND LOCAL).\n");
+	}
 
 	for (int i = 0; i < MAX_KISS_TCP_PORTS; i++) {
 	  if (mc->kiss_port[i] != 0) {
@@ -433,7 +444,7 @@ static THREAD_F connect_listen_thread (void *arg)
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
 
-	err = getaddrinfo(NULL, tcp_port_str, &hints, &ai);
+	err = getaddrinfo(s_bind_local ? "127.0.0.1" : NULL, tcp_port_str, &hints, &ai);
 	if (err != 0) {
 	    text_color_set(DW_COLOR_ERROR);
 	    dw_printf("getaddrinfo failed: %d\n", err);
@@ -555,7 +566,7 @@ static THREAD_F connect_listen_thread (void *arg)
 
         setsockopt (listen_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&bcopt, 4);
 
-    	sockaddr.sin_addr.s_addr = INADDR_ANY;
+    	sockaddr.sin_addr.s_addr = s_bind_local ? htonl(INADDR_LOOPBACK) : INADDR_ANY;
 	sockaddr.sin_port = htons(kps->tcp_port);
     	sockaddr.sin_family = AF_INET;
 

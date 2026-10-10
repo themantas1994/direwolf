@@ -1796,6 +1796,7 @@ static void check_config_report (struct audio_s *pa, struct digi_config_s *pd, s
 	}
 
 	if (pm->agwpe_port > 0) dw_printf ("check-config: agwport %d\n", pm->agwpe_port);
+	dw_printf ("check-config: tcpbind %s\n", pm->tcp_bind_local ? "local" : "any");
 	for (b = 0; b < MAX_KISS_TCP_PORTS; b++) {
 	  if (pm->kiss_port[b] > 0) dw_printf ("check-config: kissport %d chan %d\n", pm->kiss_port[b], pm->kiss_chan[b]);
 	}
