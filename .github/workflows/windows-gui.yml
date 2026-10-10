@@ -1,0 +1,84 @@
+name: 'Windows GUI'
+
+# Builds Dire Wolf (MinGW) and the Dire Wolf Station GUI on Windows, runs the GUI's
+# Core tests against the real direwolf.exe, and publishes the portable ZIP as an artifact.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'windows-gui/**'
+      - 'src/**'
+      - '.github/workflows/windows-gui.yml'
+  pull_request:
+    paths:
+      - 'windows-gui/**'
+      - 'src/**'
+      - '.github/workflows/windows-gui.yml'
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: build direwolf (MinGW 64 bit)
+        shell: bash
+        run: |
+          cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DUNITTEST=1
+          cmake --build build --parallel 4
+
+      - name: direwolf tests
+        shell: bash
+        working-directory: build
+        run: ctest -C Release --parallel 2 --output-on-failure
+
+      - name: GUI tests (Core, against the real direwolf.exe)
+        shell: pwsh
+        run: |
+          $env:DIREWOLF_EXE = "$pwd\build\src\direwolf.exe"
+          dotnet test windows-gui/DireWolfGui.slnx -c Release --logger "trx;LogFileName=results.trx"
+
+      - name: package
+        shell: pwsh
+        run: windows-gui/build/package.ps1 -DireWolfDir build/src -Configuration Release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DireWolfStation-win-x64-${{ github.sha }}
+          path: windows-gui/dist/*.zip
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gui-test-results-${{ github.sha }}
+          path: windows-gui/**/TestResults/*.trx
+
+  linux:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: build direwolf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libudev-dev
+          cmake -S . -B build -DUNITTEST=1
+          cmake --build build --parallel 4
+      - name: build GUI (compile only on Linux) and run Core tests
+        run: |
+          export DIREWOLF_EXE=$PWD/build/src/direwolf
+          dotnet build windows-gui/DireWolfGui.slnx -c Release
+          dotnet test windows-gui/DireWolfGui.slnx -c Release --no-build
