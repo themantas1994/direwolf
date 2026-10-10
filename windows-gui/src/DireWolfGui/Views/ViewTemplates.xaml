@@ -8,4 +8,5 @@
     <DataTemplate DataType="{x:Type vm:ServicesViewModel}"><v:ServicesView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:WaprViewModel}"><v:WaprView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:IntegrationsViewModel}"><v:IntegrationsView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
 </ResourceDictionary>

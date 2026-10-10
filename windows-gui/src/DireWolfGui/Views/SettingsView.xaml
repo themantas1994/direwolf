@@ -1,0 +1,228 @@
+<UserControl x:Class="DireWolfGui.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Style="{StaticResource PageTitle}" Text="Settings" />
+            <TextBlock Style="{StaticResource PageSubtitle}" Text="Settings of Dire Wolf Station itself. Dire Wolf's own settings are in its configuration file (Configuration page)." />
+        </StackPanel>
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+            <Button Command="{Binding SaveCommand}" Padding="10,4" Margin="0,0,6,6">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource IconText}" Text="&#xE74E;" FontSize="13" Margin="0,0,6,0" />
+                    <TextBlock Text="Save" />
+                </StackPanel>
+            </Button>
+            <Button Content="Discard changes" Command="{Binding DiscardCommand}" Padding="10,4" Margin="0,0,6,6" />
+            <Button Content="Reset to defaults…" Command="{Binding ResetCommand}" Padding="10,4" Margin="0,0,12,6" />
+            <Border Style="{StaticResource Pill}" Background="{DynamicResource WarningBrush}" Margin="0,0,0,6"
+                    Visibility="{Binding IsModified, Converter={StaticResource BoolToVis}}">
+                <TextBlock Style="{StaticResource PillText}" Text="Unsaved changes" />
+            </Border>
+        </WrapPanel>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,0">
+            <StackPanel MaxWidth="980" HorizontalAlignment="Left">
+                <!-- Dire Wolf -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Dire Wolf" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Style="{StaticResource FormLabel}" Text="direwolf.exe" />
+                            <TextBox Grid.Column="1" Text="{Binding DireWolfExePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="direwolf.exe path" />
+                            <Button Grid.Column="2" Content="Browse…" Command="{Binding BrowseExeCommand}" Padding="10,4" Margin="6,2,0,2" />
+                            <TextBlock Grid.Row="1" Style="{StaticResource FormLabel}" Text="Configuration file" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ConfigPath, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="Configuration file path" />
+                            <Button Grid.Row="1" Grid.Column="2" Content="Browse…" Command="{Binding BrowseConfigCommand}" Padding="10,4" Margin="6,2,0,2" />
+                            <TextBlock Grid.Row="2" Style="{StaticResource FormLabel}" Text="Working folder (optional)" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding WorkingDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="Working folder" />
+                            <Button Grid.Row="2" Grid.Column="2" Content="Browse…" Command="{Binding BrowseWorkDirCommand}" Padding="10,4" Margin="6,2,0,2" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource Caption}" Margin="0,0,0,6"
+                                       Text="Folder Dire Wolf runs in (where it looks for symbols-new.txt and writes relative log paths). Empty: the folder of direwolf.exe." />
+                            <TextBlock Grid.Row="4" Style="{StaticResource FormLabel}" Text="Audio statistics (seconds)" />
+                            <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2">
+                                <TextBox Text="{Binding AudioStatisticsInterval, UpdateSourceTrigger=PropertyChanged}" Width="80" HorizontalAlignment="Left" Margin="0,2" AutomationProperties.Name="Audio statistics interval in seconds" />
+                                <TextBlock Style="{StaticResource Caption}" Text="Starts Dire Wolf with -a N: every N seconds it reports audio input statistics (samples, errors), useful to spot sound card problems. 0 = off." />
+                            </StackPanel>
+                        </Grid>
+                        <Button Content="Run the setup wizard" Command="{Binding RunWizardCommand}" HorizontalAlignment="Left" Padding="10,4" Margin="0,10,0,0" />
+                        <CheckBox Content="First-run setup completed (untick to be offered the wizard again)" IsChecked="{Binding FirstRunCompleted}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Appearance -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Appearance" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Theme" />
+                            <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" Width="140" AutomationProperties.Name="Theme" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Caption}" Text="System follows the Windows light/dark app setting. The change is shown immediately; Save keeps it." Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Logs -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Logs" />
+                        <CheckBox Content="Let Dire Wolf write daily CSV logs of received packets (-l folder)" IsChecked="{Binding CsvLogEnabled}" />
+                        <TextBlock Style="{StaticResource Caption}" Margin="24,2,0,6" TextWrapping="Wrap"
+                                   Text="Dire Wolf then writes each decoded packet, with the position it decoded, to YYYY-MM-DD.log files. The APRS map can use these, so positions come from Dire Wolf's own decoder. Takes effect when Dire Wolf is (re)started." />
+                        <Grid Margin="24,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="176" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Style="{StaticResource FormLabel}" Text="CSV log folder" />
+                            <TextBox Grid.Column="1" Text="{Binding CsvLogDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="CSV log folder" />
+                            <Button Grid.Column="2" Content="Browse…" Command="{Binding BrowseCsvDirCommand}" Padding="10,4" Margin="6,2,0,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Caption}" Text="{Binding DefaultCsvDirectory, StringFormat='Empty: {0}'}" />
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Log lines kept in memory" Width="200" />
+                            <TextBox Text="{Binding LogRetentionLines, UpdateSourceTrigger=PropertyChanged}" Width="100" AutomationProperties.Name="Log lines kept" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Packets kept in memory" Width="200" />
+                            <TextBox Text="{Binding PacketRetentionCount, UpdateSourceTrigger=PropertyChanged}" Width="100" AutomationProperties.Name="Packets kept" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Caption}" Text="Older entries are dropped from the Logs and Packets pages (100 to 1,000,000)." Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Monitor -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Packet monitor connection (AGW)" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Host" Width="200" />
+                            <TextBox Text="{Binding AgwHost, UpdateSourceTrigger=PropertyChanged}" Width="200" AutomationProperties.Name="AGW host" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Port (empty = from configuration)" Width="200" TextWrapping="Wrap" />
+                            <TextBox Text="{Binding AgwPortOverride, UpdateSourceTrigger=PropertyChanged}" Width="100" AutomationProperties.Name="AGW port override" />
+                        </StackPanel>
+                        <CheckBox Content="Connect the monitor automatically when Dire Wolf starts" IsChecked="{Binding AutoConnectMonitor}" />
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0" Text="The monitor only listens; it does not transmit." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Messaging -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="APRS messaging (transmits)" />
+                        <Border Style="{StaticResource WarningBanner}">
+                            <TextBlock Style="{StaticResource Body}" Text="Both options below make the station transmit: sending messages (and retrying them) and automatic acknowledgements of messages addressed to you. They are off until you turn them on." />
+                        </Border>
+                        <CheckBox Content="Enable messaging (asks for confirmation)" IsChecked="{Binding MessagingEnabled}" Margin="0,0,0,4" />
+                        <CheckBox Content="Acknowledge received messages automatically (asks for confirmation)" IsChecked="{Binding AutoAck}" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Retries" Width="200" />
+                            <TextBox Text="{Binding MessageRetryCount, UpdateSourceTrigger=PropertyChanged}" Width="80" AutomationProperties.Name="Message retries" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Seconds before first retry" Width="200" />
+                            <TextBox Text="{Binding MessageRetrySeconds, UpdateSourceTrigger=PropertyChanged}" Width="80" AutomationProperties.Name="Seconds before the first retry" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Map -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Map" />
+                        <CheckBox Content="Download map tiles from the Internet (asks for confirmation)" IsChecked="{Binding MapTilesEnabled}" />
+                        <TextBlock Style="{StaticResource Caption}" Margin="24,2,0,8" TextWrapping="Wrap"
+                                   Text="Off: the map shows stations on a plain grid without network access. The OpenStreetMap tile usage policy (operations.osmfoundation.org/policies/tiles) asks for light use, a cache and the attribution; use another provider for heavy use." />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Style="{StaticResource FormLabel}" Text="Tile URL template" />
+                            <TextBox Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding MapTileUrlTemplate, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" Margin="0,2" AutomationProperties.Name="Tile URL template" />
+                            <TextBlock Grid.Row="1" Style="{StaticResource FormLabel}" Text="Attribution" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding MapAttribution, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="Map attribution" />
+                            <TextBlock Grid.Row="2" Style="{StaticResource FormLabel}" Text="Tile cache folder" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MapTileCacheDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AutomationProperties.Name="Tile cache folder" />
+                            <Button Grid.Row="2" Grid.Column="2" Content="Browse…" Command="{Binding BrowseTileDirCommand}" Padding="10,4" Margin="6,2,0,2" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource Caption}" Text="{Binding DefaultTileDirectory, StringFormat='Empty: {0}'}" Margin="0,0,0,6" />
+                            <TextBlock Grid.Row="4" Style="{StaticResource FormLabel}" Text="Home latitude" />
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding HomeLatitude, UpdateSourceTrigger=PropertyChanged}" Width="140" HorizontalAlignment="Left" Margin="0,2" AutomationProperties.Name="Home latitude in decimal degrees" />
+                            <TextBlock Grid.Row="5" Style="{StaticResource FormLabel}" Text="Home longitude" />
+                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding HomeLongitude, UpdateSourceTrigger=PropertyChanged}" Width="140" HorizontalAlignment="Left" Margin="0,2" AutomationProperties.Name="Home longitude in decimal degrees" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0" Text="Decimal degrees with a dot (south and west negative). Used to centre the map and for distances; it is not transmitted." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Data folders -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="Data folders" />
+                        <DockPanel Margin="0,0,0,4">
+                            <Button DockPanel.Dock="Right" Content="Open" Command="{Binding OpenFolderCommand}" CommandParameter="{Binding RoamingFolder}" Padding="10,4" />
+                            <TextBlock Style="{StaticResource Body}" Text="{Binding RoamingFolder, StringFormat='Settings, backups and profiles: {0}'}" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Open" Command="{Binding OpenFolderCommand}" CommandParameter="{Binding LocalFolder}" Padding="10,4" />
+                            <TextBlock Style="{StaticResource Body}" Text="{Binding LocalFolder, StringFormat='Logs, tile cache and test files: {0}'}" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- About -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionHeader}" Text="About Dire Wolf Station" />
+                        <TextBlock Style="{StaticResource Body}" Text="{Binding AppVersion, StringFormat='Version {0}'}" FontWeight="SemiBold" Margin="0,0,0,2" />
+                        <TextBlock Style="{StaticResource Caption}" Text="{Binding DireWolfVersionText}" Margin="0,0,0,8" />
+                        <TextBlock Style="{StaticResource Body}" Text="{Binding LicenseText}" Margin="0,0,0,6" />
+                        <TextBlock Style="{StaticResource Body}" Text="{Binding CreditsText}" Margin="0,0,0,6" />
+                        <TextBlock Style="{StaticResource Body}" Text="{Binding ThirdPartyText}" Margin="0,0,0,6" />
+                        <TextBlock Style="{StaticResource Body}" Text="{Binding PrivacyText}" Margin="0,0,0,8" />
+                        <WrapPanel>
+                            <Button Content="Dire Wolf on GitHub" Command="{Binding OpenLinkCommand}" CommandParameter="https://github.com/wb2osz/direwolf" Padding="10,4" Margin="0,0,6,6" />
+                            <Button Content="GPL version 2" Command="{Binding OpenLinkCommand}" CommandParameter="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" Padding="10,4" Margin="0,0,6,6" />
+                            <Button Content="OpenStreetMap copyright" Command="{Binding OpenLinkCommand}" CommandParameter="https://www.openstreetmap.org/copyright" Padding="10,4" Margin="0,0,6,6" />
+                            <Button Content="OSM tile usage policy" Command="{Binding OpenLinkCommand}" CommandParameter="https://operations.osmfoundation.org/policies/tiles/" Padding="10,4" Margin="0,0,6,6" />
+                            <Button Content=".NET / WPF (MIT)" Command="{Binding OpenLinkCommand}" CommandParameter="https://github.com/dotnet/wpf" Padding="10,4" Margin="0,0,6,6" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
