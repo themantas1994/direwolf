@@ -103,7 +103,16 @@ public class ControllerTests
             var gotLine = new TaskCompletionSource();
             c.OutputLine += (_, e) => { lock (lines) lines.Add(e.Line); gotLine.TrySetResult(); };
             var opts = new DireWolfLaunchOptions { ExecutablePath = script, ConfigPath = "x.conf" };
-            await c.StartAsync(opts);
+            // Executing a script just written can fail with ETXTBSY ("Text file busy") on Linux while
+            // another test's process start briefly holds a copy of the write handle; retry a few times.
+            for (int attempt = 1; ; attempt++)
+            {
+                try { await c.StartAsync(opts); break; }
+                catch (DireWolfStartException e) when (attempt < 10 && e.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: 26 })
+                {
+                    await Task.Delay(100);
+                }
+            }
             Assert.Equal(DireWolfState.Running, c.State);
             await gotLine.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Assert.Contains("Dire Wolf Release 9.9.9", lines);
