@@ -209,9 +209,10 @@ public static class ConfigTemplates
             if (c.Ptt != PttMethod.None)
             {
                 L();
-                L("# Transmit timing in 10 ms units: 30 = 300 ms from PTT on to data, 10 = 100 ms tail.");
-                L("TXDELAY 30");
-                L("TXTAIL 10");
+                L("# Transmit timing in 10 ms units.  Dire Wolf's defaults are TXDELAY 30 (300 ms from PTT");
+                L("# on to data) and TXTAIL 10 (100 ms); remove the # to change them.");
+                L("#TXDELAY 30");
+                L("#TXTAIL 10");
             }
         }
 

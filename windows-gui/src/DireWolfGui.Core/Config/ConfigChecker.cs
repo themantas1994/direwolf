@@ -45,10 +45,17 @@ public static partial class ConfigChecker
 
     public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(20);
 
+    /// <param name="workingDirectory">Directory direwolf runs in; default the executable's directory, where
+    /// Dire Wolf looks for symbols-new.txt (as when the station runs).</param>
     public static async Task<CheckConfigResult> CheckFileAsync(string direwolfExe, string configPath,
-        TimeSpan? timeout = null, CancellationToken cancel = default)
+        TimeSpan? timeout = null, CancellationToken cancel = default, string? workingDirectory = null)
     {
         string full = Path.GetFullPath(configPath);
+        if (workingDirectory == null)
+        {
+            string? exeDir = Path.GetDirectoryName(Path.GetFullPath(direwolfExe));
+            workingDirectory = exeDir != null && Directory.Exists(exeDir) ? exeDir : Path.GetDirectoryName(full)!;
+        }
         var secrets = File.Exists(full) ? FindSecrets(ConfigDocument.Load(full)) : [];
         var psi = new ProcessStartInfo(direwolfExe)
         {
@@ -57,7 +64,7 @@ public static partial class ConfigChecker
             RedirectStandardInput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Path.GetDirectoryName(full)!,
+            WorkingDirectory = workingDirectory,
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
         };
@@ -108,7 +115,7 @@ public static partial class ConfigChecker
 
     /// <summary>Check an in-memory document by writing it to a temporary file next to nothing else.</summary>
     public static async Task<CheckConfigResult> CheckDocumentAsync(string direwolfExe, ConfigDocument doc,
-        TimeSpan? timeout = null, CancellationToken cancel = default)
+        TimeSpan? timeout = null, CancellationToken cancel = default, string? workingDirectory = null)
     {
         string dir = Path.Combine(Path.GetTempPath(), "DireWolfStation-check-" + Guid.NewGuid().ToString("N")[..8]);
         Directory.CreateDirectory(dir);
@@ -116,7 +123,7 @@ public static partial class ConfigChecker
         try
         {
             await File.WriteAllBytesAsync(path, doc.ToBytes(), cancel).ConfigureAwait(false);
-            return await CheckFileAsync(direwolfExe, path, timeout, cancel).ConfigureAwait(false);
+            return await CheckFileAsync(direwolfExe, path, timeout, cancel, workingDirectory).ConfigureAwait(false);
         }
         finally
         {
@@ -164,6 +171,7 @@ public static partial class ConfigChecker
     [
         "Dire Wolf ", "Includes optional support", "Why are you running this as root", "Dire Wolf requires only privileges",
         "Running this as root is an unnecessary", "Reading config file",
+        "Warning: Could not open 'symbols-new.txt'", "The \"new\" OVERLAID character information",
     ];
 
     [GeneratedRegex(@"^Channel \d+: EXPERIMENTAL WAPR modem")]
@@ -197,9 +205,19 @@ public static partial class ConfigChecker
 
         var diags = ExtractDiagnostics(lines, out var notes);
         var summary = ParseSummary(lines);
+        int printed = diags.Count(d => d.Code == "direwolf");
+        int unexplained = (summary.DiagnosticCount ?? 0) - printed;
+        if (unexplained > 0 && printed == 0)
+        {
+            // config.c selects the error colour for every valid TXDELAY value (before deciding whether to
+            // warn), so --check-config counts such lines although nothing is printed.
+            diags.Add(new ConfigDiagnostic(DiagnosticSeverity.Info, null, "direwolf-count",
+                $"Dire Wolf counted {unexplained} diagnostic(s) without printing a message. Dire Wolf 1.8.2 counts every TXDELAY line this way even when its value is fine.",
+                DiagnosticSource.DireWolf));
+        }
         return new CheckConfigResult
         {
-            Status = diags.Count > 0 || (summary.DiagnosticCount ?? 0) > 0 || (exitCode ?? 0) != 0 ? CheckConfigStatus.Diagnostics : CheckConfigStatus.Ok,
+            Status = diags.Any(d => d.Severity >= DiagnosticSeverity.Warning) ? CheckConfigStatus.Diagnostics : CheckConfigStatus.Ok,
             Diagnostics = diags, Notes = notes, Summary = summary, RawOutput = output, ExitCode = exitCode,
         };
     }
@@ -209,6 +227,10 @@ public static partial class ConfigChecker
         notes = [];
         var result = new List<ConfigDiagnostic>();
         int start = Array.FindIndex(lines, l => l.StartsWith("Reading config file", StringComparison.Ordinal));
+        // Printed (and counted) while the configuration is read, but about the installation, not the file.
+        if (lines.Any(l => l.StartsWith("Warning: Could not open 'symbols-new.txt'", StringComparison.Ordinal)))
+            result.Add(new ConfigDiagnostic(DiagnosticSeverity.Warning, null, "direwolf-environment",
+                "Dire Wolf could not open symbols-new.txt (it looks in its working folder). Run it from its installation folder.", DiagnosticSource.DireWolf));
         var msg = new StringBuilder();
         int? lineNo = null;
         void Flush()
